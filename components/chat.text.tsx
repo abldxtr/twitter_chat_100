@@ -1,6 +1,5 @@
 import { ChatList, text, user } from "@/lib/definitions";
 import ChatHeader from "./chat-header";
-import ChatBox from "./chat.box";
 import InputChat from "./chat.input";
 import Messages from "./message";
 import db from "@/lib/prisma";
