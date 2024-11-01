@@ -4,7 +4,7 @@ import { useEmojiState } from "@/context/EmojiContext";
 import classNames from "classnames";
 import axios from "axios";
 
-import { useEffect, useState, useRef, FormEvent } from "react";
+import { useEffect, useState, useRef, FormEvent, useTransition } from "react";
 import { useMessage } from "@/context/MessageContext";
 import { useOnClickOutside } from "usehooks-ts";
 import ImgInput from "./img.input";
@@ -15,6 +15,7 @@ import TempImg from "./temp-img";
 import { useSession } from "next-auth/react";
 import { sendMassage } from "@/lib/actions";
 import { text, user } from "@/lib/definitions";
+import { useRouter } from "next/navigation";
 
 export default function InputChat({
   param,
@@ -40,6 +41,8 @@ export default function InputChat({
   const EmojiRef = useRef(null);
   const user = useSession();
   const [msg, setMsg] = useState(message);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleClickOutside = () => {
     setOpenEmoji(false);
@@ -62,6 +65,10 @@ export default function InputChat({
         id: chatId ? chatId : "",
       };
       const res = sendMassage(newMessage);
+
+      startTransition(() => {
+        router.refresh();
+      });
 
       // const senderId = user.data?.user.id;
       // const receiverId =

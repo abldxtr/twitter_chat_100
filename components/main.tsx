@@ -41,29 +41,6 @@ export default async function Main({ param }: { param: string }) {
 
   const other = current.user.id === first?.id ? second : first;
 
-  // const chat = await db.chat.findFirst({
-  //   where: {
-  //     OR: [{ initiatorId: user?.user.id }, { participantId: user?.user.id }],
-  //   },
-  // });
-  // if (chat) {
-  // }
-
-  // const chat = users.map((item, _) => {
-  //   const senderId = user?.user.id;
-  //   const receiverId = item.id;
-  //   if (!senderId) {
-  //     return;
-  //   }
-
-  //   const res = createChat({ senderId, receiverId });
-  //   return res;
-  // });
-
-  // if (!chatlist) {
-  //   // lll
-  //   return null;
-  // }
   return (
     <main className="flex h-full items-start w-full ">
       <div className="flex shrink grow flex-1 items-start min-w-full">
@@ -87,3 +64,30 @@ export default async function Main({ param }: { param: string }) {
     </main>
   );
 }
+
+
+
+
+  // const chat = await db.chat.findFirst({
+  //   where: {
+  //     OR: [{ initiatorId: user?.user.id }, { participantId: user?.user.id }],
+  //   },
+  // });
+  // if (chat) {
+  // }
+
+  // const chat = users.map((item, _) => {
+  //   const senderId = user?.user.id;
+  //   const receiverId = item.id;
+  //   if (!senderId) {
+  //     return;
+  //   }
+
+  //   const res = createChat({ senderId, receiverId });
+  //   return res;
+  // });
+
+  // if (!chatlist) {
+  //   // lll
+  //   return null;
+  // }
