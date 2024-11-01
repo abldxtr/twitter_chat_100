@@ -53,12 +53,8 @@ export default function InputChat({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    console.log("inputValue", JSON.stringify(inputValue));
-    // const res = axios.post("/api/socket/messages", { text: inputValue });
-    // setInputValue("");
     if (inputValue.trim()) {
       const newMessage = {
-        // images: imgtemp.length > 0 ? imgtemp : [],
         text: inputValue.trim(),
         senderId: first?.id ? first.id : "",
         receiverId: other?.id ? other.id : "",
@@ -70,35 +66,10 @@ export default function InputChat({
         router.refresh();
       });
 
-      // const senderId = user.data?.user.id;
-      // const receiverId =
-      // const text = inputValue;
-      // const id =
-
-      // setMessages((prevMessages) => [...prevMessages, res]);
-
-      // sendMassage({});
       setInputValue("");
       setImgTemp([]);
     }
-
-    // if (imgtemp.length) {
-    //   const newMessage = {
-    //     id: Date.now(),
-    //     text: "",
-    //     timestamp: new Date(),
-    //     images: imgtemp.length > 0 ? imgtemp : [],
-    //   };
-
-    //   setMessages((prevMessages) => [...prevMessages, newMessage]);
-    //   setInputValue("");
-    //   setImgTemp([]);
-    // }
-
-    // console.log("res", res);
-    // setMessages((prevMessages) => [...prevMessages, res]);
   };
-  // console.log("inputValue", inputValue);
 
   const handleDeleteTempImg = () => {
     setImgTemp([]);

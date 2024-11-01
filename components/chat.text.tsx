@@ -31,12 +31,12 @@ export default async function Chat_text({
   // const header = await db.chat.findFirst({
   //   where: {},
   // });
-  const queryKey = `chat:${chat}`;
-  const addKey = `chat:${chat}:messages`;
-  const updateKey = `chat:${chat}:messages:update`;
-  const apiUrl = "/api/messages";
-  const paramKey = "chatId";
-  const paramValue = chat ? chat : "";
+  // const queryKey = `chat:${chat}`;
+  // const addKey = `chat:${chat}:messages`;
+  // const updateKey = `chat:${chat}:messages:update`;
+  // const apiUrl = "/api/messages";
+  // const paramKey = "chatId";
+  // const paramValue = chat ? chat : "";
 
   // const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
   //   useChatQuery({
@@ -53,7 +53,7 @@ export default async function Chat_text({
           <>
             <ChatHeader other={other} />
 
-            <Messages text={message} first={first} />
+            <Messages text={message} first={first} chatId={chat} />
 
             <InputChat
               param={param}

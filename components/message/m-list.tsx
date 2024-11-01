@@ -13,9 +13,17 @@ export type user = {
   img?: string;
   href: string;
   active: boolean;
+  username: string | null;
 };
 
-export default function UserList({ name, id, img, href, active }: user) {
+export default function UserList({
+  name,
+  id,
+  img,
+  href,
+  active,
+  username,
+}: user) {
   // const { param } = useParams();
   // console.log("href", param);
   // const [state, setState] = useState<string[] | string>([]);
@@ -55,9 +63,9 @@ export default function UserList({ name, id, img, href, active }: user) {
           {/* diyyYYyy */}
           <div className="text-[15px] font-semibold leading-[20px] text-[#0f1419] whitespace-nowrap ">
             <span className=" truncate ">
-              {name.slice(0, 10)}
+              {username}
               <span className="text-[15px] font-normal text-[#536471]">
-                {id}
+                {name}
               </span>
             </span>
             {/* <!--  --> */}

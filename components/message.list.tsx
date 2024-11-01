@@ -28,6 +28,7 @@ export default function Message_list({
 
         {/* <!-- 2 --> */}
         {chatlist.map((item, index: number) => {
+          console.log(item);
           if (item.id === currentUser) {
             return;
           }
@@ -46,6 +47,7 @@ export default function Message_list({
               href={href}
               key={index}
               active={active}
+              username={item.username}
             />
           );
         })}
