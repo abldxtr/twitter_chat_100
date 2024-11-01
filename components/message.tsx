@@ -9,6 +9,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { text, user } from "@/lib/definitions";
 import { useChatQuery } from "@/hooks/use-chat-query";
+import { useChatSocket } from "@/hooks/use-chat-socket";
 
 export default function Messages({
   text,
@@ -43,6 +44,7 @@ export default function Messages({
       paramKey,
       paramValue,
     });
+  useChatSocket({ queryKey, addKey, updateKey });
 
   console.log("dataaaaaa", data);
 
@@ -83,7 +85,7 @@ export default function Messages({
         "w-full  p-2 flex-1 overflow-auto  h-full scrl   transition-all duration-300   "
       )}
     >
-      {data?.pages?.reverse().map((group, i) => {
+      {data?.pages?.map((group, i) => {
         return (
           <Fragment key={i}>
             {group.items.map((it: any, index: number) => {

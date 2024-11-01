@@ -13,11 +13,11 @@ import {
   SvgIcon9,
   SvgIcon10,
 } from "./SvgIcon";
-// import { useSocket } from "@/provider/socket-provider";
 import classNames from "classnames";
+import { useSocket } from "@/provider/socket-provider";
 
 export default function Header() {
-  // const { isConnected } = useSocket();
+  const { isConnected } = useSocket();
   const icons = [
     SvgIcon2,
     SvgIcon3,
@@ -78,8 +78,8 @@ export default function Header() {
           />
           <div
             className={classNames(
-              " size-2 rounded-full absolute top-[12px] right-3   "
-              // isConnected ? "bg-green-400" : "bg-red-400",
+              " size-2 rounded-full absolute top-[12px] right-3   ",
+              isConnected ? "bg-green-400" : "bg-red-400"
             )}
           />
         </div>

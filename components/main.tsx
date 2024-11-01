@@ -27,7 +27,7 @@ export default async function Main({ param }: { param: string }) {
   //   },
   // });
   if (!current || !current.user || !current.user.id) {
-    redirect("/register");
+    redirect("/login");
   }
   // if (!usr) {
   // redirect("/");
@@ -65,29 +65,26 @@ export default async function Main({ param }: { param: string }) {
   );
 }
 
+// const chat = await db.chat.findFirst({
+//   where: {
+//     OR: [{ initiatorId: user?.user.id }, { participantId: user?.user.id }],
+//   },
+// });
+// if (chat) {
+// }
 
+// const chat = users.map((item, _) => {
+//   const senderId = user?.user.id;
+//   const receiverId = item.id;
+//   if (!senderId) {
+//     return;
+//   }
 
+//   const res = createChat({ senderId, receiverId });
+//   return res;
+// });
 
-  // const chat = await db.chat.findFirst({
-  //   where: {
-  //     OR: [{ initiatorId: user?.user.id }, { participantId: user?.user.id }],
-  //   },
-  // });
-  // if (chat) {
-  // }
-
-  // const chat = users.map((item, _) => {
-  //   const senderId = user?.user.id;
-  //   const receiverId = item.id;
-  //   if (!senderId) {
-  //     return;
-  //   }
-
-  //   const res = createChat({ senderId, receiverId });
-  //   return res;
-  // });
-
-  // if (!chatlist) {
-  //   // lll
-  //   return null;
-  // }
+// if (!chatlist) {
+//   // lll
+//   return null;
+// }

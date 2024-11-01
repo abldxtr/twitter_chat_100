@@ -7,6 +7,7 @@ import { EmojiProvider } from "@/context/EmojiContext";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { QueryProvider } from "@/provider/query-provider";
+import { SocketProvider } from "@/provider/socket-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -35,9 +36,11 @@ export default async function RootLayout({
         <MessageProvider>
           <EmojiProvider>
             <body className={`${geistSans.variable} ${geistMono.variable}`}>
-              <SessionProvider session={session}>
-                <QueryProvider>{children}</QueryProvider>
-              </SessionProvider>
+              <SocketProvider>
+                <SessionProvider session={session}>
+                  <QueryProvider>{children}</QueryProvider>
+                </SessionProvider>
+              </SocketProvider>
             </body>
           </EmojiProvider>
         </MessageProvider>
