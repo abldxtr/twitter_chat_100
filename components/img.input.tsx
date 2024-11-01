@@ -1,6 +1,6 @@
 "use client";
 
-import { Message, useMessage } from "@/context/MessageContext";
+import { useMessage } from "@/context/MessageContext";
 import { ChangeEvent, useRef, useState } from "react";
 
 export default function ImgInput() {
@@ -20,7 +20,7 @@ export default function ImgInput() {
       let type = img.type.split("/")[1];
       if (!["jpeg", "png", "webp", "gif"].includes(type)) {
         setErrorMsg(
-          `${img.name} format is unsupported! Only JPEG, PNG, WebP, GIF are allowed`,
+          `${img.name} format is unsupported! Only JPEG, PNG, WebP, GIF are allowed`
         );
         return;
       } else if (img.size > 1024 * 1024 * 5) {
@@ -42,14 +42,14 @@ export default function ImgInput() {
   };
 
   const handleSubmit = () => {
-    const newMessage: Message = {
-      id: messages.length ? messages[messages.length - 1].id + 1 : 1,
-      text: "Images uploaded",
-      timestamp: new Date(),
-      images: images,
-    };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-    setImages([]); // Clear images after submitting
+    // const newMessage: Message = {
+    //   id: messages.length ? messages[messages.length - 1].id + 1 : 1,
+    //   text: "Images uploaded",
+    //   timestamp: new Date(),
+    //   images: images,
+    // };
+    // setMessages((prevMessages) => [...prevMessages, newMessage]);
+    // setImages([]); // Clear images after submitting
   };
 
   return (

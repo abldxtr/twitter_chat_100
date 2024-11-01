@@ -3,6 +3,7 @@ import ChatHeader from "./chat-header";
 import InputChat from "./chat.input";
 import Messages from "./message";
 import db from "@/lib/prisma";
+import { useChatQuery } from "@/hooks/use-chat-query";
 
 export default async function Chat_text({
   param,
@@ -30,6 +31,20 @@ export default async function Chat_text({
   // const header = await db.chat.findFirst({
   //   where: {},
   // });
+  const queryKey = `chat:${chat}`;
+  const addKey = `chat:${chat}:messages`;
+  const updateKey = `chat:${chat}:messages:update`;
+  const apiUrl = "/api/messages";
+  const paramKey = "chatId";
+  const paramValue = chat ? chat : "";
+
+  // const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
+  //   useChatQuery({
+  //     queryKey,
+  //     apiUrl,
+  //     paramKey,
+  //     paramValue,
+  //   });
 
   return (
     <section className="w-full flex min-w-0 isolate h-screen realtive  overflow-hidden max-w-[920px]  border-r-[1px] border-[#eff3f4] border-l-[1px] lg:border-l-0 ">
