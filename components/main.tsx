@@ -5,6 +5,7 @@ import db from "@/lib/prisma";
 import { createChat } from "@/lib/actions";
 import { getOrCreateConversation } from "@/lib/chat";
 import { redirect } from "next/navigation";
+import { fetchChat } from "@/lib/data";
 
 export default async function Main({ param }: { param: string }) {
   const current = await auth();
@@ -20,7 +21,7 @@ export default async function Main({ param }: { param: string }) {
   //   },
   // });
 
-  const users = await db.user.findMany({});
+  const users = await fetchChat();
   // const usr = await db.user.findFirst({
   //   where: {
   //     id: param,

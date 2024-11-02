@@ -67,7 +67,7 @@ export default function Messages({
     <div ref={chatRef} className=" flex-1 overflow-hidden ">
       <ScrollArea
         className={classNames(
-          "w-full  p-2 flex-1 overflow-auto flex flex-col-reverse   h-full scrl   transition-all duration-300   "
+          "w-full  p-2 flex-1 overflow-auto flex  flex-col   h-full scrl   transition-all duration-300   "
         )}
       >
         {!hasNextPage && <div className="flex-1" />}
@@ -75,7 +75,6 @@ export default function Messages({
         {hasNextPage && (
           <div className="flex justify-center">
             {isFetchingNextPage ? (
-              // <Loader2 className="h-6 w-6 text-zinc-500 animate-spin my-4" />
               <div>loader</div>
             ) : (
               <button
@@ -87,6 +86,7 @@ export default function Messages({
             )}
           </div>
         )}
+        <div ref={bottomRef} />
         {data?.pages?.map((group, i) => {
           return (
             <Fragment key={i}>
@@ -171,7 +171,6 @@ export default function Messages({
             </Fragment>
           );
         })}
-        <div ref={bottomRef} />
       </ScrollArea>
     </div>
   );

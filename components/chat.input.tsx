@@ -55,31 +55,33 @@ export default function InputChat({
     e.preventDefault();
 
     if (inputValue.trim()) {
-      const newMessage = {
-        content: inputValue.trim(),
-        senderId: first?.id ? first.id : "",
-        reeciverId: other?.id ? other.id : "",
-        id: chatId ? chatId : "",
-      };
-      console.log("message f", newMessage);
-      // const res = sendMassage(newMessage);
+      if (first && other && chatId) {
+        const newMessage = {
+          content: inputValue.trim(),
+          senderId: first.id,
+          reeciverId: other.id,
+          id: chatId,
+        };
+        console.log("message f", newMessage);
+        // const res = sendMassage(newMessage);
 
-      const apiUrl = "/api/socket/messages";
-      const query = { chatId: chatId };
-      try {
-        const url = qs.stringifyUrl({
-          url: apiUrl,
-          query,
-        });
+        const apiUrl = "/api/socket/messages";
+        const query = { chatId: chatId };
+        try {
+          const url = qs.stringifyUrl({
+            url: apiUrl,
+            query,
+          });
 
-        await axios.post(url, newMessage);
+          await axios.post(url, newMessage);
 
-        // form.reset();
-        startTransition(() => {
-          router.refresh();
-        });
-      } catch (error) {
-        console.log(error);
+          // form.reset();
+          startTransition(() => {
+            router.refresh();
+          });
+        } catch (error) {
+          console.log(error);
+        }
       }
 
       setInputValue("");

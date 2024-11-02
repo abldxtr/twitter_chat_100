@@ -13,7 +13,7 @@ export default function Message_list({
   first,
 }: {
   param: string;
-  chatlist: ChatList;
+  chatlist: ChatList | undefined;
   first: string;
 }) {
   // const currentUser = first ? first.id : "";
@@ -25,7 +25,7 @@ export default function Message_list({
         <MessageHeader />
         <MessageRequest />
 
-        {chatlist.map((item, index: number) => {
+        {chatlist?.map((item, index: number) => {
           // console.log(item);
           if (item.id === currentUser) {
             return;

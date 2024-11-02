@@ -2,9 +2,6 @@ import { NextApiRequest } from "next";
 
 import { NextApiResponseServerIo } from "@/types";
 import db from "@/lib/prisma";
-import { auth } from "@/auth";
-// import { currentProfilePages } from "@/lib/current-profile-pages";
-// import { db } from "@/lib/db";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,15 +14,11 @@ export default async function handler(
   try {
     // const profile = await auth();
     // const profile = fetch("/api/getauth");
-    const { content, senderId, receiverId, id } = req.body;
+    const { content, senderId, reeciverId, id } = req.body;
     const { chatId } = req.query;
-    // console.log("sender and rec", senderId);
-    // console.log("sender and rec", receiverId);
+    console.log("sender and rec", senderId);
+    console.log("receiverId and rec", reeciverId);
     // console.log("user", profile);
-
-    // if (!profile) {
-    //   return res.status(401).json({ error: "Unauthorized" });
-    // }
 
     if (!chatId) {
       return res.status(400).json({ error: "Server ID missing" });
@@ -49,28 +42,15 @@ export default async function handler(
       return res.status(404).json({ message: "Server not found" });
     }
 
-    // const member = server.members.find(
-    //   (member) => member.profileId === profile.id
-    // );
-    // const member =
-    //   server.initiatorId === profile.user.id
-    //     ? server.initiatorId
-    //     : server.participantId;
-
-    // if (!member) {
-    //   return res.status(404).json({ message: "Member not found" });
-    // }
-
     const message = await db.message.create({
       data: {
         content: content as string,
         chatId: chatId as string,
-        senderId: senderId,
-        receiverId: receiverId,
+        senderId: senderId as string,
+        receiverId: reeciverId as string,
         status: "SENT",
         type: "TEXT",
       },
-      include: {},
     });
 
     const channelKey = `chat:${chatId}:messages`;
@@ -79,7 +59,7 @@ export default async function handler(
 
     return res.status(200).json(message);
   } catch (error) {
-    // console.log("[MESSAGES_POST]", error);
+    console.log("[MESSAGES_POST]", error);
     return res.status(500).json({ message: "Internal Error" });
   }
 }

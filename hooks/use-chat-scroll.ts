@@ -23,6 +23,8 @@ export const useChatScroll = ({
     const handleScroll = () => {
       const scrollTop = topDiv?.scrollTop;
 
+      console.log("scroll", scrollTop);
+
       if (scrollTop === 0 && shouldLoadMore) {
         loadMore();
       }
@@ -50,6 +52,8 @@ export const useChatScroll = ({
 
       const distanceFromBottom =
         topDiv.scrollHeight - topDiv.scrollTop - topDiv.clientHeight;
+      console.log("distanceFromBottom", distanceFromBottom);
+
       return distanceFromBottom <= 100;
     };
 
