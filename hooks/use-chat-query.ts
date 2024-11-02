@@ -41,7 +41,7 @@ export const useChatQuery = ({
       queryKey: [queryKey],
       queryFn: fetchMessages,
       getNextPageParam: (lastPage) => {
-        console.log("lastPage", lastPage);
+        // console.log("lastPage", lastPage);
 
         return lastPage?.nextCursor;
       },

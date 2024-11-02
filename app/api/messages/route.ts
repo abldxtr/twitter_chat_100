@@ -6,7 +6,7 @@ import db from "@/lib/prisma";
 // import { currentProfile } from "@/lib/current-profile";
 // import { db } from "@/lib/db";
 
-const MESSAGES_BATCH = 10;
+const MESSAGES_BATCH = 30;
 
 export async function GET(req: Request) {
   try {
@@ -15,10 +15,10 @@ export async function GET(req: Request) {
 
     const cursor = searchParams.get("cursor");
     const chatId = searchParams.get("chatId");
-    console.log("api/message", currentUser);
-    console.log("api/message searchparam", cursor);
+    // console.log("api/message", currentUser);
+    // console.log("api/message searchparam", cursor);
 
-    console.log("api/message", chatId);
+    // console.log("api/message", chatId);
 
     if (!currentUser || !currentUser.user) {
       return new NextResponse("Unauthorized", { status: 401 });

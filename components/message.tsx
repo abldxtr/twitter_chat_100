@@ -11,6 +11,7 @@ import { text, user } from "@/lib/definitions";
 import { useChatQuery } from "@/hooks/use-chat-query";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
+import { Loader2, ServerCrash } from "lucide-react";
 
 export default function Messages({
   text,
@@ -51,6 +52,23 @@ export default function Messages({
   });
 
   // useEffect(() => {
+  //   console.log("observer");
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       if (entries[0]?.isIntersecting && hasNextPage) fetchNextPage();
+  //     },
+  //     { threshold: 1 }
+  //   );
+
+  //   if (bottomRef.current) {
+  //     observer.observe(bottomRef.current);
+  //   }
+
+  //   return () => observer.disconnect();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
+  // useEffect(() => {
   //   setTimeout(() => {
   //     bottomRef.current?.scrollIntoView({
   //       behavior: "smooth",
@@ -64,29 +82,15 @@ export default function Messages({
   //   }, 100);
   // }, []);
   return (
-    <div ref={chatRef} className=" flex-1 overflow-hidden ">
-      <ScrollArea
+    <div className=" flex-1 overflow-hidden ">
+      <div
         className={classNames(
-          "w-full  p-2 flex-1 overflow-auto flex  flex-col   h-full scrl   transition-all duration-300   "
+          "w-full  p-2 flex-1 overflow-y-auto flex  flex-col-reverse   h-full scrl   transition-all duration-300   "
         )}
+        ref={chatRef}
       >
-        {!hasNextPage && <div className="flex-1" />}
-        {/* {!hasNextPage && <ChatWelcome type={type} name={NameOrEmail} />} */}
-        {hasNextPage && (
-          <div className="flex justify-center">
-            {isFetchingNextPage ? (
-              <div>loader</div>
-            ) : (
-              <button
-                onClick={() => fetchNextPage()}
-                className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 text-xs my-4 dark:hover:text-zinc-300 transition"
-              >
-                Load previous messages
-              </button>
-            )}
-          </div>
-        )}
-        <div ref={bottomRef} />
+        <div ref={bottomRef}> bottom</div>
+
         {data?.pages?.map((group, i) => {
           return (
             <Fragment key={i}>
@@ -171,7 +175,23 @@ export default function Messages({
             </Fragment>
           );
         })}
-      </ScrollArea>
+        {!hasNextPage && <div className="flex-1" />}
+        {/* {!hasNextPage && <ChatWelcome type={type} name={NameOrEmail} />} */}
+        {hasNextPage && (
+          <div className="flex justify-center">
+            {isFetchingNextPage ? (
+              <Loader2 className="h-6 w-6 text-zinc-500 animate-spin my-4" />
+            ) : (
+              <button
+                onClick={() => fetchNextPage()}
+                className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 text-xs my-4 dark:hover:text-zinc-300 transition"
+              >
+                Load previous messages
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
