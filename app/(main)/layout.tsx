@@ -8,7 +8,7 @@ export default async function ConversationLayout({
   children: React.ReactNode;
 }>) {
   const user = await auth();
-  console.log("userrr", user);
+  // console.log("userrr", user);
   return (
     <div className="container isolate mx-auto flex h-screen  overflow-hidden">
       <div className=" overflow-auto  h-full scrl flex w-full  ">

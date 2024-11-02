@@ -15,6 +15,10 @@ export async function GET(req: Request) {
 
     const cursor = searchParams.get("cursor");
     const chatId = searchParams.get("chatId");
+    console.log("api/message", currentUser);
+    console.log("api/message searchparam", cursor);
+
+    console.log("api/message", chatId);
 
     if (!currentUser || !currentUser.user) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -71,7 +75,7 @@ export async function GET(req: Request) {
       nextCursor,
     });
   } catch (error) {
-    console.log("[MESSAGES_GET]", error);
+    // console.log("[MESSAGES_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

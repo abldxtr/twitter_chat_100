@@ -3,6 +3,7 @@
 import { useEmojiState } from "@/context/EmojiContext";
 import classNames from "classnames";
 import axios from "axios";
+import qs from "query-string";
 
 import { useEffect, useState, useRef, FormEvent, useTransition } from "react";
 import { useMessage } from "@/context/MessageContext";
@@ -50,21 +51,36 @@ export default function InputChat({
 
   useOnClickOutside([EmojiRef, textRef], handleClickOutside);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (inputValue.trim()) {
       const newMessage = {
-        text: inputValue.trim(),
+        content: inputValue.trim(),
         senderId: first?.id ? first.id : "",
-        receiverId: other?.id ? other.id : "",
+        reeciverId: other?.id ? other.id : "",
         id: chatId ? chatId : "",
       };
-      const res = sendMassage(newMessage);
+      console.log("message f", newMessage);
+      // const res = sendMassage(newMessage);
 
-      startTransition(() => {
-        router.refresh();
-      });
+      const apiUrl = "/api/socket/messages";
+      const query = { chatId: chatId };
+      try {
+        const url = qs.stringifyUrl({
+          url: apiUrl,
+          query,
+        });
+
+        await axios.post(url, newMessage);
+
+        // form.reset();
+        startTransition(() => {
+          router.refresh();
+        });
+      } catch (error) {
+        console.log(error);
+      }
 
       setInputValue("");
       setImgTemp([]);
@@ -77,7 +93,7 @@ export default function InputChat({
 
   useEffect(() => {
     if (cursorPosition !== undefined && textRef.current) {
-      console.log("cursorPosition", cursorPosition);
+      // console.log("cursorPosition", cursorPosition);
       textRef.current.selectionEnd = cursorPosition;
     }
   }, [cursorPosition]);

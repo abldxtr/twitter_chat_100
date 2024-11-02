@@ -22,7 +22,7 @@ const authConfig: NextAuthConfig = {
         const { email, password } = credentials;
 
         const validatedFields = LoginSchema.safeParse(credentials);
-        console.log("login", validatedFields);
+        // console.log("login", validatedFields);
 
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
@@ -48,7 +48,7 @@ const authConfig: NextAuthConfig = {
         session.user.image = token.picture;
         session.user.username = token.username;
       }
-      console.log("session", session);
+      // console.log("session", session);
 
       return session;
     },
@@ -56,7 +56,7 @@ const authConfig: NextAuthConfig = {
       if (!token.sub) return token;
 
       const existingUser = await getUserById(token.sub);
-      console.log("existingUser", existingUser);
+      // console.log("existingUser", existingUser);
       // const prismaUser = await db.user.findFirst({
       //   where: {
       //     email: token.email,
@@ -75,7 +75,7 @@ const authConfig: NextAuthConfig = {
       token.id = existingUser.id;
       token.picture = existingUser.image;
       token.username = existingUser.username;
-      console.log("token", token);
+      // console.log("token", token);
 
       return token;
     },

@@ -15,13 +15,17 @@ export default async function handler(
   }
 
   try {
-    const profile = await auth();
-    const { content } = req.body;
+    // const profile = await auth();
+    // const profile = fetch("/api/getauth");
+    const { content, senderId, receiverId, id } = req.body;
     const { chatId } = req.query;
+    // console.log("sender and rec", senderId);
+    // console.log("sender and rec", receiverId);
+    // console.log("user", profile);
 
-    if (!profile) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    // if (!profile) {
+    //   return res.status(401).json({ error: "Unauthorized" });
+    // }
 
     if (!chatId) {
       return res.status(400).json({ error: "Server ID missing" });
@@ -48,21 +52,21 @@ export default async function handler(
     // const member = server.members.find(
     //   (member) => member.profileId === profile.id
     // );
-    const member =
-      server.initiatorId === profile.user.id
-        ? server.initiatorId
-        : server.participantId;
+    // const member =
+    //   server.initiatorId === profile.user.id
+    //     ? server.initiatorId
+    //     : server.participantId;
 
-    if (!member) {
-      return res.status(404).json({ message: "Member not found" });
-    }
+    // if (!member) {
+    //   return res.status(404).json({ message: "Member not found" });
+    // }
 
     const message = await db.message.create({
       data: {
         content: content as string,
         chatId: chatId as string,
-        senderId: server.initiatorId,
-        receiverId: server.participantId,
+        senderId: senderId,
+        receiverId: receiverId,
         status: "SENT",
         type: "TEXT",
       },
@@ -75,7 +79,7 @@ export default async function handler(
 
     return res.status(200).json(message);
   } catch (error) {
-    console.log("[MESSAGES_POST]", error);
+    // console.log("[MESSAGES_POST]", error);
     return res.status(500).json({ message: "Internal Error" });
   }
 }

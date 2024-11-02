@@ -35,8 +35,11 @@ export const useChatSocket = ({
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {
           return oldData;
         }
+        // const a = []
+        // a.reverse()
 
         const newData = oldData.pages.map((page: any) => {
+          console.log("page", page);
           return {
             ...page,
             items: page.items.map((item: Message) => {
@@ -49,8 +52,8 @@ export const useChatSocket = ({
         });
 
         return {
-          ...oldData,
           pages: newData,
+          ...oldData,
         };
       });
     });

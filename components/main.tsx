@@ -38,22 +38,28 @@ export default async function Main({ param }: { param: string }) {
   const second = res?.participant;
   const message = res?.messages;
   const chat = res?.id;
+  // console.log("first", first);
+  // console.log("current", current.user.id);
+  // console.log("second", second);
 
   const other = current.user.id === first?.id ? second : first;
+  const currentUser = current.user.id === first?.id ? first : second;
+  const Me = current.user.id;
+  // console.log("other", other);
 
   return (
     <main className="flex h-full items-start w-full ">
       <div className="flex shrink grow flex-1 items-start min-w-full">
         {/* <!-- messages list --> */}
         <div className=" overflow-y-auto overflow-x-hidden flex  h-screen scrl">
-          <Message_list param={param} chatlist={users} first={first} />
+          <Message_list param={param} chatlist={users} first={Me} />
         </div>
 
         {/* <!-- message input --> */}
         <div className=" overflow-auto flex flex-1 h-full ">
           <Chat_text
             param={param}
-            first={first}
+            first={currentUser}
             second={second}
             other={other}
             message={message}

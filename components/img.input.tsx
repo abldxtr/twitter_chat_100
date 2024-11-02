@@ -9,8 +9,8 @@ export default function ImgInput() {
   const [images, setImages] = useState<string[]>([]);
   const { messages, setMessages, imgtemp, setImgTemp } = useMessage();
 
-  console.log("images", images);
-  console.log("errorMsg", errorMsg);
+  // console.log("images", images);
+  // console.log("errorMsg", errorMsg);
 
   const handleImages = (e: ChangeEvent<HTMLInputElement>) => {
     let files = Array.from(e.target.files || []);
