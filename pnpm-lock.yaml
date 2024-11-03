@@ -56,6 +56,9 @@ dependencies:
   emoji-mart:
     specifier: ^5.6.0
     version: 5.6.0
+  framer-motion:
+    specifier: ^11.11.11
+    version: 11.11.11(react-dom@19.0.0-rc-f994737d14-20240522)(react@19.0.0-rc-f994737d14-20240522)
   lucide-react:
     specifier: ^0.453.0
     version: 0.453.0(react@19.0.0-rc-f994737d14-20240522)
@@ -2142,6 +2145,25 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
+    dev: false
+
+  /framer-motion@11.11.11(react-dom@19.0.0-rc-f994737d14-20240522)(react@19.0.0-rc-f994737d14-20240522):
+    resolution: {integrity: sha512-tuDH23ptJAKUHGydJQII9PhABNJBpB+z0P1bmgKK9QFIssHGlfPd6kxMq00LSKwE27WFsb2z0ovY0bpUyMvfRw==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      react: 19.0.0-rc-f994737d14-20240522
+      react-dom: 19.0.0-rc-f994737d14-20240522(react@19.0.0-rc-f994737d14-20240522)
+      tslib: 2.6.3
     dev: false
 
   /fs-minipass@2.1.0:

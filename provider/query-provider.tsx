@@ -16,6 +16,14 @@ export const QueryProvider = ({ children }: { children: React.ReactNode }) => {
       })
   );
 
+  // await queryClient.prefetchInfiniteQuery({
+  //   queryKey: ["next-ten"],
+  //   queryFn: () => getNextTenAction(0),
+  //   initialPageParam: 0,
+  //   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
+  //   pages: 3,
+  // });
+
   return (
     <QueryClientProvider client={queryClient}>
       {children}

@@ -25,18 +25,18 @@ export const useChatScroll = ({
       if (topDiv) {
         const distanceFromTop =
           topDiv?.scrollHeight + topDiv.scrollTop - topDiv.clientHeight;
-        console.log(
-          topDiv?.scrollHeight,
-          topDiv.scrollTop,
-          topDiv.clientHeight
-        );
+        // console.log(
+        //   topDiv?.scrollHeight,
+        //   topDiv.scrollTop,
+        //   topDiv.clientHeight
+        // );
         // console.log("distanceFromTop", distanceFromTop);
         if (distanceFromTop === 0 && shouldLoadMore) {
           loadMore();
         }
       }
 
-      console.log("scrolltop", scrollTop);
+      // console.log("scrolltop", scrollTop);
 
       if (scrollTop === 0 && shouldLoadMore) {
         loadMore();
@@ -53,29 +53,34 @@ export const useChatScroll = ({
   useEffect(() => {
     const bottomDiv = bottomRef?.current;
     const topDiv = chatRef.current;
-    const shouldAutoScroll = () => {
-      if (!hasInitialized && bottomDiv) {
-        setHasInitialized(true);
-        return true;
-      }
+    // const shouldAutoScroll = () => {
+    //   if (!hasInitialized && bottomDiv) {
+    //     setHasInitialized(true);
+    //     console.log("ttttttttttt");
 
-      if (!topDiv) {
-        return false;
-      }
+    //     return true;
+    //   }
+    //   console.log("bbbbbbbbbb");
 
-      const distanceFromBottom =
-        topDiv.scrollHeight - topDiv.scrollTop - topDiv.clientHeight;
-      console.log("distanceFromBottom", distanceFromBottom);
+    //   if (!topDiv) {
+    //     console.log("topDiv");
+    //     return false;
+    //   }
 
-      return distanceFromBottom <= 100;
-    };
+    //   const distanceFromBottom =
+    //     topDiv.scrollHeight + topDiv.scrollTop + topDiv.clientHeight;
+    //   console.log("distanceFromBottom", distanceFromBottom);
 
-    if (shouldAutoScroll()) {
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 100);
-    }
+    //   // return distanceFromBottom <= 100;
+    //   return true;
+    // };
+
+    // if (shouldAutoScroll()) {
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }, 100);
+    // }
   }, [bottomRef, chatRef, count, hasInitialized]);
 };

@@ -8,7 +8,7 @@ import Link from "next/link";
 // import { useRouter } from "next/navigation";
 
 export type user = {
-  name: string;
+  name: string | null;
   id: string;
   img?: string;
   href: string;
@@ -63,7 +63,7 @@ export default function UserList({
           {/* diyyYYyy */}
           <div className="text-[15px] font-semibold leading-[20px] text-[#0f1419] whitespace-nowrap ">
             <span className=" truncate ">
-              {username}
+              {/* {username!} */}
               <span className="text-[15px] font-normal text-[#536471]">
                 {name}
               </span>

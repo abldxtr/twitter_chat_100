@@ -22,6 +22,9 @@ export default async function Main({ param }: { param: string }) {
   // });
 
   const users = await fetchChat();
+  if (users) {
+    console.log("users", users[0]);
+  }
   // const usr = await db.user.findFirst({
   //   where: {
   //     id: param,

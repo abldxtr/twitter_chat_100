@@ -40,7 +40,7 @@ export default function Message_list({
             <UserList
               id={item.id}
               img={img}
-              name={item.id}
+              name={item.name}
               href={href}
               key={index}
               active={active}

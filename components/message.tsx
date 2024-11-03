@@ -11,7 +11,7 @@ import { text, user } from "@/lib/definitions";
 import { useChatQuery } from "@/hooks/use-chat-query";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
-import { Loader2, ServerCrash } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function Messages({
   text,
@@ -89,7 +89,8 @@ export default function Messages({
         )}
         ref={chatRef}
       >
-        <div ref={bottomRef}> bottom</div>
+        {/* <div ref={bottomRef}> bottom</div> */}
+        <div ref={bottomRef} />
 
         {data?.pages?.map((group, i) => {
           return (
@@ -104,7 +105,7 @@ export default function Messages({
                   <Fragment key={index}>
                     {isP ? (
                       <div className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    ">
-                        <div className="flex items-center gap-2 max-w-[calc(100%_/_2)]  ">
+                        <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
                           {/* for delete messag */}
                           <div className="  ">
                             <button
@@ -131,13 +132,15 @@ export default function Messages({
                             className=" h-auto bg-[#0f1419bf] shrike-0 hover:bg-[#272c30bf] object-cover "
                           />
                         )} */}
-                            <span className="text-left">{it.content}</span>
+                            <span className="text-left break-all">
+                              {it.content}
+                            </span>
                           </div>
                         </div>
                       </div>
                     ) : (
                       <div className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 ">
-                        <div className="flex items-center flex-row-reverse gap-2 max-w-[calc(100%_/_2)]  ">
+                        <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
                           {/* for delete messag */}
                           <div className="  ">
                             <button
@@ -164,7 +167,9 @@ export default function Messages({
                             className=" h-auto bg-[#0f1419bf] shrike-0 hover:bg-[#272c30bf] object-cover "
                           />
                         )} */}
-                            <span className="text-left">{it.content}</span>
+                            <span className="text-left break-all">
+                              {it.content}
+                            </span>
                           </div>
                         </div>
                       </div>
