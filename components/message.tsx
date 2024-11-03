@@ -12,6 +12,11 @@ import { useChatQuery } from "@/hooks/use-chat-query";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
 import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
+
+
+
+const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
 export default function Messages({
   text,
@@ -51,36 +56,7 @@ export default function Messages({
     count: data?.pages?.[0]?.items?.length ?? 0,
   });
 
-  // useEffect(() => {
-  //   console.log("observer");
-  //   const observer = new IntersectionObserver(
-  //     (entries) => {
-  //       if (entries[0]?.isIntersecting && hasNextPage) fetchNextPage();
-  //     },
-  //     { threshold: 1 }
-  //   );
 
-  //   if (bottomRef.current) {
-  //     observer.observe(bottomRef.current);
-  //   }
-
-  //   return () => observer.disconnect();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     bottomRef.current?.scrollIntoView({
-  //       behavior: "smooth",
-  //     });
-  //   }, 100);
-  // });
-
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  //   }, 100);
-  // }, []);
   return (
     <div className=" flex-1 overflow-hidden ">
       <div
@@ -105,7 +81,9 @@ export default function Messages({
                   <Fragment key={index}>
                     {isP ? (
                       <div className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    ">
-                        <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
+                        <div className="flex flex-col w-full items-end ">
+
+                          <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
                           {/* for delete messag */}
                           <div className="  ">
                             <button
@@ -136,11 +114,21 @@ export default function Messages({
                               {it.content}
                             </span>
                           </div>
+                       
                         </div>
+                        <div className="block text-[rgb(83,100,113)] text-[13px] leading-[16px] font-[400] mt-[6px] " >
+
+                          {format(new Date(it.createdAt), DATE_FORMAT)}
+
+                          </div>
+
+
+                          </div>
                       </div>
                     ) : (
                       <div className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 ">
-                        <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
+                       <div className="flex flex-col w-full items-start ">
+                         <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
                           {/* for delete messag */}
                           <div className="  ">
                             <button
@@ -172,6 +160,14 @@ export default function Messages({
                             </span>
                           </div>
                         </div>
+                     
+                        <div className="block text-[rgb(83,100,113)] text-[13px] leading-[16px] font-[400] mt-[6px] " >
+                          {format(new Date(it.createdAt), DATE_FORMAT)}
+
+                          </div>
+
+
+                        </div>
                       </div>
                     )}
                   </Fragment>
@@ -200,3 +196,5 @@ export default function Messages({
     </div>
   );
 }
+
+
