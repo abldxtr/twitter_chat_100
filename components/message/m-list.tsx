@@ -44,7 +44,7 @@ export default function UserList({
       <div
         className={classNames(
           "flex  min-h-[40px] items-center cursor-pointer p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] ",
-          active ? "bg-[#f7f9f9]" : ""
+          active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : ""
         )}
       >
         {/* <!-- icone or profile pic --> */}
