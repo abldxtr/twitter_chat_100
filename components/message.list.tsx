@@ -6,6 +6,8 @@ import MessageRequest from "./message/m-request";
 import UserList from "./message/m-list";
 import { ChatList, user } from "@/lib/definitions";
 // import { useParams } from "next/navigation";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 export default function Message_list({
   param,
@@ -24,7 +26,8 @@ export default function Message_list({
       <div className="flex  w-full flex-col">
         <MessageHeader />
         <MessageRequest />
-
+        
+        <ScrollArea className=" flex-1  ">
         {chatlist?.map((item, index: number) => {
           // console.log(item);
           if (item.id === currentUser) {
@@ -48,6 +51,8 @@ export default function Message_list({
             />
           );
         })}
+        </ScrollArea>
+
       </div>
     </section>
   );
