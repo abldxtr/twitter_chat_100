@@ -1,8 +1,11 @@
 // import { db } from "@/lib/db";
 
 import db from "./prisma";
+import { unstable_cache } from "./unstable-cache";
 
-export const getOrCreateConversation = async (
+
+export const getOrCreateConversation = unstable_cache(
+ async (
   memberOneId: string,
   memberTwoId: string
 ) => {
@@ -15,7 +18,25 @@ export const getOrCreateConversation = async (
   }
 
   return conversation;
-};
+};,
+  ["getOrCreateConversation"],
+  { tags: ["getOrCreateConversation"] }
+);
+
+// export const getOrCreateConversation = async (
+//   memberOneId: string,
+//   memberTwoId: string
+// ) => {
+//   let conversation =
+//     (await findConversation(memberOneId, memberTwoId)) ||
+//     (await findConversation(memberTwoId, memberOneId));
+
+//   if (!conversation) {
+//     conversation = await createNewConversation(memberOneId, memberTwoId);
+//   }
+
+//   return conversation;
+// };
 
 const findConversation = async (initiatorId: string, participantId: string) => {
   try {
