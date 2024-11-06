@@ -18,7 +18,7 @@ export const getOrCreateConversation = unstable_cache(
   }
 
   return conversation;
-};,
+},
   ["getOrCreateConversation"],
   { tags: ["getOrCreateConversation"] }
 );
