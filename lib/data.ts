@@ -14,7 +14,10 @@ export const fetchChat = unstable_cache(
   { tags: ["fetchChat"] }
 );
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 487e3807854ec7e2f1d4758206d619c0977ebd26
 // export async function fetchChat() {
 //   try {
 //     const data = await db.user.findMany();
@@ -24,5 +27,8 @@ export const fetchChat = unstable_cache(
 //     console.log("fetchChat error");
 //   }
 // }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 487e3807854ec7e2f1d4758206d619c0977ebd26
