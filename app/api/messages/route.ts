@@ -41,8 +41,24 @@ export async function GET(req: Request) {
           chatId,
         },
         include: {
-          receiver: true,
-          sender: true,
+          receiver: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+              lastSeen: true,
+            },
+          },
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+              lastSeen: true,
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",
@@ -55,8 +71,24 @@ export async function GET(req: Request) {
           chatId,
         },
         include: {
-          receiver: true,
-          sender: true,
+          receiver: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+              lastSeen: true,
+            },
+          },
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+              lastSeen: true,
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",
