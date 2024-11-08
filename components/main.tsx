@@ -10,41 +10,22 @@ import { fetchChat } from "@/lib/data";
 export default async function Main({ param }: { param: string }) {
   const current = await auth();
 
-  // const chatlist = await db.chat.findMany({
-  //   where: {
-  //     OR: [{ initiatorId: user?.user.id }, { participantId: user?.user.id }],
-  //   },
-  //   include: {`
-  //     initiator: true,
-  //     participant: true,
-  //     messages: true,
-  //   },
-  // });
-
   const users = await fetchChat();
   if (users) {
     console.log("users", users[0]);
   }
-  // const usr = await db.user.findFirst({
-  //   where: {
-  //     id: param,
-  //   },
-  // });
+
   if (!current || !current.user || !current.user.id) {
     redirect("/login");
   }
-  // if (!usr) {
-  // redirect("/");
-  // }
+
   const res = await getOrCreateConversation(current?.user?.id, param);
 
   const first = res?.initiator;
   const second = res?.participant;
   const message = res?.messages;
   const chat = res?.id;
-  // console.log("first", first);
-  // console.log("current", current.user.id);
-  // console.log("second", second);
+  
 
   const other = current.user.id === first?.id ? second : first;
   const currentUser = current.user.id === first?.id ? first : second;
@@ -75,26 +56,4 @@ export default async function Main({ param }: { param: string }) {
   );
 }
 
-// const chat = await db.chat.findFirst({
-//   where: {
-//     OR: [{ initiatorId: user?.user.id }, { participantId: user?.user.id }],
-//   },
-// });
-// if (chat) {
-// }
 
-// const chat = users.map((item, _) => {
-//   const senderId = user?.user.id;
-//   const receiverId = item.id;
-//   if (!senderId) {
-//     return;
-//   }
-
-//   const res = createChat({ senderId, receiverId });
-//   return res;
-// });
-
-// if (!chatlist) {
-//   // lll
-//   return null;
-// }
