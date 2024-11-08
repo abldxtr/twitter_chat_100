@@ -21,30 +21,7 @@ export default async function Chat_text({
 
   message: text | undefined;
 }) {
-  // const messages = await db.message.findMany({
-  //   where: {
-  //     chatId: param,
-  //   },
-  // });
-
-  // const
-  // const header = await db.chat.findFirst({
-  //   where: {},
-  // });
-  // const queryKey = `chat:${chat}`;
-  // const addKey = `chat:${chat}:messages`;
-  // const updateKey = `chat:${chat}:messages:update`;
-  // const apiUrl = "/api/messages";
-  // const paramKey = "chatId";
-  // const paramValue = chat ? chat : "";
-
-  // const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-  //   useChatQuery({
-  //     queryKey,
-  //     apiUrl,
-  //     paramKey,
-  //     paramValue,
-  //   });
+ 
 
   return (
     <section className="w-full flex min-w-0 isolate h-screen realtive  overflow-hidden max-w-[920px]  border-r-[1px] border-[#eff3f4] border-l-[1px] lg:border-l-0 ">
@@ -65,7 +42,7 @@ export default async function Chat_text({
             />
           </>
         ) : (
-          <div>باید وارد گفت و گو شوید!</div>
+          <div className="w-full h-full flex items-center justify-center">باید وارد گفت و گو شوید!</div>
         )}
       </div>
     </section>
