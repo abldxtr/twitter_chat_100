@@ -71,7 +71,7 @@ export default function Messages({
         const distanceFromBottom = scrollElement.scrollTop;
 
         console.log("show", distanceFromBottom);
-        distanceFromBottom < 0 ? setGoDown(false) : setGoDown(true);
+        distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
 
         // setGoDown(false);
       }
@@ -128,7 +128,7 @@ export default function Messages({
         className={classNames(
           " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
           "cursor-pointer transiton-all duration-300 ",
-          goDown ? "opacity-100" : "opacity-0"
+          goDown ? "opacity-100" : "opacity-0 pointer-events-none "
         )}
         onClick={HandleScrollDown}
       >
