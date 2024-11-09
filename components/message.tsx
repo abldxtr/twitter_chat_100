@@ -13,6 +13,8 @@ import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { motion } from 'framer-motion';
+
 
 
 
@@ -143,7 +145,7 @@ export default function Messages({
                 return (
                   <Fragment key={index}>
                     {isP ? (
-                      <div className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    ">
+                      <motion.div className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    ">
                         <div className="flex flex-col w-full items-end ">
 
                           <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
@@ -187,9 +189,9 @@ export default function Messages({
 
 
                           </div>
-                      </div>
+                     </motion.div>
                     ) : (
-                      <div className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 ">
+                      <motion.div className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 ">
                        <div className="flex flex-col w-full items-start ">
                          <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
                           {/* for delete messag */}
@@ -231,7 +233,7 @@ export default function Messages({
 
 
                         </div>
-                      </div>
+                      </motion.div>
                     )}
                   </Fragment>
                 );
