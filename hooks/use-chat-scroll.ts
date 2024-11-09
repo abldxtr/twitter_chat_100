@@ -50,37 +50,37 @@ export const useChatScroll = ({
     };
   }, [shouldLoadMore, loadMore, chatRef]);
 
-  useEffect(() => {
-    const bottomDiv = bottomRef?.current;
-    const topDiv = chatRef.current;
-    // const shouldAutoScroll = () => {
-    //   if (!hasInitialized && bottomDiv) {
-    //     setHasInitialized(true);
-    //     console.log("ttttttttttt");
+  // useEffect(() => {
+  //   const bottomDiv = bottomRef?.current;
+  //   const topDiv = chatRef.current;
+  // const shouldAutoScroll = () => {
+  //   if (!hasInitialized && bottomDiv) {
+  //     setHasInitialized(true);
+  //     console.log("ttttttttttt");
 
-    //     return true;
-    //   }
-    //   console.log("bbbbbbbbbb");
+  //     return true;
+  //   }
+  //   console.log("bbbbbbbbbb");
 
-    //   if (!topDiv) {
-    //     console.log("topDiv");
-    //     return false;
-    //   }
+  //   if (!topDiv) {
+  //     console.log("topDiv");
+  //     return false;
+  //   }
 
-    //   const distanceFromBottom =
-    //     topDiv.scrollHeight + topDiv.scrollTop + topDiv.clientHeight;
-    //   console.log("distanceFromBottom", distanceFromBottom);
+  //   const distanceFromBottom =
+  //     topDiv.scrollHeight + topDiv.scrollTop + topDiv.clientHeight;
+  //   console.log("distanceFromBottom", distanceFromBottom);
 
-    //   // return distanceFromBottom <= 100;
-    //   return true;
-    // };
+  //   // return distanceFromBottom <= 100;
+  //   return true;
+  // };
 
-    // if (shouldAutoScroll()) {
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({
-        behavior: "smooth",
-      });
-    }, 100);
-    // }
-  }, [bottomRef, chatRef, count, hasInitialized]);
+  // if (shouldAutoScroll()) {
+  // setTimeout(() => {
+  //   bottomRef.current?.scrollIntoView({
+  //     behavior: "smooth",
+  //   });
+  // }, 100);
+  // }
+  // }, [bottomRef, chatRef, count, hasInitialized]);
 };
