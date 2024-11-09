@@ -32,6 +32,8 @@ export default function Messages({
   const { messages, setMessages } = useMessage();
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const chatRef = useRef<HTMLDivElement | null>(null);
+    const [goDown, setGoDown] = useState(false);
+
 
   const currentUser = first ? first.id : "";
 
