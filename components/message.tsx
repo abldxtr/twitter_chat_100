@@ -56,6 +56,51 @@ export default function Messages({
     count: data?.pages?.[0]?.items?.length ?? 0,
   });
 
+    useEffect(() => {
+    const scrollElement = chatRef.current;
+
+    const handleScroll = () => {
+      if (scrollElement) {
+        // const position = scrollElement;
+
+        const distanceFromBottom =
+          scrollElement.scrollHeight -
+          scrollElement.scrollTop -
+          scrollElement.clientHeight;
+
+        console.log("show", distanceFromBottom);
+        distanceFromBottom > 20 ? setGoDown(true) : setGoDown(false);
+
+        // setGoDown(false);
+      }
+    };
+
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    return () => {
+      if (scrollElement) {
+        scrollElement.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+
+  function HandleScrollDown() {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }
+
+
+   if (status === "pending") {
+    return (
+      <div className=" w-full h-full flex justify-center my-2 ">
+        <Loader2 className="size-8 text-zinc-500 animate-spin " />
+      </div>
+    );
+  }
+
 
   return (
     <div className=" flex-1 overflow-hidden ">
@@ -65,6 +110,24 @@ export default function Messages({
         )}
         ref={chatRef}
       >
+        <div
+          className={classNames(
+            " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
+            "cursor-pointer transiton-all duration-300 ",
+            goDown ? "opacity-100" : "opacity-0"
+          )}
+          onClick={HandleScrollDown}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className=" fill-[rgb(29,155,240)] shrink-0 size-[24px] "
+          >
+            <g>
+              <path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"></path>
+            </g>
+          </svg>
+        </div>
         {/* <div ref={bottomRef}> bottom</div> */}
         <div ref={bottomRef} />
 
