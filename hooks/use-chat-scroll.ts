@@ -25,6 +25,8 @@ export const useChatScroll = ({
       if (topDiv) {
         const distanceFromTop =
           topDiv?.scrollHeight + topDiv.scrollTop - topDiv.clientHeight;
+
+        // const distanceFromTop = topDiv.scrollTop;
         // console.log(
         //   topDiv?.scrollHeight,
         //   topDiv.scrollTop,
@@ -38,9 +40,9 @@ export const useChatScroll = ({
 
       // console.log("scrolltop", scrollTop);
 
-      if (scrollTop === 0 && shouldLoadMore) {
-        loadMore();
-      }
+      // if (scrollTop === 0 && shouldLoadMore) {
+      //   loadMore();
+      // }
     };
 
     topDiv?.addEventListener("scroll", handleScroll);
@@ -49,38 +51,4 @@ export const useChatScroll = ({
       topDiv?.removeEventListener("scroll", handleScroll);
     };
   }, [shouldLoadMore, loadMore, chatRef]);
-
-  // useEffect(() => {
-  //   const bottomDiv = bottomRef?.current;
-  //   const topDiv = chatRef.current;
-  // const shouldAutoScroll = () => {
-  //   if (!hasInitialized && bottomDiv) {
-  //     setHasInitialized(true);
-  //     console.log("ttttttttttt");
-
-  //     return true;
-  //   }
-  //   console.log("bbbbbbbbbb");
-
-  //   if (!topDiv) {
-  //     console.log("topDiv");
-  //     return false;
-  //   }
-
-  //   const distanceFromBottom =
-  //     topDiv.scrollHeight + topDiv.scrollTop + topDiv.clientHeight;
-  //   console.log("distanceFromBottom", distanceFromBottom);
-
-  //   // return distanceFromBottom <= 100;
-  //   return true;
-  // };
-
-  // if (shouldAutoScroll()) {
-  // setTimeout(() => {
-  //   bottomRef.current?.scrollIntoView({
-  //     behavior: "smooth",
-  //   });
-  // }, 100);
-  // }
-  // }, [bottomRef, chatRef, count, hasInitialized]);
 };

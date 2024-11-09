@@ -71,14 +71,14 @@ export default function Messages({
         const distanceFromBottom = scrollElement.scrollTop;
 
         console.log("show", distanceFromBottom);
-        distanceFromBottom > 20 ? setGoDown(true) : setGoDown(false);
+        distanceFromBottom < 0 ? setGoDown(false) : setGoDown(true);
 
         // setGoDown(false);
       }
     };
 
     if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+      scrollElement.addEventListener("scroll", handleScroll);
     }
 
     return () => {
@@ -144,7 +144,7 @@ export default function Messages({
       </div>
       <div
         className={classNames(
-          "w-full  p-2 flex-1 overflow-y-auto flex  flex-col-reverse   h-full scrl    transition-all duration-300   "
+          "w-full  p-2  overflow-y-auto flex  flex-col-reverse h-full  "
         )}
         ref={chatRef}
       >
