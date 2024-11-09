@@ -145,7 +145,10 @@ export default function Messages({
                 return (
                   <Fragment key={index}>
                     {isP ? (
-                      <motion.div className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    ">
+                      <motion.div className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    "
+                        initial={{ y: 5, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        >
                         <div className="flex flex-col w-full items-end ">
 
                           <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
@@ -191,7 +194,10 @@ export default function Messages({
                           </div>
                      </motion.div>
                     ) : (
-                      <motion.div className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 ">
+                      <motion.div className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 "
+                        initial={{ y: 5, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        >
                        <div className="flex flex-col w-full items-start ">
                          <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
                           {/* for delete messag */}
