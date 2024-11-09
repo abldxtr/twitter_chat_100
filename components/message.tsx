@@ -110,7 +110,7 @@ export default function Messages({
     <div className=" flex-1 overflow-hidden ">
       <div
         className={classNames(
-          "w-full  p-2 flex-1 overflow-y-auto flex  flex-col-reverse   h-full scrl   transition-all duration-300   "
+          "w-full  p-2 flex-1 overflow-y-auto flex  flex-col-reverse   h-full scrl relative   transition-all duration-300   "
         )}
         ref={chatRef}
       >
