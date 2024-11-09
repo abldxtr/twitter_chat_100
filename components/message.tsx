@@ -107,14 +107,8 @@ export default function Messages({
 
 
   return (
-    <div className=" flex-1 overflow-hidden ">
-      <div
-        className={classNames(
-          "w-full  p-2 flex-1 overflow-y-auto flex  flex-col-reverse   h-full scrl relative   transition-all duration-300   "
-        )}
-        ref={chatRef}
-      >
-        <div
+    <div className=" flex-1 overflow-hidden relative">
+       <div
           className={classNames(
             " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
             "cursor-pointer transiton-all duration-300 ",
@@ -132,6 +126,13 @@ export default function Messages({
             </g>
           </svg>
         </div>
+      <div
+        className={classNames(
+          "w-full  p-2 flex-1 overflow-y-auto flex  flex-col-reverse   h-full scrl    transition-all duration-300   "
+        )}
+        ref={chatRef}
+      >
+       
         {/* <div ref={bottomRef}> bottom</div> */}
         <div ref={bottomRef} />
 
