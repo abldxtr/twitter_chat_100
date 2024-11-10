@@ -10,6 +10,7 @@ export type items = {
 
 export type mess = {
   message: MessageData;
+  direction: "rtl" | "ltr";
 };
 
 export function ScrollDown({ goDown, func }: items) {
@@ -35,7 +36,7 @@ export function ScrollDown({ goDown, func }: items) {
   );
 }
 
-export function MessRight({ message }: mess) {
+export function MessRight({ message, direction }: mess) {
   return (
     <motion.div
       className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    "
@@ -70,7 +71,14 @@ export function MessRight({ message }: mess) {
                             className=" h-auto bg-[#0f1419bf] shrike-0 hover:bg-[#272c30bf] object-cover "
                           />
                         )} */}
-            <span className="text-left break-all">{message.content}</span>
+            <span
+              className={classNames(
+                " break-all "
+                // direction === "rtl" ? "rtlDir text-right " : "text-left"
+              )}
+            >
+              {message.content}
+            </span>
           </div>
         </div>
         <div className="block text-[rgb(83,100,113)] text-[13px] leading-[16px] font-[400] mt-[6px] rtlDir ">
@@ -81,7 +89,7 @@ export function MessRight({ message }: mess) {
   );
 }
 
-export function MessLeft({ message }: mess) {
+export function MessLeft({ message, direction }: mess) {
   return (
     <motion.div
       className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 "
@@ -116,7 +124,14 @@ export function MessLeft({ message }: mess) {
                             className=" h-auto bg-[#0f1419bf] shrike-0 hover:bg-[#272c30bf] object-cover "
                           />
                         )} */}
-            <span className="text-left break-all">{message.content}</span>
+            <span
+              className={classNames(
+                " break-all  "
+                // direction === "rtl" ? "rtlDir text-right " : "text-left"
+              )}
+            >
+              {message.content}
+            </span>
           </div>
         </div>
 

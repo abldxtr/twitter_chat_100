@@ -10,6 +10,7 @@ import { useChatScroll } from "@/hooks/use-chat-scroll";
 import { Loader2 } from "lucide-react";
 import { formatMessageDate, formatPersianDate } from "@/lib/utils";
 import { MessLeft, MessRight, ScrollDown } from "./scroll-down";
+import { detectLanguageDirection } from "@/hooks/useTextDirection";
 
 export default function Messages({
   text,
@@ -92,15 +93,17 @@ export default function Messages({
               <div className="px-2 py-1 bg-gray-100 rounded-full">{date}</div>
             </div>
             {msgs.reverse().map((message, index) => {
+              const direction = detectLanguageDirection(message.content);
+              console.log("dir", direction);
               // const isP = it.senderId === currentUser;
 
               const isCurrentUser = message.senderId === currentUser;
               return (
                 <Fragment key={index}>
                   {isCurrentUser ? (
-                    <MessRight message={message} />
+                    <MessRight message={message} direction={direction} />
                   ) : (
-                    <MessLeft message={message} />
+                    <MessLeft message={message} direction={direction} />
                   )}
                 </Fragment>
               );
