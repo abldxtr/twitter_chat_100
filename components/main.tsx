@@ -12,7 +12,7 @@ export default async function Main({ param }: { param: string }) {
 
   const users = await fetchChat();
   if (users) {
-    console.log("users", users[0]);
+    // console.log("users", users[0]);
   }
 
   if (!current || !current.user || !current.user.id) {
@@ -25,7 +25,6 @@ export default async function Main({ param }: { param: string }) {
   const second = res?.participant;
   const message = res?.messages;
   const chat = res?.id;
-  
 
   const other = current.user.id === first?.id ? second : first;
   const currentUser = current.user.id === first?.id ? first : second;
@@ -55,5 +54,3 @@ export default async function Main({ param }: { param: string }) {
     </main>
   );
 }
-
-

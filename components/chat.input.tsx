@@ -17,6 +17,7 @@ import { useSession } from "next-auth/react";
 import { sendMassage } from "@/lib/actions";
 import { text, user } from "@/lib/definitions";
 import { useRouter } from "next/navigation";
+import { useSocket } from "@/provider/socket-provider";
 
 export default function InputChat({
   param,
@@ -44,12 +45,52 @@ export default function InputChat({
   const [msg, setMsg] = useState(message);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { socket } = useSocket();
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClickOutside = () => {
     setOpenEmoji(false);
   };
 
   useOnClickOutside([EmojiRef, textRef], handleClickOutside);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleTyping = () => {
+      // ارسال رویداد isTyping به سرور
+
+      console.log("sending.....");
+      socket.emit("isTyping", { chatId, userId: first?.id });
+    };
+
+    const handleStopTyping = () => {
+      // ارسال رویداد stopTyping به سرور
+      console.log("stoping.....");
+
+      socket.emit("stopTyping", { chatId, userId: first?.id });
+    };
+
+    if (inputValue.trim()) {
+      // وقتی کاربر تایپ می‌کند
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current); // تایمر قبلی را پاک می‌کنیم
+      }
+      handleTyping();
+      typingTimeoutRef.current = setTimeout(handleStopTyping, 3000); // بعد از 3 ثانیه تایپ نکردن
+    } else {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current); // تایمر را پاک می‌کنیم اگر ورودی خالی باشد
+      }
+      handleStopTyping(); // اگر ورودی خالی شود، وضعیت توقف تایپ را ارسال می‌کنیم
+    }
+
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current); // پاک کردن تایمر در صورت خروج از کامپوننت
+      }
+    };
+  }, [inputValue, socket, chatId, first?.id]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

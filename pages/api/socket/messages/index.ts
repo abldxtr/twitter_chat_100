@@ -16,8 +16,8 @@ export default async function handler(
     // const profile = fetch("/api/getauth");
     const { content, senderId, reeciverId, id } = req.body;
     const { chatId } = req.query;
-    console.log("sender and rec", senderId);
-    console.log("receiverId and rec", reeciverId);
+    // console.log("sender and rec", senderId);
+    // console.log("receiverId and rec", reeciverId);
     // console.log("user", profile);
 
     if (!chatId) {

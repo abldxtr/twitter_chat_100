@@ -7,14 +7,18 @@ type ChatSocketProps = {
   addKey: string;
   updateKey: string;
   queryKey: string;
+  typeKey: string;
+  stoptypekey: string;
 };
 
 export const useChatSocket = ({
   addKey,
   updateKey,
   queryKey,
+  typeKey,
+  stoptypekey,
 }: ChatSocketProps) => {
-  const { socket } = useSocket();
+  const { socket, setTypingUser, typingUser } = useSocket();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -48,9 +52,25 @@ export const useChatSocket = ({
       });
     });
 
+    socket.on(
+      typeKey,
+      ({ isTyping, userId }: { isTyping: boolean; userId: string }) => {
+        console.log(` is typing: ${isTyping}`);
+        setTypingUser({ isTyping, userId });
+      }
+    );
+
+    socket.on(
+      stoptypekey,
+      ({ isTyping, userId }: { isTyping: boolean; userId: string }) => {
+        console.log(`stop typing: ${isTyping}`);
+        setTypingUser({ isTyping, userId });
+      }
+    );
+
     return () => {
       socket.off(addKey);
-      socket.off(updateKey);
+      socket.off(typeKey);
     };
-  }, [queryClient, addKey, queryKey, socket, updateKey]);
+  }, [queryClient, addKey, queryKey, socket, typeKey, stoptypekey]);
 };

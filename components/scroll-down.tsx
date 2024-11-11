@@ -1,7 +1,7 @@
 import { MessageData } from "@/lib/definitions";
 import { formatPersianDate } from "@/lib/utils";
 import classNames from "classnames";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type items = {
   goDown: boolean;
@@ -140,5 +140,61 @@ export function MessLeft({ message, direction }: mess) {
         </div>
       </div>
     </motion.div>
+  );
+}
+
+export function TypingRight({ message }: { message: string }) {
+  return (
+    <motion.div
+      className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    "
+      initial={{ y: 5, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+    >
+      <div className="flex flex-col w-full items-end ">
+        <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
+          <div className=" flex cursor-pointer flex-col gap-2 bg-[rgb(29,155,240)] rounded-br-sm rounded-2xl py-[12px] px-[16px] text-right text-white leading-[20px] text-[15px] hover:bg-[#1a8cd8] transition-all duration-300    ">
+            <span
+              className={classNames(
+                " break-all "
+                // direction === "rtl" ? "rtlDir text-right " : "text-left"
+              )}
+            >
+              {message}
+            </span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export function TypingLeft({ message }: { message: string }) {
+  return (
+    // <AnimatePresence>
+    <motion.div
+      className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 "
+      initial={{ y: 5, opacity: 0, height: 0 }}
+      animate={{ y: 0, opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0, transition: { duration: 0.5 } }}
+      // transition={{
+      //   duration: 1.5,
+      // }}
+    >
+      <div className="flex flex-col w-full items-start animate-pulse ">
+        <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
+          <div className=" flex cursor-pointer flex-col text-[#0f1419] bg-gray-300 rounded-bl-sm rounded-2xl py-[12px] px-[16px] text-right leading-[20px] text-[15px] transition-all duration-300    ">
+            <span
+              className={classNames(
+                " break-all  "
+                // direction === "rtl" ? "rtlDir text-right " : "text-left"
+              )}
+            >
+              {message}
+            </span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+    // </AnimatePresence>
   );
 }

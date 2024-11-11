@@ -9,8 +9,10 @@ import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
 import { Loader2 } from "lucide-react";
 import { formatMessageDate, formatPersianDate } from "@/lib/utils";
-import { MessLeft, MessRight, ScrollDown } from "./scroll-down";
+import { MessLeft, MessRight, ScrollDown, TypingLeft } from "./scroll-down";
 import { detectLanguageDirection } from "@/hooks/useTextDirection";
+import { useSocket } from "@/provider/socket-provider";
+import { AnimatePresence } from "framer-motion";
 
 export default function Messages({
   text,
@@ -24,6 +26,7 @@ export default function Messages({
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const chatRef = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
+  const { typingUser } = useSocket();
 
   const currentUser = first ? first.id : "";
 
@@ -33,6 +36,8 @@ export default function Messages({
   const apiUrl = "/api/messages";
   const paramKey = "chatId";
   const paramValue = chatId ? chatId : "";
+  const typeKey = "typing";
+  const stoptypekey = "stoptype";
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
@@ -41,7 +46,7 @@ export default function Messages({
       paramKey,
       paramValue,
     });
-  useChatSocket({ queryKey, addKey, updateKey });
+  useChatSocket({ queryKey, addKey, typeKey, updateKey, stoptypekey });
   useChatScroll({
     chatRef,
     bottomRef,
@@ -86,6 +91,12 @@ export default function Messages({
         )}
         ref={chatRef}
       >
+        <AnimatePresence>
+          {typingUser.userId &&
+            typingUser.userId !== currentUser &&
+            typingUser.isTyping && <TypingLeft message="typing..." />}
+        </AnimatePresence>
+
         <div ref={bottomRef} />
         {Object.entries(groupedMessages).map(([date, msgs]) => (
           <div key={date} className="mb-4">
@@ -93,9 +104,10 @@ export default function Messages({
               <div className="px-2 py-1 bg-gray-100 rounded-full">{date}</div>
             </div>
             {msgs.reverse().map((message, index) => {
-              const direction = detectLanguageDirection(message.content);
-              console.log("dir", direction);
+              // const direction = detectLanguageDirection(message.content);
+              // console.log("dir", direction);
               // const isP = it.senderId === currentUser;
+              const direction = "ltr";
 
               const isCurrentUser = message.senderId === currentUser;
               return (
