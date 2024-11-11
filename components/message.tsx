@@ -1,7 +1,7 @@
 "use client";
 
 import classNames from "classnames";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { MessageData, text, user } from "@/lib/definitions";
 import { useChatQuery } from "@/hooks/use-chat-query";
@@ -38,6 +38,22 @@ export default function Messages({
   const paramValue = chatId ? chatId : "";
   const typeKey = "typing";
   const stoptypekey = "stoptype";
+
+  useLayoutEffect(() => {
+    const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
+    if (storedScrollPosition && chatRef.current) {
+      chatRef.current.scrollTop = parseInt(storedScrollPosition, 10);
+    }
+
+    return () => {
+      if (chatRef.current) {
+        sessionStorage.setItem(
+          `scrollPos-${chatId}`,
+          chatRef.current.scrollTop.toString()
+        );
+      }
+    };
+  }, [chatId]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
