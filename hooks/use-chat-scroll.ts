@@ -45,7 +45,7 @@ export const useChatScroll = ({
       if (scrollElement) {
         const distanceFromBottom = scrollElement.scrollTop;
 
-        console.log("show", distanceFromBottom);
+        // console.log("show", distanceFromBottom);
         distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
       }
     };

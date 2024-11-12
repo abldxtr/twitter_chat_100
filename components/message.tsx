@@ -13,6 +13,8 @@ import { MessLeft, MessRight, ScrollDown, TypingLeft } from "./scroll-down";
 import { detectLanguageDirection } from "@/hooks/useTextDirection";
 import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
+import db from "@/lib/prisma";
+import { updateLastSeen } from "@/lib/actions";
 
 export default function Messages({
   text,
@@ -54,6 +56,12 @@ export default function Messages({
       }
     };
   }, [chatId]);
+
+  useEffect(() => {
+    return () => {
+      updateLastSeen({ userId: first?.id! });
+    };
+  }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({

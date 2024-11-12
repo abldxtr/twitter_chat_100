@@ -1,5 +1,6 @@
 // "use client";
 
+import { formatMessageDate, formatPersianDate } from "@/lib/utils";
 import classNames from "classnames";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,6 +15,7 @@ export type user = {
   href: string;
   active: boolean;
   username: string | null;
+  date: Date;
 };
 
 export default function UserList({
@@ -23,6 +25,7 @@ export default function UserList({
   href,
   active,
   username,
+  date,
 }: user) {
   // const { param } = useParams();
   // console.log("href", param);
@@ -51,7 +54,7 @@ export default function UserList({
         <div className="mr-[16px] flex relative size-[48px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">
           <Image
             alt="Aerospace"
-            draggable="true"
+            // draggable="true"
             src={img ? img : ""}
             className="size-full rounded-full shrink-0 "
             fill
@@ -62,13 +65,17 @@ export default function UserList({
         <div className="flex h-full grow flex-1 flex-col">
           {/* diyyYYyy */}
           <div className="text-[15px] font-semibold leading-[20px] text-[#0f1419] whitespace-nowrap ">
-            <span className=" truncate ">
+            <div className=" flex items-center justify-between ">
               {/* {username!} */}
-              <span className="text-[15px] font-normal text-[#536471]">
+              <div className="text-[15px] font-normal text-[#536471]">
                 {name}
-              </span>
-            </span>
-            {/* <!--  --> */}
+              </div>
+              {/* date */}
+              <div className="text-[12px] font-normal text-[#536471] rtlDir   ">
+                {/* {formatPersianDate(new Date(date))} */}
+                {formatMessageDate(new Date(date))}
+              </div>
+            </div>
           </div>
           <div className="text-[13px] font-normal leading-[20px] text-[#536471]">
             <span>You accepted the reauest</span>

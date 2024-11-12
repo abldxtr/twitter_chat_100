@@ -175,3 +175,23 @@ export async function sendMassage({
 
   return message;
 }
+
+export async function updateLastSeen({ userId }: { userId: string }) {
+  try {
+    console.log("dataeeee", new Date());
+    await db.user.update({
+      where: { id: userId },
+      data: { lastSeen: new Date() },
+    });
+
+    return {
+      success: true,
+      // data: res,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      // message: "Email or password is incorrect.",
+    };
+  }
+}

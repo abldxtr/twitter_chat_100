@@ -25,6 +25,7 @@ export default async function Main({ param }: { param: string }) {
   const second = res?.participant;
   const message = res?.messages;
   const chat = res?.id;
+  const lastMessage = message && message[0];
 
   const other = current.user.id === first?.id ? second : first;
   const currentUser = current.user.id === first?.id ? first : second;
@@ -36,7 +37,12 @@ export default async function Main({ param }: { param: string }) {
       <div className="flex shrink grow flex-1 items-start min-w-full">
         {/* <!-- messages list --> */}
         <div className=" overflow-y-auto overflow-x-hidden flex  h-screen scrl">
-          <Message_list param={param} chatlist={users} first={Me} />
+          <Message_list
+            param={param}
+            chatlist={users}
+            first={Me}
+            lastMessage={lastMessage}
+          />
         </div>
 
         {/* <!-- message input --> */}
