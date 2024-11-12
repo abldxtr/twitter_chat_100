@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format, isToday, isYesterday, isSameWeek, isSameYear } from "date-fns";
-import { faIR } from "date-fns-jalali/locale";
+// import { format, isToday, isYesterday, isSameWeek, isSameYear } from "date-fns";
+// import { faIR } from "date-fns-jalali/locale";
 import moment from "moment-jalaali";
 
 export function cn(...inputs: ClassValue[]) {
