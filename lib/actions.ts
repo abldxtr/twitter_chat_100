@@ -9,6 +9,7 @@ import { RegisterSchema, LoginSchema } from "@/index";
 import { getUserByEmail } from "@/data/user";
 import { auth, signIn } from "@/auth";
 import { PrismaClient } from "@prisma/client";
+import { revalidateTag } from "next/cache";
 
 const prisma = new PrismaClient();
 
@@ -183,6 +184,7 @@ export async function updateLastSeen({ userId }: { userId: string }) {
       where: { id: userId },
       data: { lastSeen: new Date() },
     });
+    revalidateTag("fetchChat");
 
     return {
       success: true,

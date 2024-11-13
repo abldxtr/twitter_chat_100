@@ -7,18 +7,28 @@ import UserList from "./message/m-list";
 import { ChatList, user } from "@/lib/definitions";
 // import { useParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Message } from "@prisma/client";
+import { Message, User } from "@prisma/client";
+
+export type users = {
+  id: string;
+  initiator: User;
+  participant: User;
+  messages: {
+    createdAt: Date;
+    content: string;
+  }[];
+}[];
 
 export default function Message_list({
   param,
   chatlist,
   first,
-  lastMessage,
-}: {
+}: // lastMessage,
+{
   param: string;
-  chatlist: ChatList | undefined;
+  chatlist: users;
   first: string;
-  lastMessage: Message | undefined;
+  // lastMessage: Message | undefined;
 }) {
   // const currentUser = first ? first.id : "";
   const currentUser = first;
@@ -32,10 +42,20 @@ export default function Message_list({
         <ScrollArea className=" flex-1  ">
           {chatlist?.map((item, index: number) => {
             // console.log(item);
-            // if (item.id === currentUser) {
+            // if (item.initiator.id === currentUser || item.participant.id === currentUser) {
             //   return;
             // }
-            const date = item.lastSeen;
+
+            const otherUser =
+              item.initiator.id === currentUser
+                ? item.participant
+                : item.initiator;
+            // const date1 = item.initiator.lastSeen;
+            // const date2 = item.participant.lastSeen;
+            const lastMessage = item.messages.pop()?.content ?? "";
+            const date1 = new Date(item.initiator.lastSeen);
+            const date2 = new Date(item.participant.lastSeen);
+            const date = date1 > date2 ? date2 : date1;
             const active = item.id === param;
             const href = `/${item.id}`;
 
@@ -46,12 +66,15 @@ export default function Message_list({
               <UserList
                 id={item.id}
                 img={img}
-                name={item.name}
+                name={otherUser.name}
                 href={href}
                 key={index}
                 active={active}
-                username={item.username}
+                username={otherUser.username}
                 date={date}
+                lastMessage={lastMessage}
+                // date1={date1}
+                // date2={date2}
               />
             );
           })}

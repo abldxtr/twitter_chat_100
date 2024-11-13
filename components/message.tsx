@@ -17,11 +17,11 @@ import db from "@/lib/prisma";
 import { updateLastSeen } from "@/lib/actions";
 
 export default function Messages({
-  text,
+  // text,
   first,
   chatId,
 }: {
-  text: text | undefined;
+  // text: text | undefined;
   first: user | undefined;
   chatId: string | undefined;
 }) {
@@ -132,6 +132,8 @@ export default function Messages({
               // console.log("dir", direction);
               // const isP = it.senderId === currentUser;
               const direction = "ltr";
+              console.log("message.senderId", message.senderId);
+              console.log("currentUser", currentUser);
 
               const isCurrentUser = message.senderId === currentUser;
               return (

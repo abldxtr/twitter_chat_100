@@ -24,7 +24,7 @@ export default function InputChat({
   first,
   second,
   other,
-  message,
+  // message,
   chatId,
 }: {
   param: string;
@@ -33,7 +33,7 @@ export default function InputChat({
   other: user | undefined;
   chatId: string | undefined;
 
-  message: text | undefined;
+  // message: text | undefined;
 }) {
   const { openEmoji, setOpenEmoji, open, setOpen } = useEmojiState();
   const [cursorPosition, setCursorPosition] = useState<number>(0);
@@ -42,7 +42,7 @@ export default function InputChat({
   const textRef = useRef<HTMLInputElement | null>(null);
   const EmojiRef = useRef(null);
   const user = useSession();
-  const [msg, setMsg] = useState(message);
+  // const [msg, setMsg] = useState(message);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { socket } = useSocket();
