@@ -1,9 +1,12 @@
-// "use client";
+"use client";
 
+import { useGlobalContext } from "@/context/globalContext";
 import { formatMessageDate, formatPersianDate } from "@/lib/utils";
 import classNames from "classnames";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMediaQuery } from "usehooks-ts";
 
 export type user = {
   name: string | null;
@@ -28,8 +31,23 @@ export default function UserList({
   date,
   lastMessage,
 }: user) {
+  const router = useRouter();
+  const { mobileMenue, setMobileMenue } = useGlobalContext();
+  const matches = useMediaQuery("(min-width: 768px)");
+
   return (
-    <Link className="min-h-[40px] w-full  " href={href} prefetch={true}>
+    <div
+      className="min-h-[40px] w-full  "
+      // href={href}
+      //  prefetch={true}
+      onClick={() => {
+        if (!matches) {
+          setMobileMenue(false);
+        }
+
+        router.push(`${href}`);
+      }}
+    >
       <div
         className={classNames(
           "flex  min-h-[40px] items-center cursor-pointer p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] ",
@@ -61,6 +79,6 @@ export default function UserList({
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

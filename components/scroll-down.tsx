@@ -198,3 +198,25 @@ export function TypingLeft({ message }: { message: string }) {
     // </AnimatePresence>
   );
 }
+
+export function BackMenue({ func }: { func: () => void }) {
+  return (
+    <div
+      className={classNames(
+        "  flex items-center justify-center size-[36px] rounded-full hover:bg-gray-100 transition-colors duration-300 border-transparent     ",
+        "cursor-pointer transiton-all duration-300 "
+      )}
+      onClick={func}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className=" fill-[rgba(53,55,56,0.86)] shrink-0 size-[24px] rotate-90 "
+      >
+        <g>
+          <path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"></path>
+        </g>
+      </svg>
+    </div>
+  );
+}

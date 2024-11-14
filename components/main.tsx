@@ -67,19 +67,17 @@ export default async function Main({ param }: { param: string }) {
 
   return (
     <main className="flex h-full items-start w-full ">
-      <div className="flex shrink grow flex-1 items-start min-w-full">
+      <div className="flex shrink grow flex-1 items-start min-w-full isolate ">
         {/* <!-- messages list --> */}
-        <div className=" overflow-y-auto overflow-x-hidden flex  h-screen scrl">
-          <Message_list
-            param={param}
-            chatlist={users}
-            first={Me}
-            // lastMessage={lastMessage}
-          />
-        </div>
+        <Message_list
+          param={param}
+          chatlist={users}
+          first={Me}
+          // lastMessage={lastMessage}
+        />
 
         {/* <!-- message input --> */}
-        <div className=" overflow-auto flex flex-1 h-full ">
+        <div className=" overflow-auto flex flex-1 h-full md:pl-[400px] z-[9]  ">
           <Chat_text
             param={param}
             first={userDb!}

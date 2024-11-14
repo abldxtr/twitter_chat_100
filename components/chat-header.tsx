@@ -1,21 +1,28 @@
-// "use client";
+"use client";
 
 import { user } from "@/lib/definitions";
+import { BackMenue } from "./scroll-down";
+import { useGlobalContext } from "@/context/globalContext";
 // import { useParams } from "next/navigation";
 
 export default function ChatHeader({ other }: { other: user | undefined }) {
   // const param = useParams<{ conversationId: string }>();
   // console.log("param", param.conversationId);
+  const { mobileMenue, setMobileMenue } = useGlobalContext();
+
   return (
     <div className="w-full  z-10 ">
       <div className=" h-[53px] w-full bg-[#ffffffd9] backdrop-blur-md">
         <div className="flex h-full w-full flex-1 items-center justify-between px-[16px]">
           {/* <!-- 1 --> */}
-          <div className="w-full flex-1">
-            <h2 className="py-[2px] text-[20px] font-bold leading-[24px] text-[#0f1419]">
-              {/* GE Aerospace */}
-              {other?.name}
-            </h2>
+          <div className=" flex items-center gap-x-4 ">
+            <BackMenue func={() => setMobileMenue(!mobileMenue)} />
+            <div className="w-full flex-1">
+              <h2 className="py-[2px] text-[20px] font-bold leading-[24px] text-[#0f1419]">
+                {/* GE Aerospace */}
+                {other?.name}
+              </h2>
+            </div>
           </div>
 
           {/* <!-- 2 --> */}

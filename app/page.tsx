@@ -6,9 +6,9 @@ export default function Home() {
   return (
     <div>
       <div className="container isolate mx-auto flex h-screen  overflow-hidden">
-        <div className=" overflow-auto  h-full scrl  ">
+        {/* <div className=" overflow-auto  h-full scrl  ">
           <Header />
-        </div>
+        </div> */}
         <Main param="" />
       </div>
     </div>
