@@ -33,7 +33,6 @@ export default function Message_list({
 }) {
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
-  const currentUser = first;
   const [mounted, setMounted] = useState(false);
   const param = useParams();
 
@@ -48,6 +47,7 @@ export default function Message_list({
       setMobileMenue(false);
     }
   }, [matches]);
+  // const conId = param?.conversationId as string | undefined
 
   const memoizedChatList = useMemo(() => {
     // if (!mounted) return null; // از رندر در سمت سرور جلوگیری می‌کند
@@ -63,7 +63,7 @@ export default function Message_list({
       const date2 = item.participant.lastSeen;
       const date = new Date(date1 > date2 ? date2 : date1);
 
-      const active = item.id === param.conversationId;
+      const active = param && item.id === param.conversationId;
       const href = `${item.id}`;
       const img =
         "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";

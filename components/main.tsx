@@ -15,8 +15,7 @@ export default async function Main({ param }: { param: string }) {
 
   const userId = current?.user.id;
 
-  const [users, chatDb] = await Promise.all([
-    fetchChat(userId),
+  const [chatDb] = await Promise.all([
     db.chat.findFirst({
       where: {
         id: param,

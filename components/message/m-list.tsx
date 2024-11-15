@@ -14,7 +14,7 @@ export type user = {
   id: string;
   img?: string;
   href: string;
-  active: boolean;
+  active: boolean | null;
   username: string | null;
   // date1: Date;
   // date2: Date;
@@ -42,25 +42,25 @@ export default function UserList({
   const conId = param && (param.conversationId as string);
 
   return (
-    <div
+    <Link
       className="min-h-[40px] w-full  "
-      // href={href}
-      //  prefetch={true}
-      onClick={() => {
-        if (!matches) {
-          setMobileMenue(false);
-        }
+      href={`/${href}`}
+      prefetch={true}
+      // onClick={() => {
+      //   if (!matches) {
+      //     setMobileMenue(false);
+      //   }
 
-        router.push(`/${href}`);
-      }}
+      //   router.push(`/${href}`);
+      // }}
     >
       <div
         className={classNames(
           "flex  min-h-[40px] items-center cursor-pointer p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] ",
-          // active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : "",
-          conId && conId === href
-            ? "bg-[#f7f9f9] border-r-2 border-blue-300 "
-            : ""
+          active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : ""
+          // conId && conId === href
+          //   ? "bg-[#f7f9f9] border-r-2 border-blue-300 "
+          //   : ""
         )}
       >
         <div className="mr-[16px] flex relative size-[48px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">
@@ -88,6 +88,6 @@ export default function UserList({
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
