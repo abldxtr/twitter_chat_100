@@ -5,6 +5,7 @@ import { formatMessageDate, formatPersianDate } from "@/lib/utils";
 import classNames from "classnames";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useMediaQuery } from "usehooks-ts";
 
@@ -35,6 +36,11 @@ export default function UserList({
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
 
+  const param = useParams();
+  console.log("param", param!.conversationId);
+  console.log("href", href);
+  const conId = param && (param.conversationId as string);
+
   return (
     <div
       className="min-h-[40px] w-full  "
@@ -45,13 +51,16 @@ export default function UserList({
           setMobileMenue(false);
         }
 
-        router.push(`${href}`);
+        router.push(`/${href}`);
       }}
     >
       <div
         className={classNames(
           "flex  min-h-[40px] items-center cursor-pointer p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] ",
-          active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : ""
+          // active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : "",
+          conId && conId === href
+            ? "bg-[#f7f9f9] border-r-2 border-blue-300 "
+            : ""
         )}
       >
         <div className="mr-[16px] flex relative size-[48px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">

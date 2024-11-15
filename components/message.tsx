@@ -132,8 +132,8 @@ export default function Messages({
               // console.log("dir", direction);
               // const isP = it.senderId === currentUser;
               const direction = "ltr";
-              console.log("message.senderId", message.senderId);
-              console.log("currentUser", currentUser);
+              // console.log("message.senderId", message.senderId);
+              // console.log("currentUser", currentUser);
 
               const isCurrentUser = message.senderId === currentUser;
               return (

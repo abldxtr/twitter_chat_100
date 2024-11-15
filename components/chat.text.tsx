@@ -44,7 +44,7 @@ export default async function Chat_text({
             />
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-900 font-bold ">
+          <div className="w-full h-full flex items-center justify-center text-slate-900 font-bold rtlDir ">
             باید وارد گفت و گو شوید!
           </div>
         )}

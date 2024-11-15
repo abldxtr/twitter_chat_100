@@ -204,7 +204,7 @@ export function BackMenue({ func }: { func: () => void }) {
     <div
       className={classNames(
         "  flex items-center justify-center size-[36px] rounded-full hover:bg-gray-100 transition-colors duration-300 border-transparent     ",
-        "cursor-pointer transiton-all duration-300 "
+        "cursor-pointer transiton-all duration-300 md:hidden "
       )}
       onClick={func}
     >

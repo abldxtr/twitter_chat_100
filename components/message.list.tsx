@@ -11,7 +11,8 @@ import { Message, User } from "@prisma/client";
 import classNames from "classnames";
 import { useMediaQuery } from "usehooks-ts";
 import { useGlobalContext } from "@/context/globalContext";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 
 export type users = {
   id: string;
@@ -24,20 +25,21 @@ export type users = {
 }[];
 
 export default function Message_list({
-  param,
   chatlist,
   first,
-}: // lastMessage,
-{
-  param: string;
+}: {
   chatlist: users;
   first: string;
-  // lastMessage: Message | undefined;
 }) {
-  // const currentUser = first ? first.id : "";
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
   const currentUser = first;
+  const [mounted, setMounted] = useState(false);
+  const param = useParams();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (matches && !mobileMenue) {
@@ -46,6 +48,45 @@ export default function Message_list({
       setMobileMenue(false);
     }
   }, [matches]);
+
+  const memoizedChatList = useMemo(() => {
+    // if (!mounted) return null; // از رندر در سمت سرور جلوگیری می‌کند
+
+    return chatlist?.map((item) => {
+      const otherUser =
+        item.initiator.id === first ? item.participant : item.initiator;
+      const lastMessage =
+        item.messages[item.messages.length - 1]?.content ?? "";
+
+      // تاریخ‌ها را به صورت ثابت نگه می‌داریم
+      const date1 = item.initiator.lastSeen;
+      const date2 = item.participant.lastSeen;
+      const date = new Date(date1 > date2 ? date2 : date1);
+
+      const active = item.id === param.conversationId;
+      const href = `${item.id}`;
+      const img =
+        "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
+
+      return (
+        <UserList
+          key={item.id}
+          id={item.id}
+          img={img}
+          name={otherUser.name}
+          href={href}
+          active={active}
+          username={otherUser.username}
+          date={date}
+          lastMessage={lastMessage}
+        />
+      );
+    });
+  }, [chatlist, first, param, mounted]);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div
@@ -61,46 +102,7 @@ export default function Message_list({
           <MessageHeader />
           <MessageRequest />
 
-          <ScrollArea className=" flex-1  ">
-            {chatlist?.map((item, index: number) => {
-              // console.log(item);
-              // if (item.initiator.id === currentUser || item.participant.id === currentUser) {
-              //   return;
-              // }
-
-              const otherUser =
-                item.initiator.id === currentUser
-                  ? item.participant
-                  : item.initiator;
-              // const date1 = item.initiator.lastSeen;
-              // const date2 = item.participant.lastSeen;
-              const lastMessage = item.messages.pop()?.content ?? "";
-              const date1 = new Date(item.initiator.lastSeen);
-              const date2 = new Date(item.participant.lastSeen);
-              const date = date1 > date2 ? date2 : date1;
-              const active = item.id === param;
-              const href = `/${item.id}`;
-
-              const img =
-                "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
-
-              return (
-                <UserList
-                  id={item.id}
-                  img={img}
-                  name={otherUser.name}
-                  href={href}
-                  key={index}
-                  active={active}
-                  username={otherUser.username}
-                  date={date}
-                  lastMessage={lastMessage}
-                  // date1={date1}
-                  // date2={date2}
-                />
-              );
-            })}
-          </ScrollArea>
+          <div className=" flex-1 overflow-y-auto ">{memoizedChatList}</div>
         </div>
       </section>
     </div>
