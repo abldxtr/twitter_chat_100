@@ -1,13 +1,10 @@
 "use client";
 
-// import { useRouter } from "next/navigation";
 import MessageHeader from "./message/m-header";
 import MessageRequest from "./message/m-request";
-import UserList from "./message/m-list";
-import { ChatList, user } from "@/lib/definitions";
-// import { useParams } from "next/navigation";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Message, User } from "@prisma/client";
+import UserList, { userList } from "./message/m-list";
+import { user } from "@/lib/definitions";
+import { User } from "@prisma/client";
 import classNames from "classnames";
 import { useMediaQuery } from "usehooks-ts";
 import { useGlobalContext } from "@/context/globalContext";
@@ -47,7 +44,6 @@ export default function Message_list({
       setMobileMenue(false);
     }
   }, [matches]);
-  // const conId = param?.conversationId as string | undefined
 
   const memoizedChatList = useMemo(() => {
     // if (!mounted) return null; // از رندر در سمت سرور جلوگیری می‌کند
@@ -68,19 +64,18 @@ export default function Message_list({
       const img =
         "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
 
-      return (
-        <UserList
-          key={item.id}
-          id={item.id}
-          img={img}
-          name={otherUser.name}
-          href={href}
-          active={active}
-          username={otherUser.username}
-          date={date}
-          lastMessage={lastMessage}
-        />
-      );
+      const userItem: userList = {
+        id: item.id,
+        active,
+        date,
+        href,
+        lastMessage,
+        name: otherUser.name,
+        username: otherUser.username,
+        img,
+      };
+
+      return <UserList key={item.id} user={userItem} />;
     });
   }, [chatlist, first, param, mounted]);
 

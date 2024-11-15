@@ -5,7 +5,7 @@ import { BackMenue } from "./scroll-down";
 import { useGlobalContext } from "@/context/globalContext";
 
 export default function ChatHeader({ other }: { other?: user | undefined }) {
-  const { mobileMenue, setMobileMenue } = useGlobalContext();
+  const { mobileMenue, setMobileMenue, chatIdActive } = useGlobalContext();
 
   return (
     <div className="w-full  z-10 ">
@@ -15,7 +15,7 @@ export default function ChatHeader({ other }: { other?: user | undefined }) {
             <BackMenue func={() => setMobileMenue(!mobileMenue)} />
             <div className="w-full flex-1">
               <h2 className="py-[2px] text-[20px] font-bold leading-[24px] text-[#0f1419]">
-                {other?.name}
+                {chatIdActive?.name || other?.name}
               </h2>
             </div>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { userList } from "@/components/message/m-list";
 import React, { createContext, useContext, useState } from "react";
 
 interface CounterContextType {
@@ -12,6 +13,8 @@ interface CounterContextType {
   setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
   mobileMenue: boolean;
   setMobileMenue: React.Dispatch<React.SetStateAction<boolean>>;
+  chatIdActive: userList | null;
+  setChatIdActive: React.Dispatch<React.SetStateAction<userList | null>>;
 }
 
 const GlobalContext = createContext<CounterContextType | undefined>(undefined);
@@ -21,6 +24,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [showFriendProfile, setShowFriendProfile] = useState<boolean>(false);
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [mobileMenue, setMobileMenue] = useState<boolean>(false);
+  const [chatIdActive, setChatIdActive] = useState<userList | null>(null);
 
   return (
     <GlobalContext.Provider
@@ -33,6 +37,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
         setShowFriendProfile,
         mobileMenue,
         setMobileMenue,
+        chatIdActive,
+        setChatIdActive,
       }}
     >
       {children}
