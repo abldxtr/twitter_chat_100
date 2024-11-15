@@ -3,25 +3,21 @@
 import classNames from "classnames";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
-import { MessageData, text, user } from "@/lib/definitions";
+import { MessageData, user } from "@/lib/definitions";
 import { useChatQuery } from "@/hooks/use-chat-query";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
 import { Loader2 } from "lucide-react";
-import { formatMessageDate, formatPersianDate } from "@/lib/utils";
+import { formatMessageDate } from "@/lib/utils";
 import { MessLeft, MessRight, ScrollDown, TypingLeft } from "./scroll-down";
-import { detectLanguageDirection } from "@/hooks/useTextDirection";
 import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
-import db from "@/lib/prisma";
 import { updateLastSeen } from "@/lib/actions";
 
 export default function Messages({
-  // text,
   first,
   chatId,
 }: {
-  // text: text | undefined;
   first: user | undefined;
   chatId: string | undefined;
 }) {
@@ -128,13 +124,7 @@ export default function Messages({
               <div className="px-2 py-1 bg-gray-100 rounded-full">{date}</div>
             </div>
             {msgs.reverse().map((message, index) => {
-              // const direction = detectLanguageDirection(message.content);
-              // console.log("dir", direction);
-              // const isP = it.senderId === currentUser;
               const direction = "ltr";
-              // console.log("message.senderId", message.senderId);
-              // console.log("currentUser", currentUser);
-
               const isCurrentUser = message.senderId === currentUser;
               return (
                 <Fragment key={index}>
