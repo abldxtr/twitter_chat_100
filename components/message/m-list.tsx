@@ -36,23 +36,24 @@ export default function UserList({
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
 
-  const param = useParams();
-  console.log("param", param!.conversationId);
-  console.log("href", href);
-  const conId = param && (param.conversationId as string);
+  // const param = useParams();
+  // console.log("param", param!.conversationId);
+  // console.log("href", href);
+  // const conId = param && (param.conversationId as string);
 
   return (
     <Link
       className="min-h-[40px] w-full  "
       href={`/${href}`}
       prefetch={true}
-      // onClick={() => {
-      //   if (!matches) {
-      //     setMobileMenue(false);
-      //   }
+      onClick={() => {
+        if (!matches) {
+          console.log("mobileMenue", mobileMenue);
+          setMobileMenue(false);
+        }
 
-      //   router.push(`/${href}`);
-      // }}
+        //   router.push(`/${href}`);
+      }}
     >
       <div
         className={classNames(

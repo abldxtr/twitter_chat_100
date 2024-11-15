@@ -53,7 +53,7 @@ export default async function RootLayout({
                     <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
                       <div className=" overflow-auto  h-full scrl flex w-full  ">
                         <main className="flex h-full items-start w-full ">
-                          <div className="flex shrink grow flex-1 items-start min-w-full isolate ">
+                          <div className="flex shrink grow flex-1 items-start w-full isolate ">
                             {/* <!-- messages list --> */}
                             <Message_list chatlist={users} first={userId} />
 
