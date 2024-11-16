@@ -116,7 +116,7 @@ export function Account({ user }: { user: Session | null }) {
     >
       <div
         className={classNames(
-          "flex  min-h-[40px] items-center cursor-pointer p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] "
+          "flex  min-h-[40px] items-center cursor-pointer  border-b  p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] "
           // chatIdActive?.href === user.href
           //   ? "bg-[#f7f9f9] border-r-2 border-blue-300 "
           //   : ""

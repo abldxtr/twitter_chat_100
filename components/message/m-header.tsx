@@ -29,16 +29,18 @@ export default function MessageHeader() {
 
             {/* <!-- 2svg --> */}
             <div
-              className="flex size-[36px] cursor-pointer items-center justify-center rounded-full transition-all duration-300 hover:bg-[#0f14191a]"
+              className="flex size-[36px] cursor-pointer items-center hover:fill-red-500 justify-center rounded-full
+               transition-all duration-300 hover:bg-[#0f14191a]"
               onClick={() => signOut({ redirectTo: "/login" })}
             >
               <svg
                 viewBox="0 0 24 24"
                 aria-hidden="true"
-                className="size-[20px]"
+                data-testid="icon"
+                className="size-[20px]  "
               >
                 <g>
-                  <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5V12h-2v-1.537l-8 3.635-8-3.635V18.5c0 .276.224.5.5.5H13v2H4.498c-1.381 0-2.5-1.119-2.5-2.5v-13zm2 2.766l8 3.635 8-3.635V5.5c0-.276-.224-.5-.5-.5h-15c-.276 0-.5.224-.5.5v2.766zM19 18v-3h2v3h3v2h-3v3h-2v-3h-3v-2h3z"></path>
+                  <path d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v15c0 1.38-1.12 2.5-2.5 2.5h-11C5.12 22 4 20.88 4 19.5V16h2v3.5c0 .28.22.5.5.5h11c.28 0 .5-.22.5-.5v-15c0-.28-.22-.5-.5-.5h-11c-.28 0-.5.22-.5.5V8H4V4.5zm6.95 3.04L15.42 12l-4.47 4.46-1.41-1.42L11.58 13H2v-2h9.58L9.54 8.96l1.41-1.42z"></path>
                 </g>
               </svg>
             </div>

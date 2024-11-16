@@ -105,7 +105,7 @@ export default function Message_list({
         <div className="flex  w-full flex-col isolate ">
           <div className=" w-full sticky top-0 z-10 bg-white ">
             <MessageHeader />
-            <MessageRequest />
+            {/* <MessageRequest /> */}
             <Account user={current} />
           </div>
 
