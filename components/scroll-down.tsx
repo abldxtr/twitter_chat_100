@@ -1,3 +1,4 @@
+import { updateMessageReadStatusAll } from "@/lib/actions";
 import { MessageData } from "@/lib/definitions";
 import { formatPersianDate } from "@/lib/utils";
 import classNames from "classnames";
@@ -6,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 export type items = {
   goDown: boolean;
   func: () => void;
+  unreadCount: number;
+  chatId: string;
 };
 
 export type mess = {
@@ -13,7 +16,7 @@ export type mess = {
   direction: "rtl" | "ltr";
 };
 
-export function ScrollDown({ goDown, func }: items) {
+export function ScrollDown({ goDown, func, unreadCount, chatId }: items) {
   return (
     <div
       className={classNames(
@@ -21,8 +24,12 @@ export function ScrollDown({ goDown, func }: items) {
         "cursor-pointer transiton-all duration-300 ",
         goDown ? "opacity-100" : "opacity-0 pointer-events-none "
       )}
-      onClick={func}
+      onClick={() => {
+        updateMessageReadStatusAll(chatId);
+        func();
+      }}
     >
+      {unreadCount}
       <svg
         viewBox="0 0 24 24"
         aria-hidden="true"

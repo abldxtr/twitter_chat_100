@@ -103,6 +103,26 @@ export async function GET(req: Request) {
     if (messages.length === MESSAGES_BATCH) {
       nextCursor = messages[MESSAGES_BATCH - 1].id;
     }
+
+    // Update unread count
+    const chat = await db.chat.findUnique({
+      where: { id: chatId },
+    });
+
+    if (chat) {
+      if (chat.initiatorId === currentUser.user.id) {
+        await db.chat.update({
+          where: { id: chatId },
+          data: { unreadCountInitiator: 0 },
+        });
+      } else {
+        await db.chat.update({
+          where: { id: chatId },
+          data: { unreadCountParticipant: 0 },
+        });
+      }
+    }
+
     // after(() => {
     revalidateTag("fetchChat");
     revalidatePath("/", "layout");
@@ -116,6 +136,39 @@ export async function GET(req: Request) {
     });
   } catch (error) {
     // console.log("[MESSAGES_GET]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const currentUser = await auth();
+    const { chatId } = await req.json();
+
+    if (!currentUser || !currentUser.user) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    if (!chatId) {
+      return new NextResponse("Chat ID missing", { status: 400 });
+    }
+
+    await db.message.updateMany({
+      where: {
+        chatId,
+        receiverId: currentUser.user.id,
+        status: {
+          not: "READ",
+        },
+      },
+      data: {
+        status: "READ",
+      },
+    });
+
+    return new NextResponse("Status updated", { status: 200 });
+  } catch (error) {
+    console.error("[MESSAGE_STATUS_UPDATE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

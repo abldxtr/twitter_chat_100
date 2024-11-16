@@ -23,7 +23,7 @@ export default async function handler(
       return res.status(400).json({ error: "Content missing" });
     }
 
-    const server = await db.chat.findFirst({
+    const chat = await db.chat.findFirst({
       where: {
         id: chatId as string,
       },
@@ -33,8 +33,8 @@ export default async function handler(
       },
     });
 
-    if (!server) {
-      return res.status(404).json({ message: "Server not found" });
+    if (!chat) {
+      return res.status(404).json({ message: "chat not found" });
     }
 
     const message = await db.message.create({

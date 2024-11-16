@@ -197,3 +197,41 @@ export async function updateLastSeen({ userId }: { userId: string }) {
     };
   }
 }
+
+export async function updateMessageReadStatus(messageId: string) {
+  try {
+    const response = await fetch("/api/messages/update-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ messageId }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update message status");
+    }
+  } catch (error) {
+    console.error("Error updating message status:", error);
+    throw error;
+  }
+}
+
+export async function updateMessageReadStatusAll(chatId: string) {
+  try {
+    const response = await fetch("/api/messages/update-all-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ chatId }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update all message status");
+    }
+  } catch (error) {
+    console.error("Error updating all message status:", error);
+    throw error;
+  }
+}

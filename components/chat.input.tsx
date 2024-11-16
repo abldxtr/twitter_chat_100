@@ -60,34 +60,32 @@ export default function InputChat({
     const handleTyping = () => {
       // ارسال رویداد isTyping به سرور
 
-      console.log("sending.....");
+      // console.log("sending.....");
       socket.emit("isTyping", { chatId, userId: first?.id });
     };
 
     const handleStopTyping = () => {
-      // ارسال رویداد stopTyping به سرور
-      console.log("stoping.....");
+      // console.log("stoping.....");
 
       socket.emit("stopTyping", { chatId, userId: first?.id });
     };
 
     if (inputValue.trim()) {
-      // وقتی کاربر تایپ می‌کند
       if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current); // تایمر قبلی را پاک می‌کنیم
+        clearTimeout(typingTimeoutRef.current);
       }
       handleTyping();
-      typingTimeoutRef.current = setTimeout(handleStopTyping, 3000); // بعد از 3 ثانیه تایپ نکردن
+      typingTimeoutRef.current = setTimeout(handleStopTyping, 3000);
     } else {
       if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current); // تایمر را پاک می‌کنیم اگر ورودی خالی باشد
+        clearTimeout(typingTimeoutRef.current);
       }
-      handleStopTyping(); // اگر ورودی خالی شود، وضعیت توقف تایپ را ارسال می‌کنیم
+      handleStopTyping();
     }
 
     return () => {
       if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current); // پاک کردن تایمر در صورت خروج از کامپوننت
+        clearTimeout(typingTimeoutRef.current);
       }
     };
   }, [inputValue, socket, chatId, first?.id]);
@@ -103,7 +101,7 @@ export default function InputChat({
           reeciverId: other.id,
           id: chatId,
         };
-        console.log("message f", newMessage);
+        // console.log("message f", newMessage);
         // const res = sendMassage(newMessage);
 
         const apiUrl = "/api/socket/messages";
@@ -114,6 +112,7 @@ export default function InputChat({
             query,
           });
 
+          socket.emit("stopTyping", { chatId, userId: first?.id });
           await axios.post(url, newMessage);
 
           // form.reset();

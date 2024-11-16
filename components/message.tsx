@@ -20,7 +20,7 @@ import { formatMessageDate } from "@/lib/utils";
 import { MessLeft, MessRight, ScrollDown, TypingLeft } from "./scroll-down";
 import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
-import { updateLastSeen } from "@/lib/actions";
+import { updateLastSeen, updateMessageReadStatus } from "@/lib/actions";
 
 export default function Messages({
   first,
@@ -33,6 +33,7 @@ export default function Messages({
   const chatRef = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
   const { typingUser } = useSocket();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const currentUser = first ? first.id : "";
 
@@ -110,6 +111,62 @@ export default function Messages({
     });
   }, []);
 
+  ////////////////////////////
+  // const updateUnreadCount = useCallback(
+  //   async (lastMessageId: string) => {
+  //     try {
+  //       await fetch("/api/messages/update-unread", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ chatId, messageId: lastMessageId }),
+  //       });
+  //     } catch (error) {
+  //       console.error("Failed to update unread count", error);
+  //     }
+  //   },
+  //   [chatId]
+  // );
+
+  // useEffect(() => {
+  //   if (data?.pages[0]?.items.length > 0) {
+  //     const lastMessage = data.pages[0].items[0];
+  //     updateUnreadCount(lastMessage.id);
+  //   }
+  // }, [data, updateUnreadCount]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const messageId = entry.target.id;
+            updateMessageReadStatus(messageId);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const messageElements = document.querySelectorAll(".message-item");
+    messageElements.forEach((el) => observer.observe(el));
+
+    return () => {
+      messageElements.forEach((el) => observer.unobserve(el));
+    };
+  }, [updateMessageReadStatus]);
+
+  useEffect(() => {
+    if (data?.pages[0]?.items) {
+      const newUnreadCount = data.pages[0].items.filter(
+        (message) =>
+          message.senderId !== currentUser && message.status !== "READ"
+      ).length;
+      setUnreadCount(newUnreadCount);
+    }
+  }, [data, currentUser]);
+
   if (status === "pending") {
     return (
       <div className=" w-full h-full flex justify-center my-2 ">
@@ -120,7 +177,12 @@ export default function Messages({
 
   return (
     <div className=" flex-1 overflow-hidden relative">
-      <ScrollDown goDown={goDown} func={HandleScrollDown} />
+      <ScrollDown
+        goDown={goDown}
+        func={HandleScrollDown}
+        unreadCount={unreadCount}
+        chatId={paramValue}
+      />
       <div
         className={classNames(
           "w-full  p-2  overflow-y-auto flex  flex-col-reverse h-full  "
@@ -143,13 +205,13 @@ export default function Messages({
               const direction = "ltr";
               const isCurrentUser = message.senderId === currentUser;
               return (
-                <Fragment key={index}>
+                <div key={index} id={message.id} className=" message-item">
                   {isCurrentUser ? (
                     <MessRight message={message} direction={direction} />
                   ) : (
                     <MessLeft message={message} direction={direction} />
                   )}
-                </Fragment>
+                </div>
               );
             })}
           </div>
