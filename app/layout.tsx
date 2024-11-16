@@ -33,13 +33,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const current = await auth();
-  if (!current || !current.user || !current.user.id) {
-    return redirect("/login");
+  if (!current?.user || !current.user.id) {
+    // return redirect("/login");
+    return (
+      <html lang="en" suppressHydrationWarning>
+        <body>{children}</body>
+      </html>
+    );
   }
 
   const userId = current.user.id;
 
-  const [users] = await Promise.all([fetchChat(userId)]);
+  const users = await fetchChat(userId);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -55,7 +60,11 @@ export default async function RootLayout({
                         <main className="flex h-full items-start w-full ">
                           <div className="flex shrink grow flex-1 items-start w-full isolate ">
                             {/* <!-- messages list --> */}
-                            <Message_list chatlist={users} first={userId} />
+                            <Message_list
+                              chatlist={users}
+                              first={userId}
+                              current={current}
+                            />
 
                             {children}
                           </div>

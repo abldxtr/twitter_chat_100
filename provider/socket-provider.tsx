@@ -54,31 +54,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       setIsConnected(true);
     });
 
-    // هنگامی که یک کاربر در حال تایپ است
-    // socketInstance.on("isTyping", (data: any) => {
-    //   // ارسال وضعیت تایپ به سایر کاربران در چت
-    //   console.log("user typing", data);
-
-    //   setTypingUser(true);
-    //   // socketInstance
-    //   //   .to(data.chatId)
-    //   //   .emit("typing", { userId: data.userId, isTyping: true });
-    // });
-
-    // هنگامی که یک کاربر تایپ را متوقف می‌کند
-    // socketInstance.on("stopTyping", ({ data }: { data: typing }) => {
-    //   // ارسال وضعیت توقف تایپ به سایر کاربران
-    //   // const user = typingUser
-    //   // user === data
-    //   console.log("user stoped to type", data);
-
-    //   setTypingUser(false);
-
-    //   // socketInstance
-    //   //   .to(data.chatId)
-    //   //   .emit("typing", { userId: data.userId, isTyping: false });
-    // });
-
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
     });

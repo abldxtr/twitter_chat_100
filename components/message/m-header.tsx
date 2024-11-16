@@ -1,3 +1,5 @@
+import { signOut } from "next-auth/react";
+
 export default function MessageHeader() {
   return (
     <div className=" flex w-full sticky top-0 ">
@@ -26,7 +28,10 @@ export default function MessageHeader() {
             </div>
 
             {/* <!-- 2svg --> */}
-            <div className="flex size-[36px] cursor-pointer items-center justify-center rounded-full transition-all duration-300 hover:bg-[#0f14191a]">
+            <div
+              className="flex size-[36px] cursor-pointer items-center justify-center rounded-full transition-all duration-300 hover:bg-[#0f14191a]"
+              onClick={() => signOut({ redirectTo: "/login" })}
+            >
               <svg
                 viewBox="0 0 24 24"
                 aria-hidden="true"

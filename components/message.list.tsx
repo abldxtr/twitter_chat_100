@@ -2,7 +2,7 @@
 
 import MessageHeader from "./message/m-header";
 import MessageRequest from "./message/m-request";
-import UserList, { userList } from "./message/m-list";
+import UserList, { Account, userList } from "./message/m-list";
 import { user } from "@/lib/definitions";
 import { User } from "@prisma/client";
 import classNames from "classnames";
@@ -10,6 +10,8 @@ import { useMediaQuery } from "usehooks-ts";
 import { useGlobalContext } from "@/context/globalContext";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import { useSocket } from "@/provider/socket-provider";
+import { Session } from "next-auth";
 
 export type users = {
   id: string;
@@ -24,14 +26,17 @@ export type users = {
 export default function Message_list({
   chatlist,
   first,
+  current,
 }: {
   chatlist: users;
   first: string;
+  current: Session | null;
 }) {
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
   const [mounted, setMounted] = useState(false);
   const param = useParams();
+  const { isConnected } = useSocket();
 
   useEffect(() => {
     setMounted(true);
@@ -51,8 +56,12 @@ export default function Message_list({
     return chatlist?.map((item) => {
       const otherUser =
         item.initiator.id === first ? item.participant : item.initiator;
+
+      // const userPage = item.initiator.id === first ? item.participant.id === first || !!item.participant.id && true   : item.participant.id === first ?
+
       const lastMessage =
-        item.messages[item.messages.length - 1]?.content ?? "";
+        item.messages[item.messages.length - 1]?.content ??
+        "هنوز گفت و گویی رو شروع نکردید";
 
       // تاریخ‌ها را به صورت ثابت نگه می‌داریم
       const date1 = item.initiator.lastSeen;
@@ -93,11 +102,16 @@ export default function Message_list({
       )}
     >
       <section className=" lg:flex w-full  relative flex-1 border-x-[1px] border-[#eff3f4]">
-        <div className="flex  w-full flex-col">
-          <MessageHeader />
-          <MessageRequest />
+        <div className="flex  w-full flex-col isolate ">
+          <div className=" w-full sticky top-0 z-10 bg-white ">
+            <MessageHeader />
+            <MessageRequest />
+            <Account user={current} />
+          </div>
 
-          <div className=" flex-1 overflow-y-auto ">{memoizedChatList}</div>
+          <div className=" flex-1 overflow-y-auto relative bg-white ">
+            {memoizedChatList}
+          </div>
         </div>
       </section>
     </div>

@@ -12,13 +12,8 @@ export default async function handler(
   }
 
   try {
-    // const profile = await auth();
-    // const profile = fetch("/api/getauth");
     const { content, senderId, reeciverId, id } = req.body;
     const { chatId } = req.query;
-    // console.log("sender and rec", senderId);
-    // console.log("receiverId and rec", reeciverId);
-    // console.log("user", profile);
 
     if (!chatId) {
       return res.status(400).json({ error: "Server ID missing" });

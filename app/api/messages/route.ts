@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { Message } from "@prisma/client";
 import { auth } from "@/auth";
 import db from "@/lib/prisma";
+import { revalidatePath, revalidateTag } from "next/cache";
+// import { unstable_after as after } from "next/server";
 
 // import { currentProfile } from "@/lib/current-profile";
 // import { db } from "@/lib/db";
@@ -101,6 +103,12 @@ export async function GET(req: Request) {
     if (messages.length === MESSAGES_BATCH) {
       nextCursor = messages[MESSAGES_BATCH - 1].id;
     }
+    // after(() => {
+    revalidateTag("fetchChat");
+    revalidatePath("/", "layout");
+
+    // Execute after the layout is rendered and sent to the user
+    // });
 
     return NextResponse.json({
       items: messages,

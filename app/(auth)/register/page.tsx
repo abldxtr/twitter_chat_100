@@ -129,7 +129,8 @@ export default function SignUpForm() {
               type="submit"
               className="bg-[rgb(0,149,246)] text-[rgb(245,245,245)] rounded-[8px] border border-[rgb(54,54,54)]
              focus-within:border-[rgb(69,69,69)] outline-none  w-full py-[7px] px-[16px] font-bold text-[13px]
-              hover:bg-[#1877F2] "
+              hover:bg-[#1877F2] disabled:opacity-80  "
+              disabled={isPending}
             >
               {isPending ? <BeatLoader size={5} color="#ffffff" /> : "Sign up"}
             </Button>

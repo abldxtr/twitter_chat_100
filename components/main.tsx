@@ -11,17 +11,15 @@ export default async function Main({ param }: { param: string }) {
 
   const userId = current?.user.id;
 
-  const [chatDb] = await Promise.all([
-    db.chat.findFirst({
-      where: {
-        id: param,
-      },
-      select: {
-        initiator: true,
-        participant: true,
-      },
-    }),
-  ]);
+  const chatDb = await db.chat.findFirst({
+    where: {
+      id: param,
+    },
+    select: {
+      initiator: true,
+      participant: true,
+    },
+  });
 
   const other =
     userId === chatDb?.initiator.id ? chatDb.participant : chatDb?.initiator;

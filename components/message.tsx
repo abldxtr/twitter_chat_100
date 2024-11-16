@@ -1,7 +1,15 @@
 "use client";
 
 import classNames from "classnames";
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { MessageData, user } from "@/lib/definitions";
 import { useChatQuery } from "@/hooks/use-chat-query";
@@ -28,14 +36,15 @@ export default function Messages({
 
   const currentUser = first ? first.id : "";
 
-  const queryKey = `chat:${chatId}`;
-  const addKey = `chat:${chatId}:messages`;
-  const updateKey = `chat:${chatId}:messages:update`;
   const apiUrl = "/api/messages";
   const paramKey = "chatId";
   const paramValue = chatId ? chatId : "";
   const typeKey = "typing";
   const stoptypekey = "stoptype";
+
+  const queryKey = useMemo(() => `chat:${chatId}`, [chatId]);
+  const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
+  const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
 
   useLayoutEffect(() => {
     const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
@@ -84,15 +93,22 @@ export default function Messages({
       return { ...groups, [dateKey]: [...(groups[dateKey] || []), message] };
     }, {} as Record<string, MessageData[]>);
   };
-  const allMessages = data?.pages.flatMap((page) => page.items) || [];
 
-  const groupedMessages = groupMessagesByDate(allMessages);
+  const allMessages = useMemo(
+    () => data?.pages.flatMap((page) => page.items) || [],
+    [data]
+  );
 
-  function HandleScrollDown() {
+  const groupedMessages = useMemo(
+    () => groupMessagesByDate(allMessages),
+    [allMessages, groupMessagesByDate]
+  );
+
+  const HandleScrollDown = useCallback(() => {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
     });
-  }
+  }, []);
 
   if (status === "pending") {
     return (
