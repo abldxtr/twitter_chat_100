@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import db from "@/lib/prisma";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function POST(req: Request) {
   try {
@@ -47,6 +48,8 @@ export async function POST(req: Request) {
         data: { unreadCountParticipant: 0 },
       });
     }
+    revalidateTag("fetchChat");
+    revalidatePath("/", "layout");
 
     return new NextResponse("All messages marked as read", { status: 200 });
   } catch (error) {

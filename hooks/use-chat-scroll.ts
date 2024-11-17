@@ -24,6 +24,9 @@ export const useChatScroll = ({
       if (topDiv) {
         const distanceFromTop =
           topDiv?.scrollHeight + topDiv.scrollTop - topDiv.clientHeight;
+        const distanceFromBottom = topDiv.scrollTop;
+
+        distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
 
         if (distanceFromTop === 0 && shouldLoadMore) {
           loadMore();
@@ -38,46 +41,46 @@ export const useChatScroll = ({
     };
   }, [shouldLoadMore, loadMore, chatRef]);
 
-  useEffect(() => {
-    const scrollElement = chatRef.current;
+  // useEffect(() => {
+  //   const scrollElement = chatRef.current;
 
-    const handleScroll = () => {
-      if (scrollElement) {
-        const distanceFromBottom = scrollElement.scrollTop;
+  //   const handleScroll = () => {
+  //     if (scrollElement) {
+  //       const distanceFromBottom = scrollElement.scrollTop;
 
-        // console.log("show", distanceFromBottom);
-        distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
-      }
-    };
+  //       // console.log("show", distanceFromBottom);
+  //       distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
+  //     }
+  //   };
 
-    if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll);
-    }
+  //   if (scrollElement) {
+  //     scrollElement.addEventListener("scroll", handleScroll);
+  //   }
 
-    return () => {
-      if (scrollElement) {
-        scrollElement.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (scrollElement) {
+  //       scrollElement.removeEventListener("scroll", handleScroll);
+  //     }
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    const container = bottomRef.current;
-    const end = chatRef.current;
+  // useEffect(() => {
+  //   const container = bottomRef.current;
+  //   const end = chatRef.current;
 
-    if (container && end) {
-      const observer = new MutationObserver(() => {
-        end.scrollIntoView({ behavior: "instant", block: "end" });
-      });
+  //   if (container && end) {
+  //     const observer = new MutationObserver(() => {
+  //       end.scrollIntoView({ behavior: "instant", block: "end" });
+  //     });
 
-      observer.observe(container, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        characterData: true,
-      });
+  //     observer.observe(container, {
+  //       childList: true,
+  //       subtree: true,
+  //       attributes: true,
+  //       characterData: true,
+  //     });
 
-      return () => observer.disconnect();
-    }
-  }, []);
+  //     return () => observer.disconnect();
+  //   }
+  // }, []);
 };

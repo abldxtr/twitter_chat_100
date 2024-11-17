@@ -14,15 +14,9 @@ import { unstable_cache } from "@/lib/unstable-cache";
 export const fetchChat = async (userId: string) => {
   const data = await db.chat.findMany({
     where: {
-      OR: [
-        { initiatorId: userId }, // کاربر به‌عنوان initiator
-        { participantId: userId }, // کاربر به‌عنوان participant
-      ],
+      OR: [{ initiatorId: userId }, { participantId: userId }],
       NOT: {
-        AND: [
-          { initiatorId: userId }, // چت‌هایی که initiator همان کاربر است
-          { participantId: userId }, // و participant هم همان کاربر است
-        ],
+        AND: [{ initiatorId: userId }, { participantId: userId }],
       },
     },
     select: {
@@ -35,6 +29,10 @@ export const fetchChat = async (userId: string) => {
         select: {
           content: true,
           createdAt: true,
+          status: true,
+          updatedAt: true,
+          receiverId: true,
+          senderId: true,
         },
       },
       initiator: true,
@@ -61,6 +59,10 @@ export const fetchChatt = unstable_cache(
           select: {
             content: true,
             createdAt: true,
+            status: true,
+            updatedAt: true,
+            receiverId: true,
+            senderId: true,
           },
         },
         initiator: true,

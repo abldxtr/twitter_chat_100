@@ -200,38 +200,49 @@ export async function updateLastSeen({ userId }: { userId: string }) {
 
 export async function updateMessageReadStatus(messageId: string) {
   try {
-    const response = await fetch("/api/messages/update-status", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ messageId }),
-    });
+    const response = await fetch(
+      "https://rlyn2l-3000.csb.app/api/messages/update-status",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messageId }),
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error("Failed to update message status");
-    }
+    // if (!response.ok) {
+    return { success: true };
+    // }
   } catch (error) {
     console.error("Error updating message status:", error);
-    throw error;
+    return { success: false };
+
+    // throw error;
   }
 }
 
-export async function updateMessageReadStatusAll(chatId: string) {
-  try {
-    const response = await fetch("/api/messages/update-all-status", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ chatId }),
-    });
+// export async function updateMessageReadStatusAll(chatId: string) {
+//   try {
+//     const response = await fetch(
+//       "https://rlyn2l-3000.csb.app/api/messages/update-all-status",
+//       {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ chatId }),
+//       }
+//     );
+//     return { success: true };
 
-    if (!response.ok) {
-      throw new Error("Failed to update all message status");
-    }
-  } catch (error) {
-    console.error("Error updating all message status:", error);
-    throw error;
-  }
-}
+//     // if (!response.ok) {
+//     //   throw new Error("Failed to update all message status");
+//     // }
+//   } catch (error) {
+//     return { success: false };
+
+//     console.error("Error updating all message status:", error);
+//     // throw error;
+//   }
+// }

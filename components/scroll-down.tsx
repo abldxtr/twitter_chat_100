@@ -1,8 +1,10 @@
-import { updateMessageReadStatusAll } from "@/lib/actions";
+// import { updateMessageReadStatusAll } from "@/lib/actions";
 import { MessageData } from "@/lib/definitions";
 import { formatPersianDate } from "@/lib/utils";
 import classNames from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 export type items = {
   goDown: boolean;
@@ -17,29 +19,55 @@ export type mess = {
 };
 
 export function ScrollDown({ goDown, func, unreadCount, chatId }: items) {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  async function updateAll(chatId: string) {
+    try {
+      const response = await fetch("/api/messages/update-all-status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ chatId }),
+      });
+      startTransition(() => {
+        router.refresh();
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating all message status:", error);
+      return { success: false };
+    }
+  }
   return (
-    <div
-      className={classNames(
-        " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
-        "cursor-pointer transiton-all duration-300 ",
-        goDown ? "opacity-100" : "opacity-0 pointer-events-none "
-      )}
-      onClick={() => {
-        updateMessageReadStatusAll(chatId);
-        func();
-      }}
-    >
-      {unreadCount}
-      <svg
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-        className=" fill-[rgb(29,155,240)] shrink-0 size-[24px] "
+    <>
+      <div
+        className={classNames(
+          " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
+          "cursor-pointer transiton-all duration-300 ",
+          goDown ? "opacity-100" : "opacity-0 pointer-events-none "
+        )}
+        onClick={() => {
+          updateAll(chatId);
+          func();
+        }}
       >
-        <g>
-          <path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"></path>
-        </g>
-      </svg>
-    </div>
+        <div className=" absolute -top-6 right-2 flex items-center justify-center bg-blue-500 text-white font-semibold rounded-full size-10 ">
+          {unreadCount}
+        </div>
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className=" fill-[rgb(29,155,240)] shrink-0 size-[24px] "
+        >
+          <g>
+            <path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"></path>
+          </g>
+        </svg>
+      </div>
+    </>
   );
 }
 

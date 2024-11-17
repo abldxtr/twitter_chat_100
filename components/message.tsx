@@ -9,6 +9,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useTransition,
 } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { MessageData, user } from "@/lib/definitions";
@@ -21,6 +22,8 @@ import { MessLeft, MessRight, ScrollDown, TypingLeft } from "./scroll-down";
 import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
 import { updateLastSeen, updateMessageReadStatus } from "@/lib/actions";
+import { useGlobalContext } from "@/context/globalContext";
+import { useRouter } from "next/navigation";
 
 export default function Messages({
   first,
@@ -33,7 +36,12 @@ export default function Messages({
   const chatRef = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
   const { typingUser } = useSocket();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [isPending, startTransition] = useTransition();
+
+  const router = useRouter();
+
+  const { unreadCount, setUnreadCount, unreadMessages, setUnreadMessages } =
+    useGlobalContext();
 
   const currentUser = first ? first.id : "";
 
@@ -111,30 +119,28 @@ export default function Messages({
     });
   }, []);
 
-  ////////////////////////////
-  // const updateUnreadCount = useCallback(
-  //   async (lastMessageId: string) => {
-  //     try {
-  //       await fetch("/api/messages/update-unread", {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({ chatId, messageId: lastMessageId }),
-  //       });
-  //     } catch (error) {
-  //       console.error("Failed to update unread count", error);
-  //     }
-  //   },
-  //   [chatId]
-  // );
+  async function UpdateMssRead(messageId: string) {
+    try {
+      const response = await fetch(
+        "https://rlyn2l-3000.csb.app/api/messages/update-status",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ messageId }),
+        }
+      );
+      startTransition(() => {
+        router.refresh();
+      });
 
-  // useEffect(() => {
-  //   if (data?.pages[0]?.items.length > 0) {
-  //     const lastMessage = data.pages[0].items[0];
-  //     updateUnreadCount(lastMessage.id);
-  //   }
-  // }, [data, updateUnreadCount]);
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating message status:", error);
+      return { success: false };
+    }
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -142,28 +148,35 @@ export default function Messages({
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const messageId = entry.target.id;
-            updateMessageReadStatus(messageId);
+            setUnreadMessages((prev) =>
+              prev?.filter((item) => item.id !== messageId)
+            );
+            UpdateMssRead(messageId);
           }
         });
       },
       { threshold: 0.5 }
     );
 
-    const messageElements = document.querySelectorAll(".message-item");
+    // const messageElements = document.querySelectorAll(".message-item");
+    const messageElements = Array.from(
+      document.querySelectorAll(".message-item")
+    ).filter((el) => el.getAttribute("data-status") !== "READ");
+    console.log("messageElements", messageElements);
     messageElements.forEach((el) => observer.observe(el));
 
     return () => {
       messageElements.forEach((el) => observer.unobserve(el));
     };
-  }, [updateMessageReadStatus]);
+  }, [UpdateMssRead]);
 
   useEffect(() => {
     if (data?.pages[0]?.items) {
       const newUnreadCount = data.pages[0].items.filter(
         (message) =>
           message.senderId !== currentUser && message.status !== "READ"
-      ).length;
-      setUnreadCount(newUnreadCount);
+      );
+      setUnreadMessages(newUnreadCount);
     }
   }, [data, currentUser]);
 
@@ -205,7 +218,12 @@ export default function Messages({
               const direction = "ltr";
               const isCurrentUser = message.senderId === currentUser;
               return (
-                <div key={index} id={message.id} className=" message-item">
+                <div
+                  key={message.id}
+                  id={message.id}
+                  className=" message-item"
+                  data-status={message.status}
+                >
                   {isCurrentUser ? (
                     <MessRight message={message} direction={direction} />
                   ) : (

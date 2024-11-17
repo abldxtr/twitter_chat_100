@@ -46,6 +46,10 @@ export default async function RootLayout({
 
   const users = await fetchChat(userId);
 
+  // const msg = users.map((item, index) =>
+  //   item.messages.map((mess, index) => mess.status)
+  // );
+
   return (
     <html lang="en" suppressHydrationWarning>
       <GlobalProvider>
