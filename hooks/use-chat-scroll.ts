@@ -1,4 +1,15 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { updateLastSeen } from "@/lib/actions";
+import { user } from "@/lib/definitions";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 
 type ChatScrollProps = {
   chatRef: React.RefObject<HTMLDivElement>;
@@ -7,6 +18,8 @@ type ChatScrollProps = {
   loadMore: () => void;
   count: number;
   setGoDown: Dispatch<SetStateAction<boolean>>;
+  first: user | undefined;
+  queryKey: string;
 };
 
 export const useChatScroll = ({
@@ -16,7 +29,36 @@ export const useChatScroll = ({
   loadMore,
   count,
   setGoDown,
+  first,
+  queryKey,
 }: ChatScrollProps) => {
+  const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const router = useRouter();
+  const UpdateMssRead = useCallback(
+    async (messageId: string) => {
+      try {
+        const response = await fetch("/api/messages/update-status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ messageId }),
+        });
+        // startTransition(() => {
+        //   router.refresh();
+        // });
+
+        return { success: true };
+      } catch (error) {
+        console.error("Error updating message status:", error);
+        return { success: false };
+      }
+    },
+    [router]
+  );
+
   useEffect(() => {
     const topDiv = chatRef?.current;
 
@@ -34,10 +76,39 @@ export const useChatScroll = ({
       }
     };
 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const messageId = entry.target.id;
+            const messageStatus = entry.target.getAttribute("data-status");
+            const currentUser =
+              entry.target.getAttribute("data-user") === "true";
+
+            if (messageStatus === "SENT" && !currentUser) {
+              UpdateMssRead(messageId).then(() => {
+                queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+              });
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const messageElements = Array.from(
+      document.querySelectorAll(".message-item")
+    );
+
+    messageElements.forEach((el) => observer.observe(el));
+
     topDiv?.addEventListener("scroll", handleScroll);
 
     return () => {
+      messageElements.forEach((el) => observer.unobserve(el));
+
       topDiv?.removeEventListener("scroll", handleScroll);
+      updateLastSeen({ userId: first?.id! });
     };
-  }, [shouldLoadMore, loadMore, chatRef]);
+  }, [shouldLoadMore, loadMore, chatRef, UpdateMssRead]);
 };

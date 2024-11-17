@@ -73,11 +73,11 @@ export default function Messages({
     };
   }, [chatId]);
 
-  useEffect(() => {
-    return () => {
-      updateLastSeen({ userId: first?.id! });
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     updateLastSeen({ userId: first?.id! });
+  //   };
+  // }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
@@ -94,6 +94,8 @@ export default function Messages({
     shouldLoadMore: !isFetchingNextPage && !!hasNextPage,
     count: data?.pages?.[0]?.items?.length ?? 0,
     setGoDown: setGoDown,
+    first: first,
+    queryKey,
   });
 
   const groupMessagesByDate = (
@@ -143,60 +145,6 @@ export default function Messages({
     },
     [router]
   );
-  // const seenMessages = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    // const seenMessages = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const messageId = entry.target.id;
-            const messageStatus = entry.target.getAttribute("data-status");
-            const currentUser =
-              entry.target.getAttribute("data-user") === "true";
-
-            // console.log("status", messageStatus === "SENT");
-            // console.log("currentUser", currentUser);
-            // console.log("messageId", messageId);
-
-            // ارسال درخواست تنها برای پیام‌هایی که هنوز خوانده نشده‌اند
-            if (messageStatus === "SENT" && !currentUser) {
-              // if (
-              //   unreadMessages?.findIndex((item) => item.id === messageId) !==
-              //   -1
-              // ) {
-              // seenMessages.add(messageId); // پیام را به لیست پردازش‌شده اضافه کنید
-
-              UpdateMssRead(messageId).then(() => {
-                queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
-                // setUnreadMessages((prev) =>
-                //   prev?.filter((item) => item.id !== messageId)
-                // );
-              });
-              // }
-              // UpdateMssRead(messageId).then(() => {
-              //   setUnreadMessages((prev) =>
-              //     prev?.filter((item) => item.id !== messageId)
-              //   );
-              // });
-            }
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    const messageElements = Array.from(
-      document.querySelectorAll(".message-item")
-    );
-
-    messageElements.forEach((el) => observer.observe(el));
-
-    return () => {
-      messageElements.forEach((el) => observer.unobserve(el));
-    };
-  }, [UpdateMssRead]);
 
   useEffect(() => {
     if (data?.pages[0]?.items) {
@@ -223,6 +171,7 @@ export default function Messages({
         func={HandleScrollDown}
         unreadCount={unreadCount}
         chatId={paramValue}
+        queryKey={queryKey}
       />
       <div
         className={classNames(

@@ -2,6 +2,7 @@
 import { useGlobalContext } from "@/context/globalContext";
 import { MessageData } from "@/lib/definitions";
 import { formatPersianDate } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -12,6 +13,7 @@ export type items = {
   func: () => void;
   unreadCount: number;
   chatId: string;
+  queryKey: string;
 };
 
 export type mess = {
@@ -19,10 +21,17 @@ export type mess = {
   direction: "rtl" | "ltr";
 };
 
-export function ScrollDown({ goDown, func, unreadCount, chatId }: items) {
+export function ScrollDown({
+  goDown,
+  func,
+  unreadCount,
+  chatId,
+  queryKey,
+}: items) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { setUnreadCount } = useGlobalContext();
+  const queryClient = useQueryClient();
 
   async function updateAll(chatId: string) {
     try {
@@ -33,10 +42,12 @@ export function ScrollDown({ goDown, func, unreadCount, chatId }: items) {
         },
         body: JSON.stringify({ chatId }),
       });
-      startTransition(() => {
-        setUnreadCount(0);
-        router.refresh();
-      });
+      queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+
+      // startTransition(() => {
+      //   setUnreadCount(0);
+      //   router.refresh();
+      // });
       return { success: true };
     } catch (error) {
       console.error("Error updating all message status:", error);
