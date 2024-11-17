@@ -24,6 +24,7 @@ import { AnimatePresence } from "framer-motion";
 import { updateLastSeen, updateMessageReadStatus } from "@/lib/actions";
 import { useGlobalContext } from "@/context/globalContext";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Messages({
   first,
@@ -37,6 +38,7 @@ export default function Messages({
   const [goDown, setGoDown] = useState(false);
   const { typingUser } = useSocket();
   const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
 
   const router = useRouter();
 
@@ -119,50 +121,76 @@ export default function Messages({
     });
   }, []);
 
-  async function UpdateMssRead(messageId: string) {
-    try {
-      const response = await fetch(
-        "https://rlyn2l-3000.csb.app/api/messages/update-status",
-        {
+  const UpdateMssRead = useCallback(
+    async (messageId: string) => {
+      try {
+        const response = await fetch("/api/messages/update-status", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ messageId }),
-        }
-      );
-      startTransition(() => {
-        router.refresh();
-      });
+        });
+        startTransition(() => {
+          router.refresh();
+        });
 
-      return { success: true };
-    } catch (error) {
-      console.error("Error updating message status:", error);
-      return { success: false };
-    }
-  }
+        return { success: true };
+      } catch (error) {
+        console.error("Error updating message status:", error);
+        return { success: false };
+      }
+    },
+    [router]
+  );
+  // const seenMessages = useRef<Set<string>>(new Set());
 
   useEffect(() => {
+    // const seenMessages = new Set<string>();
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const messageId = entry.target.id;
-            setUnreadMessages((prev) =>
-              prev?.filter((item) => item.id !== messageId)
-            );
-            UpdateMssRead(messageId);
+            const messageStatus = entry.target.getAttribute("data-status");
+            const currentUser =
+              entry.target.getAttribute("data-user") === "true";
+
+            // console.log("status", messageStatus === "SENT");
+            // console.log("currentUser", currentUser);
+            // console.log("messageId", messageId);
+
+            // ارسال درخواست تنها برای پیام‌هایی که هنوز خوانده نشده‌اند
+            if (messageStatus === "SENT" && !currentUser) {
+              // if (
+              //   unreadMessages?.findIndex((item) => item.id === messageId) !==
+              //   -1
+              // ) {
+              // seenMessages.add(messageId); // پیام را به لیست پردازش‌شده اضافه کنید
+
+              UpdateMssRead(messageId).then(() => {
+                queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+                // setUnreadMessages((prev) =>
+                //   prev?.filter((item) => item.id !== messageId)
+                // );
+              });
+              // }
+              // UpdateMssRead(messageId).then(() => {
+              //   setUnreadMessages((prev) =>
+              //     prev?.filter((item) => item.id !== messageId)
+              //   );
+              // });
+            }
           }
         });
       },
       { threshold: 0.5 }
     );
 
-    // const messageElements = document.querySelectorAll(".message-item");
     const messageElements = Array.from(
       document.querySelectorAll(".message-item")
-    ).filter((el) => el.getAttribute("data-status") !== "READ");
-    console.log("messageElements", messageElements);
+    );
+
     messageElements.forEach((el) => observer.observe(el));
 
     return () => {
@@ -223,6 +251,7 @@ export default function Messages({
                   id={message.id}
                   className=" message-item"
                   data-status={message.status}
+                  data-user={isCurrentUser.toString()}
                 >
                   {isCurrentUser ? (
                     <MessRight message={message} direction={direction} />

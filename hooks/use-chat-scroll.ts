@@ -40,47 +40,4 @@ export const useChatScroll = ({
       topDiv?.removeEventListener("scroll", handleScroll);
     };
   }, [shouldLoadMore, loadMore, chatRef]);
-
-  // useEffect(() => {
-  //   const scrollElement = chatRef.current;
-
-  //   const handleScroll = () => {
-  //     if (scrollElement) {
-  //       const distanceFromBottom = scrollElement.scrollTop;
-
-  //       // console.log("show", distanceFromBottom);
-  //       distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
-  //     }
-  //   };
-
-  //   if (scrollElement) {
-  //     scrollElement.addEventListener("scroll", handleScroll);
-  //   }
-
-  //   return () => {
-  //     if (scrollElement) {
-  //       scrollElement.removeEventListener("scroll", handleScroll);
-  //     }
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   const container = bottomRef.current;
-  //   const end = chatRef.current;
-
-  //   if (container && end) {
-  //     const observer = new MutationObserver(() => {
-  //       end.scrollIntoView({ behavior: "instant", block: "end" });
-  //     });
-
-  //     observer.observe(container, {
-  //       childList: true,
-  //       subtree: true,
-  //       attributes: true,
-  //       characterData: true,
-  //     });
-
-  //     return () => observer.disconnect();
-  //   }
-  // }, []);
 };

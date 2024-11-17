@@ -1,3 +1,4 @@
+import { $Enums, User } from "@prisma/client";
 import db from "./prisma";
 import { unstable_cache } from "@/lib/unstable-cache";
 
@@ -43,6 +44,53 @@ export const fetchChat = async (userId: string) => {
   return data;
 };
 
+export const fetchChatsWithUnreadCount = async (userId: string) => {
+  const chats = await db.chat.findMany({
+    where: {
+      OR: [{ initiatorId: userId }, { participantId: userId }],
+      NOT: {
+        AND: [{ initiatorId: userId }, { participantId: userId }],
+      },
+    },
+    select: {
+      id: true,
+      unreadCountInitiator: true,
+      unreadCountParticipant: true,
+      initiator: true,
+      participant: true,
+      messages: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1, // آخرین پیام برای هر چت
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          status: true,
+          senderId: true,
+          receiverId: true,
+        },
+      },
+    },
+  });
+
+  // محاسبه تعداد پیام‌های خوانده‌نشده برای هر کاربر
+  const updatedChats = chats.map((chat) => {
+    const isInitiator = chat.initiator.id === userId;
+    const unreadCount = isInitiator
+      ? chat.unreadCountInitiator
+      : chat.unreadCountParticipant;
+
+    return {
+      ...chat,
+      unreadCount,
+    };
+  });
+
+  return updatedChats;
+};
+
 export const fetchChatt = unstable_cache(
   async (userId: string) => {
     const data = await db.chat.findMany({
@@ -75,3 +123,24 @@ export const fetchChatt = unstable_cache(
   ["fetchChat"],
   { tags: ["fetchChat"] }
 );
+
+// const usr = await fetchChatsWithUnreadCount("userId");
+
+export type usr = {
+  unreadCount: number;
+  id: string;
+  unreadCountInitiator: number;
+  unreadCountParticipant: number;
+  initiator: User;
+  participant: User;
+  messages: {
+    id: string;
+    createdAt: Date;
+    content: string;
+    senderId: string;
+    receiverId: string;
+    status: $Enums.MessageStatus;
+  }[];
+};
+
+// const usrM = usr.map((item) => item.messages.map((item) => item.status));

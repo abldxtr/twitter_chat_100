@@ -1,4 +1,5 @@
 // import { updateMessageReadStatusAll } from "@/lib/actions";
+import { useGlobalContext } from "@/context/globalContext";
 import { MessageData } from "@/lib/definitions";
 import { formatPersianDate } from "@/lib/utils";
 import classNames from "classnames";
@@ -21,6 +22,7 @@ export type mess = {
 export function ScrollDown({ goDown, func, unreadCount, chatId }: items) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { setUnreadCount } = useGlobalContext();
 
   async function updateAll(chatId: string) {
     try {
@@ -32,6 +34,7 @@ export function ScrollDown({ goDown, func, unreadCount, chatId }: items) {
         body: JSON.stringify({ chatId }),
       });
       startTransition(() => {
+        setUnreadCount(0);
         router.refresh();
       });
       return { success: true };

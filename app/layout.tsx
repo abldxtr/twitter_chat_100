@@ -8,7 +8,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { QueryProvider } from "@/provider/query-provider";
 import { SocketProvider } from "@/provider/socket-provider";
-import { fetchChat } from "@/lib/data";
+import { fetchChat, fetchChatsWithUnreadCount } from "@/lib/data";
 import Message_list from "@/components/message.list";
 import { redirect } from "next/navigation";
 // export const dynamic = "force-dynamic";
@@ -44,7 +44,8 @@ export default async function RootLayout({
 
   const userId = current.user.id;
 
-  const users = await fetchChat(userId);
+  // const users = await fetchChat(userId);
+  const users = await fetchChatsWithUnreadCount(userId);
 
   // const msg = users.map((item, index) =>
   //   item.messages.map((mess, index) => mess.status)

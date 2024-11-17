@@ -36,6 +36,17 @@ export default async function handler(
     if (!chat) {
       return res.status(404).json({ message: "chat not found" });
     }
+    const updateField =
+      chat.initiatorId === senderId
+        ? "unreadCountParticipant"
+        : "unreadCountInitiator";
+
+    await db.chat.update({
+      where: { id: chatId as string },
+      data: {
+        [updateField]: { increment: 1 },
+      },
+    });
 
     const message = await db.message.create({
       data: {
@@ -47,6 +58,8 @@ export default async function handler(
         type: "TEXT",
       },
     });
+
+    console.log("message Idddd", message);
 
     const channelKey = `chat:${chatId}:messages`;
 

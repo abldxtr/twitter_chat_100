@@ -21,6 +21,7 @@ export type userList = {
   username: string | null;
   date: Date;
   lastMessage: string;
+  unReadMess: number;
 };
 
 export default function UserList({ user }: { user: userList }) {
@@ -49,13 +50,16 @@ export default function UserList({ user }: { user: userList }) {
     >
       <div
         className={classNames(
-          "flex  min-h-[40px] items-center cursor-pointer p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] "
+          "flex  min-h-[40px] items-center cursor-pointer p-[12px] relative justify-between group transition-all hover:bg-[#f7f9f9] "
           // chatIdActive?.href === user.href
           //   ? "bg-[#f7f9f9] border-r-2 border-blue-300 "
           //   : ""
           // chatIdActive?.active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : ""
         )}
       >
+        <div className=" absolute bottom-2 flex items-center justify-center right-4 size-6 rounded-full bg-blue-500 text-white font-semibold  ">
+          {user.unReadMess}
+        </div>
         <div className="mr-[16px] flex relative size-[48px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">
           <Image
             alt="Aerospace"

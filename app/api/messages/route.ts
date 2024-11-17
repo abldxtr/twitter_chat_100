@@ -105,23 +105,23 @@ export async function GET(req: Request) {
     }
 
     // Update unread count
-    const chat = await db.chat.findUnique({
-      where: { id: chatId },
-    });
+    // const chat = await db.chat.findUnique({
+    //   where: { id: chatId },
+    // });
 
-    if (chat) {
-      if (chat.initiatorId === currentUser.user.id) {
-        await db.chat.update({
-          where: { id: chatId },
-          data: { unreadCountInitiator: 0 },
-        });
-      } else {
-        await db.chat.update({
-          where: { id: chatId },
-          data: { unreadCountParticipant: 0 },
-        });
-      }
-    }
+    // if (chat) {
+    //   if (chat.initiatorId === currentUser.user.id) {
+    //     await db.chat.update({
+    //       where: { id: chatId },
+    //       data: { unreadCountInitiator: 0 },
+    //     });
+    //   } else {
+    //     await db.chat.update({
+    //       where: { id: chatId },
+    //       data: { unreadCountParticipant: 0 },
+    //     });
+    //   }
+    // }
 
     // after(() => {
     revalidateTag("fetchChat");

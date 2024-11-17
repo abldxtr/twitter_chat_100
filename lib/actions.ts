@@ -200,16 +200,13 @@ export async function updateLastSeen({ userId }: { userId: string }) {
 
 export async function updateMessageReadStatus(messageId: string) {
   try {
-    const response = await fetch(
-      "https://rlyn2l-3000.csb.app/api/messages/update-status",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ messageId }),
-      }
-    );
+    const response = await fetch("/api/messages/update-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ messageId }),
+    });
 
     // if (!response.ok) {
     return { success: true };
@@ -225,7 +222,7 @@ export async function updateMessageReadStatus(messageId: string) {
 // export async function updateMessageReadStatusAll(chatId: string) {
 //   try {
 //     const response = await fetch(
-//       "https://rlyn2l-3000.csb.app/api/messages/update-all-status",
+//       "/api/messages/update-all-status",
 //       {
 //         method: "POST",
 //         headers: {

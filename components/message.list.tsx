@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
 import { Session } from "next-auth";
+import { usr } from "@/lib/data";
 
 export type users = {
   id: string;
@@ -28,7 +29,7 @@ export default function Message_list({
   first,
   current,
 }: {
-  chatlist: users;
+  chatlist: usr[];
   first: string;
   current: Session | null;
 }) {
@@ -68,6 +69,8 @@ export default function Message_list({
       const date2 = item.participant.lastSeen;
       const date = new Date(date1 > date2 ? date2 : date1);
 
+      const unReadMess = item.unreadCount;
+
       const active = param && item.id === param.conversationId;
       const href = `${item.id}`;
       const img =
@@ -82,6 +85,7 @@ export default function Message_list({
         name: otherUser.name,
         username: otherUser.username,
         img,
+        unReadMess,
       };
 
       return <UserList key={item.id} user={userItem} />;
