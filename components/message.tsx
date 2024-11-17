@@ -2,16 +2,13 @@
 
 import classNames from "classnames";
 import {
-  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  useTransition,
 } from "react";
-import { ScrollArea } from "./ui/scroll-area";
 import { MessageData, user } from "@/lib/definitions";
 import { useChatQuery } from "@/hooks/use-chat-query";
 import { useChatSocket } from "@/hooks/use-chat-socket";
@@ -21,10 +18,8 @@ import { formatMessageDate } from "@/lib/utils";
 import { MessLeft, MessRight, ScrollDown, TypingLeft } from "./scroll-down";
 import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
-import { updateLastSeen, updateMessageReadStatus } from "@/lib/actions";
 import { useGlobalContext } from "@/context/globalContext";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function Messages({
   first,
@@ -37,13 +32,10 @@ export default function Messages({
   const chatRef = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
   const { typingUser } = useSocket();
-  const [isPending, startTransition] = useTransition();
-  const queryClient = useQueryClient();
 
   const router = useRouter();
 
-  const { unreadCount, setUnreadCount, unreadMessages, setUnreadMessages } =
-    useGlobalContext();
+  const { unreadCount, setUnreadMessages } = useGlobalContext();
 
   const currentUser = first ? first.id : "";
 
@@ -72,12 +64,6 @@ export default function Messages({
       }
     };
   }, [chatId]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     updateLastSeen({ userId: first?.id! });
-  //   };
-  // }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
@@ -122,29 +108,6 @@ export default function Messages({
       behavior: "smooth",
     });
   }, []);
-
-  const UpdateMssRead = useCallback(
-    async (messageId: string) => {
-      try {
-        const response = await fetch("/api/messages/update-status", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ messageId }),
-        });
-        startTransition(() => {
-          router.refresh();
-        });
-
-        return { success: true };
-      } catch (error) {
-        console.error("Error updating message status:", error);
-        return { success: false };
-      }
-    },
-    [router]
-  );
 
   useEffect(() => {
     if (data?.pages[0]?.items) {
