@@ -35,7 +35,7 @@ export default function Messages({
 
   const router = useRouter();
 
-  const { unreadCount, setUnreadMessages } = useGlobalContext();
+  const { setUnreadMessages } = useGlobalContext();
 
   const currentUser = first ? first.id : "";
 
@@ -49,21 +49,21 @@ export default function Messages({
   const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
   const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
 
-  useLayoutEffect(() => {
-    const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
-    if (storedScrollPosition && chatRef.current) {
-      chatRef.current.scrollTop = parseInt(storedScrollPosition, 10);
-    }
+  // useLayoutEffect(() => {
+  //   const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
+  //   if (storedScrollPosition && chatRef.current) {
+  //     chatRef.current.scrollTop = parseInt(storedScrollPosition, 10);
+  //   }
 
-    return () => {
-      if (chatRef.current) {
-        sessionStorage.setItem(
-          `scrollPos-${chatId}`,
-          chatRef.current.scrollTop.toString()
-        );
-      }
-    };
-  }, [chatId]);
+  //   return () => {
+  //     if (chatRef.current) {
+  //       sessionStorage.setItem(
+  //         `scrollPos-${chatId}`,
+  //         chatRef.current.scrollTop.toString()
+  //       );
+  //     }
+  //   };
+  // }, [chatId]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
@@ -71,9 +71,10 @@ export default function Messages({
       apiUrl,
       paramKey,
       paramValue,
+      currentUser,
     });
   useChatSocket({ queryKey, addKey, typeKey, updateKey, stoptypekey });
-  useChatScroll({
+  const { optimisticMessages, unreadCount } = useChatScroll({
     chatRef,
     bottomRef,
     loadMore: fetchNextPage,
@@ -109,16 +110,6 @@ export default function Messages({
     });
   }, []);
 
-  useEffect(() => {
-    if (data?.pages[0]?.items) {
-      const newUnreadCount = data.pages[0].items.filter(
-        (message) =>
-          message.senderId !== currentUser && message.status !== "READ"
-      );
-      setUnreadMessages(newUnreadCount);
-    }
-  }, [data, currentUser]);
-
   if (status === "pending") {
     return (
       <div className=" w-full h-full flex justify-center my-2 ">
@@ -132,7 +123,8 @@ export default function Messages({
       <ScrollDown
         goDown={goDown}
         func={HandleScrollDown}
-        // unreadCount={unreadCount}
+        unreadCount={unreadCount}
+        // unreadCount={optimisticMessages.length}
         chatId={paramValue}
         queryKey={queryKey}
       />

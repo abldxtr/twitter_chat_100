@@ -1,4 +1,4 @@
-import { useMessage } from "@/context/MessageContext";
+import { useMessage2 } from "@/context/MessageContext";
 import classNames from "classnames";
 import { forwardRef, useMemo } from "react";
 
@@ -10,7 +10,7 @@ export const InputWithRef = forwardRef<
     onSubmit: (e: React.FormEvent) => void;
   }
 >(({ value, onChange, onSubmit }, ref) => {
-  const { imgtemp } = useMessage();
+  const { imgtemp } = useMessage2();
   const isButtonDisabled = useMemo(() => {
     // !value.trim() || !imgtemp.length;
     return !value.trim() && !imgtemp.length;

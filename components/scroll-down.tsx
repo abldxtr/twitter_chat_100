@@ -11,7 +11,7 @@ import { useOptimistic, useTransition } from "react";
 export type items = {
   goDown: boolean;
   func: () => void;
-  // unreadCount: number;
+  unreadCount: number;
   chatId: string;
   queryKey: string;
 };
@@ -24,24 +24,24 @@ export type mess = {
 export function ScrollDown({
   goDown,
   func,
-  // unreadCount,
+  unreadCount,
   chatId,
   queryKey,
 }: items) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { setUnreadCount, unreadCount } = useGlobalContext();
+  const { setUnreadCount, unreadMessages } = useGlobalContext();
   const queryClient = useQueryClient();
-  const [optimisticUnreadCount, updateUnreadCount] = useOptimistic(
-    unreadCount,
-    (state: number, newCount: number) => newCount // نحوه بروزرسانی
-  );
+  // const [optimisticUnreadCount, updateUnreadCount] = useOptimistic(
+  //   unreadCount,
+  //   (state: number, newCount: number) => newCount // نحوه بروزرسانی
+  // );
   // queryKey: ["messages", userId]
 
   async function updateAll(chatId: string) {
     startTransition(async () => {
       try {
-        updateUnreadCount(0);
+        // updateUnreadCount(0);
         const response = await fetch("/api/messages/update-all-status", {
           method: "POST",
           headers: {
@@ -53,7 +53,7 @@ export function ScrollDown({
 
         // return { success: true };
       } catch (error) {
-        updateUnreadCount(unreadCount);
+        // updateUnreadCount(unreadCount);
         console.error("Error updating all message status:", error);
         // return { success: false };
       }
@@ -74,11 +74,12 @@ export function ScrollDown({
       >
         <div
           className={classNames(
-            " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 ",
-            optimisticUnreadCount === 0 && "hidden pointer-events-none "
+            " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 "
+            // optimisticUnreadCount === 0 && "hidden pointer-events-none "
           )}
         >
-          {optimisticUnreadCount}
+          {unreadMessages.length}
+          {/* {optimisticUnreadCount} */}
         </div>
 
         <svg

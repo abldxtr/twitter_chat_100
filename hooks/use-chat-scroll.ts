@@ -9,6 +9,7 @@ import {
   useCallback,
   useEffect,
   useOptimistic,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -55,27 +56,80 @@ export const useChatScroll = ({
   );
 
   const router = useRouter();
+  const seenMessagesRef = useRef<Set<string>>(new Set());
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const updateMessageStatus = useCallback(
+    async (messageIds: string[]) => {
+      try {
+        const response = await fetch("/api/messages/update-status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ messageIds }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to update message status");
+        }
+        queryClient.invalidateQueries({
+          queryKey: [queryKey],
+        });
+        setUnreadMessages((prev) =>
+          prev.filter((item) => !messageIds.includes(item.id))
+        );
+      } catch (error) {
+        console.error("Error updating message status:", error);
+      }
+    },
+    [queryClient, queryKey, setUnreadMessages]
+  );
+
+  const scheduleUpdate = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      const messageIds = Array.from(seenMessagesRef.current);
+      if (messageIds.length > 0) {
+        updateMessageStatus(messageIds);
+        seenMessagesRef.current.clear();
+      }
+    }, 2000);
+  }, [updateMessageStatus]);
+
+  const markMessageAsSeen = useCallback(
+    (messageId: string) => {
+      seenMessagesRef.current.add(messageId);
+      scheduleUpdate();
+    },
+    [scheduleUpdate]
+  );
+
   const UpdateMssRead = useCallback(
     async (messageId: string) => {
-      startTransition(async () => {
-        updateOptimisticMessages(messageId);
-        try {
-          const response = await fetch("/api/messages/update-status", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ messageId }),
-          });
-
-          // return { success: true };
-        } catch (error) {
-          console.error("Error updating message status:", error);
-          // return { success: false };
+      try {
+        setUnreadMessages((prev) =>
+          prev.filter((item) => item.id !== messageId)
+        );
+        const response = await fetch("/api/messages/update-status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ messageId }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to update message status");
         }
-      });
+        queryClient.invalidateQueries({
+          queryKey: [queryKey],
+        });
+      } catch (error) {
+        console.error("Error updating message status:", error);
+      }
     },
-    [router]
+    [setUnreadMessages, queryClient, queryKey]
   );
 
   useEffect(() => {
@@ -105,13 +159,19 @@ export const useChatScroll = ({
               entry.target.getAttribute("data-user") === "true";
 
             if (messageStatus === "SENT" && !currentUser) {
-              // UpdateMssRead(messageId).then(() => {
-              startTransition(async () => {
-                queryClient.invalidateQueries({
-                  queryKey: [`${queryKey}`, "uerList"],
-                });
-              });
-              // });
+              console.log("first if");
+              console.log("unreadMessages", unreadMessages);
+              console.log("messageId", messageId);
+              markMessageAsSeen(messageId);
+
+              // const messageExists = unreadMessages.some((item) =>
+              //   console.log(item.id === messageId)
+              // );
+              // if (messageExists) {
+              // console.log("second if");
+
+              // UpdateMssRead(messageId);
+              // }
             }
           }
         });
@@ -131,7 +191,36 @@ export const useChatScroll = ({
       messageElements.forEach((el) => observer.unobserve(el));
 
       topDiv?.removeEventListener("scroll", handleScroll);
-      updateLastSeen({ userId: first?.id! });
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      // updateLastSeen({ userId: first?.id! });
     };
-  }, [shouldLoadMore, loadMore, chatRef, UpdateMssRead]);
+  }, [shouldLoadMore, loadMore, chatRef, UpdateMssRead, markMessageAsSeen]);
+
+  return { optimisticMessages, unreadCount };
 };
+
+// const UpdateMssRead = async (messageId: string) => {
+//   // setUnreadMessages(unreadMessages.filter((item) => item.id !== messageId));
+//   startTransition(async () => {
+//     try {
+//       updateOptimisticMessages(messageId);
+//       const response = await fetch("/api/messages/update-status", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ messageId }),
+//       });
+//       // queryClient.invalidateQueries({
+//       //   queryKey: [`${queryKey}`, "uerList"],
+//       // });
+
+//       // return { success: true };
+//     } catch (error) {
+//       console.error("Error updating message status:", error);
+//       // return { success: false };
+//     }
+//   });
+// };

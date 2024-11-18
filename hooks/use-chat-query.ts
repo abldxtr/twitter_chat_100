@@ -2,6 +2,8 @@ import qs from "query-string";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSocket } from "@/provider/socket-provider";
 import { MessageData } from "@/lib/definitions";
+import { useEffect } from "react";
+import { useGlobalContext } from "@/context/globalContext";
 // import { data } from "@/lib/definitions";
 
 // import { useSocket } from "@/components/providers/socket-provider";
@@ -11,6 +13,7 @@ interface ChatQueryProps {
   apiUrl: string;
   paramKey: "chatId";
   paramValue: string;
+  currentUser: string;
 }
 interface MessagesResponse {
   items: MessageData[];
@@ -22,8 +25,10 @@ export const useChatQuery = ({
   apiUrl,
   paramKey,
   paramValue,
+  currentUser,
 }: ChatQueryProps) => {
   const { isConnected } = useSocket();
+  const { setUnreadMessages } = useGlobalContext();
   // const isConnected = false;
 
   const fetchMessages = async ({
@@ -58,6 +63,16 @@ export const useChatQuery = ({
       // refetchInterval: isConnected ? false : 10000,
       initialPageParam: undefined,
     });
+
+  useEffect(() => {
+    if (data?.pages[0]?.items) {
+      const newUnreadCount = data.pages[0].items.filter(
+        (message) =>
+          message.senderId !== currentUser && message.status !== "READ"
+      );
+      setUnreadMessages(newUnreadCount);
+    }
+  }, [data, currentUser]);
 
   return {
     data,

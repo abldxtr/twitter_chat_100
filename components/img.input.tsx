@@ -1,13 +1,13 @@
 "use client";
 
-import { useMessage } from "@/context/MessageContext";
+import { useMessage2 } from "@/context/MessageContext";
 import { ChangeEvent, useRef, useState } from "react";
 
 export default function ImgInput() {
   const imagesRef = useRef<HTMLInputElement | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [images, setImages] = useState<string[]>([]);
-  const { messages, setMessages, imgtemp, setImgTemp } = useMessage();
+  const { messages, setMessages, imgtemp, setImgTemp } = useMessage2();
 
   // console.log("images", images);
   // console.log("errorMsg", errorMsg);

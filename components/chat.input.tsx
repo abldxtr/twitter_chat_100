@@ -6,7 +6,7 @@ import axios from "axios";
 import qs from "query-string";
 
 import { useEffect, useState, useRef, FormEvent, useTransition } from "react";
-import { useMessage } from "@/context/MessageContext";
+// import { useMessage } from "@/context/MessageContext";
 import { useOnClickOutside } from "usehooks-ts";
 import ImgInput from "./img.input";
 import { EmojiPicker } from "./EmojiPicker";
@@ -37,7 +37,7 @@ export default function InputChat({
 }) {
   const { openEmoji, setOpenEmoji, open, setOpen } = useEmojiState();
   const [cursorPosition, setCursorPosition] = useState<number>(0);
-  const { messages, setMessages, imgtemp, setImgTemp } = useMessage();
+  // const { messages, setMessages, imgtemp, setImgTemp } = useMessage();
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);
   const EmojiRef = useRef(null);
@@ -125,12 +125,12 @@ export default function InputChat({
       }
 
       setInputValue("");
-      setImgTemp([]);
+      // setImgTemp([]);
     }
   };
 
   const handleDeleteTempImg = () => {
-    setImgTemp([]);
+    // setImgTemp([]);
   };
 
   useEffect(() => {

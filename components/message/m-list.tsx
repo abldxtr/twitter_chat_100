@@ -41,8 +41,8 @@ export default function UserList({ user }: { user: userList }) {
   const me = currentUser.status;
 
   const Active = me === "authenticated" && isConnected;
-  console.log("unreadCountMenue", unreadCountMenue);
-  const count = unreadCountMenue.findIndex((item) => item.id === user.id);
+  // console.log("unreadCountMenue", unreadCountMenue);
+  // const count = unreadCountMenue.findIndex((item) => item.id === user.id);
 
   return (
     <Link
@@ -67,16 +67,16 @@ export default function UserList({ user }: { user: userList }) {
       >
         <div
           className={classNames(
-            " absolute bottom-2 flex items-center justify-center right-4 size-6 rounded-full bg-blue-500 text-white font-semibold  ",
-            user.unReadMess === 0 && "hidden "
+            " absolute bottom-2 flex items-center justify-center right-4 size-6 rounded-full bg-blue-500 text-white font-semibold  "
+            // user.unReadMess === 0 && "hidden "
           )}
         >
-          {count}
-          {/* {user.unReadMess} */}
+          {/* {count} */}
+          {user.unReadMess}
         </div>
         <div className="mr-[16px] flex relative size-[50px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">
           <Image
-            alt="Aerospace"
+            alt="alt img"
             src={user.img ? user.img : ""}
             className="size-full rounded-full shrink-0 "
             fill

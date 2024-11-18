@@ -15,6 +15,8 @@ import { Session } from "next-auth";
 import { usr } from "@/lib/data";
 import queryString from "query-string";
 import { useQuery } from "@tanstack/react-query";
+import { useMessage } from "@/hooks/use-message";
+// import useMessages from "@/hooks/use-message";
 
 export type users = {
   id: string;
@@ -28,49 +30,49 @@ export type users = {
 
 const apiUrl = "/api/user";
 
-const useMessages = (userId: string) => {
-  const { setUnreadCountMenue, unreadCountMenue } = useGlobalContext();
-  const fetchMessages = async ({ userId }: { userId: string }) => {
-    const url = queryString.stringifyUrl(
-      {
-        url: apiUrl,
-        query: {
-          userId,
-        },
-      },
-      { skipNull: true }
-    );
+// const useMessages = (userId: string) => {
+//   const { setUnreadCountMenue, unreadCountMenue } = useGlobalContext();
+//   const fetchMessages = async ({ userId }: { userId: string }) => {
+//     const url = queryString.stringifyUrl(
+//       {
+//         url: apiUrl,
+//         query: {
+//           userId,
+//         },
+//       },
+//       { skipNull: true }
+//     );
 
-    console.log("urllllllllllllll", url);
+//     console.log("urllllllllllllll", url);
 
-    const res = await fetch(url);
-    return res.json() as Promise<usr[]>;
-  };
+//     const res = await fetch(url);
+//     return res.json() as Promise<usr[]>;
+//   };
 
-  return useQuery({
-    // queryKey: ["messages", userId],
-    queryKey: ["uerList"],
+//   return useQuery({
+//     // queryKey: ["messages", userId],
+//     queryKey: ["uerList"],
 
-    queryFn: () => {
-      const res = fetchMessages({ userId });
+//     queryFn: () => {
+//       const res = fetchMessages({ userId });
 
-      res.then((item) =>
-        item.map((i) =>
-          setUnreadCountMenue([
-            ...unreadCountMenue,
-            { id: i.id, count: i.unreadCount },
-          ])
-        )
-      );
+//       res.then((item) =>
+//         item.map((i) =>
+//           setUnreadCountMenue([
+//             ...unreadCountMenue,
+//             { id: i.id, count: i.unreadCount },
+//           ])
+//         )
+//       );
 
-      return res;
-    }, // تابع درخواست
-    enabled: !!userId, // درخواست فقط زمانی اجرا می‌شود که userId معتبر باشد
-    staleTime: 1000 * 60 * 5, // داده‌ها تا ۵ دقیقه تازه هستند
-    // cacheTime: 1000 * 60 * 10, // داده‌ها تا ۱۰ دقیقه در کش باقی می‌مانند
-    retry: 2, // تلاش مجدد در صورت شکست
-  });
-};
+//       return res;
+//     }, // تابع درخواست
+//     enabled: !!userId, // درخواست فقط زمانی اجرا می‌شود که userId معتبر باشد
+//     staleTime: 1000 * 60 * 5, // داده‌ها تا ۵ دقیقه تازه هستند
+//     // cacheTime: 1000 * 60 * 10, // داده‌ها تا ۱۰ دقیقه در کش باقی می‌مانند
+//     retry: 2, // تلاش مجدد در صورت شکست
+//   });
+// };
 
 export default function Message_list({
   // chatlist,
@@ -82,12 +84,21 @@ export default function Message_list({
   current: Session | null;
 }) {
   const userId = first;
-  const { data, isPending, isError, isLoading } = useMessages(userId);
+  // const { data, isLoading, unreadCounts, updateUnreadCount } =
+  //   useMessages(userId);
+  const { unreadCounts, updateUnreadCount, fetchMessages } = useMessage();
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
   const [mounted, setMounted] = useState(false);
   const param = useParams();
   const { isConnected } = useSocket();
+  const { data, isLoading } = useQuery({
+    queryKey: ["userList", first],
+    queryFn: () => fetchMessages(first),
+    enabled: !!first,
+    staleTime: 1000 * 60 * 5,
+    retry: 2,
+  });
 
   // useEffect(() => {
   //   setMounted(true);
@@ -129,7 +140,7 @@ export default function Message_list({
               ? [...new Array(6)].map((i) => {
                   return <UserListLoading key={i} />;
                 })
-              : data?.map((item) => {
+              : data?.map((item: usr) => {
                   const otherUser =
                     item.initiator.id === first
                       ? item.participant
@@ -143,7 +154,10 @@ export default function Message_list({
                   const date2 = item.participant.lastSeen;
                   const date = new Date(date1 > date2 ? date2 : date1);
 
-                  const unReadMess = item.unreadCount;
+                  // const unReadMess = item.unreadCount;
+                  const unReadMess =
+                    unreadCounts.find((count) => count.id === item.id)?.count ??
+                    0;
 
                   const active = param && item.id === param.conversationId;
                   const href = `${item.id}`;

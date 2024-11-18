@@ -32,7 +32,7 @@ type MessageContextType = {
 
 const MessageContext = React.createContext<MessageContextType | null>(null);
 
-export function MessageProvider({ children }: { children: ReactNode }) {
+export function MessageProvider2({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<text>([]);
   const [imgtemp, setImgTemp] = useState<string[]>([]);
 
@@ -45,7 +45,7 @@ export function MessageProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useMessage() {
+export function useMessage2() {
   const Messages = React.useContext(MessageContext);
   if (Messages === null) {
     throw new Error("useMessage must be used within a CounterProvider");

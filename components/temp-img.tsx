@@ -1,7 +1,7 @@
-import { useMessage } from "@/context/MessageContext";
+import { useMessage2 } from "@/context/MessageContext";
 
 export default function TempImg() {
-  const { messages, setMessages, imgtemp, setImgTemp } = useMessage();
+  const { messages, setMessages, imgtemp, setImgTemp } = useMessage2();
 
   const handleDeleteTempImg = () => {
     setImgTemp([]);
