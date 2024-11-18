@@ -90,19 +90,6 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-// export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
-
-//     return (
-//       <MessageContext.Provider
-//         value={{
-
-//         }}
-//       >
-//         {children}
-//       </MessageContext.Provider>
-//     );
-//   };
-
 export const useMessage = () => {
   const context = useContext(MessageContext);
   if (context === undefined) {

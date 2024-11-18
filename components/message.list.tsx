@@ -89,20 +89,16 @@ export default function Message_list({
   const { unreadCounts, updateUnreadCount, fetchMessages } = useMessage();
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
   const param = useParams();
   const { isConnected } = useSocket();
   const { data, isLoading } = useQuery({
     queryKey: ["userList", first],
     queryFn: () => fetchMessages(first),
-    enabled: !!first,
+    // enabled: !!first,
     staleTime: 1000 * 60 * 5,
     retry: 2,
   });
-
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
 
   useEffect(() => {
     if (matches && !mobileMenue) {
@@ -111,10 +107,6 @@ export default function Message_list({
       setMobileMenue(false);
     }
   }, [matches]);
-
-  // if (!mounted) {
-  //   return null;
-  // }
 
   return (
     <div
