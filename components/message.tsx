@@ -49,21 +49,21 @@ export default function Messages({
   const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
   const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
 
-  // useLayoutEffect(() => {
-  //   const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
-  //   if (storedScrollPosition && chatRef.current) {
-  //     chatRef.current.scrollTop = parseInt(storedScrollPosition, 10);
-  //   }
+  useLayoutEffect(() => {
+    const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
+    if (storedScrollPosition && chatRef.current) {
+      chatRef.current.scrollTop = parseInt(storedScrollPosition, 10);
+    }
 
-  //   return () => {
-  //     if (chatRef.current) {
-  //       sessionStorage.setItem(
-  //         `scrollPos-${chatId}`,
-  //         chatRef.current.scrollTop.toString()
-  //       );
-  //     }
-  //   };
-  // }, [chatId]);
+    return () => {
+      if (chatRef.current) {
+        sessionStorage.setItem(
+          `scrollPos-${chatId}`,
+          chatRef.current.scrollTop.toString()
+        );
+      }
+    };
+  }, [chatId]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({

@@ -101,6 +101,9 @@ export const useChatScroll = ({
   const markMessageAsSeen = useCallback(
     (messageId: string) => {
       seenMessagesRef.current.add(messageId);
+      setUnreadMessages((prev) =>
+        prev.filter((item) => item.id !== messageId)
+      );
       scheduleUpdate();
     },
     [scheduleUpdate]
