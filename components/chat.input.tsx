@@ -148,7 +148,7 @@ export default function InputChat({
   return (
     <div
       className={classNames(
-        " bg-white  border-t border-[#eff3f4] px-[12px]    py-1 isolate "
+        " bg-[#fcfdfd] border-t border-[#eff3f4] px-[12px]    py-1 isolate "
       )}
     >
       {/* <!-- input --> */}

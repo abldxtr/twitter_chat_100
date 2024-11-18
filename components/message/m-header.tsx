@@ -3,7 +3,7 @@ import { signOut } from "next-auth/react";
 export default function MessageHeader() {
   return (
     <div className=" flex w-full sticky top-0 ">
-      <div className=" h-[53px] w-full bg-[#ffffffd9] backdrop-blur-md">
+      <div className=" h-[53px] w-full bg-[#fcfdfd] backdrop-blur-md">
         <div className="flex h-full w-full flex-1 items-center justify-between px-[16px]">
           {/* <!-- 1 --> */}
           <div className="w-full flex-1">

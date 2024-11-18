@@ -2,17 +2,19 @@
 
 import MessageHeader from "./message/m-header";
 import MessageRequest from "./message/m-request";
-import UserList, { Account, userList } from "./message/m-list";
+import UserList, { Account, UserListLoading, userList } from "./message/m-list";
 import { user } from "@/lib/definitions";
 import { User } from "@prisma/client";
 import classNames from "classnames";
 import { useMediaQuery } from "usehooks-ts";
 import { useGlobalContext } from "@/context/globalContext";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
 import { Session } from "next-auth";
 import { usr } from "@/lib/data";
+import queryString from "query-string";
+import { useQuery } from "@tanstack/react-query";
 
 export type users = {
   id: string;
@@ -24,24 +26,72 @@ export type users = {
   }[];
 }[];
 
+const apiUrl = "https://rlyn2l-3000.csb.app/api/user";
+
+const useMessages = (userId: string) => {
+  const { setUnreadCountMenue, unreadCountMenue } = useGlobalContext();
+  const fetchMessages = async ({ userId }: { userId: string }) => {
+    const url = queryString.stringifyUrl(
+      {
+        url: apiUrl,
+        query: {
+          userId,
+        },
+      },
+      { skipNull: true }
+    );
+
+    console.log("urllllllllllllll", url);
+
+    const res = await fetch(url);
+    return res.json() as Promise<usr[]>;
+  };
+
+  return useQuery({
+    // queryKey: ["messages", userId],
+    queryKey: ["uerList"],
+
+    queryFn: () => {
+      const res = fetchMessages({ userId });
+
+      res.then((item) =>
+        item.map((i) =>
+          setUnreadCountMenue([
+            ...unreadCountMenue,
+            { id: i.id, count: i.unreadCount },
+          ])
+        )
+      );
+
+      return res;
+    }, // تابع درخواست
+    enabled: !!userId, // درخواست فقط زمانی اجرا می‌شود که userId معتبر باشد
+    staleTime: 1000 * 60 * 5, // داده‌ها تا ۵ دقیقه تازه هستند
+    // cacheTime: 1000 * 60 * 10, // داده‌ها تا ۱۰ دقیقه در کش باقی می‌مانند
+    retry: 2, // تلاش مجدد در صورت شکست
+  });
+};
+
 export default function Message_list({
-  chatlist,
+  // chatlist,
   first,
   current,
 }: {
-  chatlist: usr[];
+  // chatlist: usr[];
   first: string;
   current: Session | null;
 }) {
+  const userId = first;
+  const { data, isPending, isError, isLoading } = useMessages(userId);
   const { mobileMenue, setMobileMenue } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
   const [mounted, setMounted] = useState(false);
   const param = useParams();
   const { isConnected } = useSocket();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
   useEffect(() => {
     if (matches && !mobileMenue) {
@@ -51,55 +101,14 @@ export default function Message_list({
     }
   }, [matches]);
 
-  const memoizedChatList = useMemo(() => {
-    // if (!mounted) return null; // از رندر در سمت سرور جلوگیری می‌کند
-
-    return chatlist?.map((item) => {
-      const otherUser =
-        item.initiator.id === first ? item.participant : item.initiator;
-
-      // const userPage = item.initiator.id === first ? item.participant.id === first || !!item.participant.id && true   : item.participant.id === first ?
-
-      const lastMessage =
-        item.messages[item.messages.length - 1]?.content ??
-        "هنوز گفت و گویی رو شروع نکردید";
-
-      // تاریخ‌ها را به صورت ثابت نگه می‌داریم
-      const date1 = item.initiator.lastSeen;
-      const date2 = item.participant.lastSeen;
-      const date = new Date(date1 > date2 ? date2 : date1);
-
-      const unReadMess = item.unreadCount;
-
-      const active = param && item.id === param.conversationId;
-      const href = `${item.id}`;
-      const img =
-        "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
-
-      const userItem: userList = {
-        id: item.id,
-        active,
-        date,
-        href,
-        lastMessage,
-        name: otherUser.name,
-        username: otherUser.username,
-        img,
-        unReadMess,
-      };
-
-      return <UserList key={item.id} user={userItem} />;
-    });
-  }, [chatlist, first, param, mounted]);
-
-  if (!mounted) {
-    return null;
-  }
+  // if (!mounted) {
+  //   return null;
+  // }
 
   return (
     <div
       className={classNames(
-        " overflow-y-auto overflow-x-hidden z-[10] bg-white  scrl fixed top-0 left-0 h-dvh md:w-[400px] w-full transition-all duration-300  ",
+        " overflow-y-auto overflow-x-hidden z-[10] bg-[#fcfdfd]  scrl fixed top-0 left-0 h-dvh md:w-[400px] w-full transition-all duration-300  ",
         mobileMenue
           ? " translate-x-0 "
           : " -translate-x-full pointer-events-none   "
@@ -107,14 +116,54 @@ export default function Message_list({
     >
       <section className=" lg:flex w-full  relative flex-1 border-x-[1px] border-[#eff3f4]">
         <div className="flex  w-full flex-col isolate ">
-          <div className=" w-full sticky top-0 z-10 bg-white ">
+          <div className=" w-full sticky top-0 z-10 bg-[#fcfdfd] ">
             <MessageHeader />
             {/* <MessageRequest /> */}
-            <Account user={current} />
+            <Suspense fallback={null}>
+              <Account user={current} />
+            </Suspense>
           </div>
 
-          <div className=" flex-1 overflow-y-auto relative bg-white ">
-            {memoizedChatList}
+          <div className=" flex-1 overflow-y-auto relative bg-[#fcfdfd] ">
+            {isLoading
+              ? [...new Array(6)].map((i) => {
+                  return <UserListLoading key={i} />;
+                })
+              : data?.map((item) => {
+                  const otherUser =
+                    item.initiator.id === first
+                      ? item.participant
+                      : item.initiator;
+
+                  const lastMessage =
+                    item.messages[item.messages.length - 1]?.content ??
+                    "هنوز گفت و گویی رو شروع نکردید";
+
+                  const date1 = item.initiator.lastSeen;
+                  const date2 = item.participant.lastSeen;
+                  const date = new Date(date1 > date2 ? date2 : date1);
+
+                  const unReadMess = item.unreadCount;
+
+                  const active = param && item.id === param.conversationId;
+                  const href = `${item.id}`;
+                  const img =
+                    "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
+
+                  const userItem: userList = {
+                    id: item.id,
+                    active,
+                    date,
+                    href,
+                    lastMessage,
+                    name: otherUser.name,
+                    username: otherUser.username,
+                    img,
+                    unReadMess,
+                  };
+
+                  return <UserList key={item.id} user={userItem} />;
+                })}
           </div>
         </div>
       </section>

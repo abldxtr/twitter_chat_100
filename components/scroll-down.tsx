@@ -6,12 +6,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 
 export type items = {
   goDown: boolean;
   func: () => void;
-  unreadCount: number;
+  // unreadCount: number;
   chatId: string;
   queryKey: string;
 };
@@ -24,35 +24,40 @@ export type mess = {
 export function ScrollDown({
   goDown,
   func,
-  unreadCount,
+  // unreadCount,
   chatId,
   queryKey,
 }: items) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { setUnreadCount } = useGlobalContext();
+  const { setUnreadCount, unreadCount } = useGlobalContext();
   const queryClient = useQueryClient();
+  const [optimisticUnreadCount, updateUnreadCount] = useOptimistic(
+    unreadCount,
+    (state: number, newCount: number) => newCount // نحوه بروزرسانی
+  );
+  // queryKey: ["messages", userId]
 
   async function updateAll(chatId: string) {
-    try {
-      const response = await fetch("/api/messages/update-all-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ chatId }),
-      });
-      queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+    startTransition(async () => {
+      try {
+        updateUnreadCount(0);
+        const response = await fetch("/api/messages/update-all-status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ chatId }),
+        });
+        queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
 
-      // startTransition(() => {
-      //   setUnreadCount(0);
-      //   router.refresh();
-      // });
-      return { success: true };
-    } catch (error) {
-      console.error("Error updating all message status:", error);
-      return { success: false };
-    }
+        // return { success: true };
+      } catch (error) {
+        updateUnreadCount(unreadCount);
+        console.error("Error updating all message status:", error);
+        // return { success: false };
+      }
+    });
   }
   return (
     <>
@@ -67,8 +72,13 @@ export function ScrollDown({
           func();
         }}
       >
-        <div className=" absolute -top-6 right-2 flex items-center justify-center bg-blue-500 text-white font-semibold rounded-full size-10 ">
-          {unreadCount}
+        <div
+          className={classNames(
+            " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 ",
+            optimisticUnreadCount === 0 && "hidden pointer-events-none "
+          )}
+        >
+          {optimisticUnreadCount}
         </div>
 
         <svg
@@ -88,7 +98,7 @@ export function ScrollDown({
 export function MessRight({ message, direction }: mess) {
   return (
     <motion.div
-      className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end    "
+      className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out  "
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >
@@ -112,7 +122,10 @@ export function MessRight({ message, direction }: mess) {
               </svg>
             </button> */}
           </div>
-          <div className=" flex cursor-pointer flex-col gap-2 bg-[rgb(29,155,240)] rounded-br-sm rounded-2xl py-[12px] px-[16px] text-right text-white leading-[20px] text-[15px] hover:bg-[#1a8cd8] transition-all duration-300    ">
+          <div
+            className=" flex cursor-pointer flex-col gap-2 bg-[#dcfaf5] rounded-br-sm rounded-2xl py-[12px] 
+          px-[16px] text-right text-[#091e42] leading-[20px] text-[1rem] font-normal  transition-all duration-300    "
+          >
             {/* {!!it.images?.length && (
                           <img
                             src={it.images[0]}
@@ -141,7 +154,7 @@ export function MessRight({ message, direction }: mess) {
 export function MessLeft({ message, direction }: mess) {
   return (
     <motion.div
-      className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 "
+      className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out "
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >
@@ -165,7 +178,10 @@ export function MessLeft({ message, direction }: mess) {
               </svg>
             </button> */}
           </div>
-          <div className=" flex cursor-pointer flex-col text-[#0f1419] bg-[#eff3f4] rounded-bl-sm rounded-2xl py-[12px] px-[16px] text-right leading-[20px] text-[15px] transition-all duration-300    ">
+          <div
+            className=" flex cursor-pointer flex-col text-[#091e42] bg-[#f4f5f7] rounded-bl-sm rounded-2xl py-[12px]
+           px-[16px] text-right leading-[20px] text-[1rem] font-normal transition-all duration-300    "
+          >
             {/* {!!it.images?.length && (
                           <img
                             src={it.images[0]}
@@ -184,7 +200,7 @@ export function MessLeft({ message, direction }: mess) {
           </div>
         </div>
 
-        <div className="block text-[rgb(83,100,113)] flex text-left text-[13px] leading-[16px] font-[400] mt-[6px] rtlDir ">
+        <div className=" text-[rgb(83,100,113)] flex text-left text-[13px] leading-[16px] font-[400] mt-[6px] rtlDir ">
           {formatPersianDate(new Date(message.createdAt))}
         </div>
       </div>

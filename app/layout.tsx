@@ -45,7 +45,7 @@ export default async function RootLayout({
   const userId = current.user.id;
 
   // const users = await fetchChat(userId);
-  const users = await fetchChatsWithUnreadCount(userId);
+  // const users = await fetchChatsWithUnreadCount(userId);
 
   // const msg = users.map((item, index) =>
   //   item.messages.map((mess, index) => mess.status)
@@ -66,7 +66,7 @@ export default async function RootLayout({
                           <div className="flex shrink grow flex-1 items-start w-full isolate ">
                             {/* <!-- messages list --> */}
                             <Message_list
-                              chatlist={users}
+                              // chatlist={users}
                               first={userId}
                               current={current}
                             />

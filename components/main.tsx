@@ -27,7 +27,12 @@ export default async function Main({ param }: { param: string }) {
     userId === chatDb?.initiator.id ? chatDb.initiator : chatDb?.participant;
 
   return (
-    <div className=" overflow-auto flex flex-1 h-full md:pl-[400px] z-[9] w-full ">
+    <div
+      className=" overflow-auto flex flex-1 h-full 
+    md:pl-[400px] z-[9] w-full 
+    
+    "
+    >
       <Chat_text
         param={param}
         first={currentUser}

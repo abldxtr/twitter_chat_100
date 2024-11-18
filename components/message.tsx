@@ -132,7 +132,7 @@ export default function Messages({
       <ScrollDown
         goDown={goDown}
         func={HandleScrollDown}
-        unreadCount={unreadCount}
+        // unreadCount={unreadCount}
         chatId={paramValue}
         queryKey={queryKey}
       />

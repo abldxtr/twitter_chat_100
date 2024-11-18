@@ -1,5 +1,6 @@
+import { useGlobalContext } from "@/context/globalContext";
 import { updateLastSeen } from "@/lib/actions";
-import { user } from "@/lib/definitions";
+import { MessageData, user } from "@/lib/definitions";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
@@ -7,6 +8,7 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
+  useOptimistic,
   useState,
   useTransition,
 } from "react";
@@ -34,27 +36,44 @@ export const useChatScroll = ({
 }: ChatScrollProps) => {
   const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
+  const {
+    setUnreadCount,
+    unreadCount,
+    unreadMessages,
+    setUnreadMessages,
+    setUnreadCountMenue,
+    unreadCountMenue,
+  } = useGlobalContext();
+
+  const [optimisticMessages, updateOptimisticMessages] = useOptimistic<
+    MessageData[]
+  >(
+    unreadMessages,
+    // @ts-ignore
+    (state: MessageData[], messageId: string) =>
+      state.filter((item) => item.id !== messageId)
+  );
 
   const router = useRouter();
   const UpdateMssRead = useCallback(
     async (messageId: string) => {
-      try {
-        const response = await fetch("/api/messages/update-status", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ messageId }),
-        });
-        // startTransition(() => {
-        //   router.refresh();
-        // });
+      startTransition(async () => {
+        updateOptimisticMessages(messageId);
+        try {
+          const response = await fetch("/api/messages/update-status", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ messageId }),
+          });
 
-        return { success: true };
-      } catch (error) {
-        console.error("Error updating message status:", error);
-        return { success: false };
-      }
+          // return { success: true };
+        } catch (error) {
+          console.error("Error updating message status:", error);
+          // return { success: false };
+        }
+      });
     },
     [router]
   );
@@ -86,9 +105,13 @@ export const useChatScroll = ({
               entry.target.getAttribute("data-user") === "true";
 
             if (messageStatus === "SENT" && !currentUser) {
-              UpdateMssRead(messageId).then(() => {
-                queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+              // UpdateMssRead(messageId).then(() => {
+              startTransition(async () => {
+                queryClient.invalidateQueries({
+                  queryKey: [`${queryKey}`, "uerList"],
+                });
               });
+              // });
             }
           }
         });

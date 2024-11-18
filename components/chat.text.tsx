@@ -19,9 +19,13 @@ export default async function Chat_text({
   return (
     <section
       className="w-full flex min-w-0 isolate h-dvh realtive
-      overflow-hidden max-w-[920px]  border-r-[1px] border-[#eff3f4] border-l-[1px] lg:border-l-0 "
+      overflow-hidden max-w-[920px]  border-r-[1px] border-[#eff3f4] border-l-[1px] lg:border-l-0 
+      bg-[rgb(223,_225,_230)]
+      
+      before:absolute before:inset-0 before:bg-[url('/new-pattern-6.png')] before:opacity-5 before:[background-size:_300px]
+      "
     >
-      <div className="  flex-1 h-full w-full flex flex-col ">
+      <div className="  flex-1 h-full w-full flex flex-col  ">
         {param ? (
           <>
             <ChatHeader other={other} />
@@ -44,8 +48,13 @@ export default async function Chat_text({
         ) : (
           <>
             <ChatHeader />
-            <div className="w-full h-full flex items-center justify-center text-slate-900 font-bold rtlDir ">
-              باید وارد گفت و گو شوید!
+            <div className="w-full h-full flex flex-col items-center justify-center text-slate-900 font-bold rtlDir ">
+              <div className=" mb-[36px] ">
+                <img src="/landing.svg" alt="landing" />
+              </div>
+              <div className=" text-[#091e42] text-[17px] leading-[26px]  ">
+                برای شروع یکی از گفتگوها را انتخاب کنید{" "}
+              </div>
             </div>
           </>
         )}

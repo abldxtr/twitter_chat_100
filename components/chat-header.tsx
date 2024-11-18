@@ -8,7 +8,11 @@ export default function ChatHeader({ other }: { other?: user | undefined }) {
   const { mobileMenue, setMobileMenue, chatIdActive } = useGlobalContext();
 
   return (
-    <div className="w-full  z-10 ">
+    <div
+      className="w-full  z-10 
+    [box-shadow:_0px_1px_4px_0px_rgba(9,_30,_66),0.15)]
+    "
+    >
       <div className=" h-[53px] w-full bg-[#ffffffd9] backdrop-blur-md">
         <div className="flex h-full w-full flex-1 items-center justify-between px-[16px]">
           <div className=" flex items-center gap-x-4 ">

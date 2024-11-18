@@ -18,9 +18,19 @@ interface CounterContextType {
   setChatIdActive: React.Dispatch<React.SetStateAction<userList | null>>;
   unreadCount: number;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
-  unreadMessages: MessageData[] | undefined;
-  setUnreadMessages: React.Dispatch<
-    React.SetStateAction<MessageData[] | undefined>
+  unreadMessages: MessageData[];
+  setUnreadMessages: React.Dispatch<React.SetStateAction<MessageData[]>>;
+  unreadCountMenue: {
+    id: string;
+    count: number;
+  }[];
+  setUnreadCountMenue: React.Dispatch<
+    React.SetStateAction<
+      {
+        id: string;
+        count: number;
+      }[]
+    >
   >;
 }
 
@@ -33,15 +43,16 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenue, setMobileMenue] = useState<boolean>(false);
   const [chatIdActive, setChatIdActive] = useState<userList | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCountMenue, setUnreadCountMenue] = useState<
+    { id: string; count: number }[]
+  >([]);
 
-  const [unreadMessages, setUnreadMessages] = useState<
-    MessageData[] | undefined
-  >(undefined);
+  const [unreadMessages, setUnreadMessages] = useState<MessageData[]>([]);
 
   useEffect(() => {
-    if (unreadMessages) {
-      setUnreadCount(unreadMessages.length);
-    }
+    // if (unreadMessages) {
+    setUnreadCount(unreadMessages.length);
+    // }
   }, [unreadMessages]);
 
   return (
@@ -61,6 +72,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
         setUnreadCount,
         unreadMessages,
         setUnreadMessages,
+        unreadCountMenue,
+        setUnreadCountMenue,
       }}
     >
       {children}
