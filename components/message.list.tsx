@@ -26,7 +26,7 @@ export type users = {
   }[];
 }[];
 
-const apiUrl = "https://rlyn2l-3000.csb.app/api/user";
+const apiUrl = "/api/user";
 
 const useMessages = (userId: string) => {
   const { setUnreadCountMenue, unreadCountMenue } = useGlobalContext();
