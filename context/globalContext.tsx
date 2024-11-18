@@ -40,7 +40,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentView, setCurrentView] = useState<string>("all-chats");
   const [showFriendProfile, setShowFriendProfile] = useState<boolean>(false);
   const [showProfile, setShowProfile] = useState<boolean>(false);
-  const [mobileMenue, setMobileMenue] = useState<boolean>(false);
+  const [mobileMenue, setMobileMenue] = useState<boolean>(true);
   const [chatIdActive, setChatIdActive] = useState<userList | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadCountMenue, setUnreadCountMenue] = useState<
