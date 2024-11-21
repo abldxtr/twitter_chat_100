@@ -30,23 +30,15 @@ export const useChatScroll = ({
   bottomRef,
   shouldLoadMore,
   loadMore,
-  count,
   setGoDown,
   first,
   queryKey,
 }: ChatScrollProps) => {
   const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
-  const {
-    setUnreadCount,
-    unreadCount,
-    unreadMessages,
-    setUnreadMessages,
-    setUnreadCountMenue,
-    unreadCountMenue,
-    setFinal,
-    final,
-  } = useGlobalContext();
+  console.log("queryClient", queryClient);
+  const { unreadCount, unreadMessages, setUnreadMessages, setFinal, final } =
+    useGlobalContext();
 
   const [optimisticMessages, updateOptimisticMessages] = useOptimistic<
     MessageData[]
@@ -127,6 +119,29 @@ export const useChatScroll = ({
     },
     [scheduleUpdate]
   );
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const messageId = entry.target.id;
+          const messageStatus = entry.target.getAttribute("data-status");
+          const currentUser = entry.target.getAttribute("data-user") === "true";
+          const chatId = entry.target.getAttribute("data-chat-id");
+
+          if (messageStatus === "SENT" && !currentUser && chatId) {
+            markMessageAsSeen(messageId, chatId);
+          }
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  const messageElements = Array.from(
+    document.querySelectorAll(".message-item")
+  );
+
+  messageElements.forEach((el) => observer.observe(el));
 
   useEffect(() => {
     const topDiv = chatRef?.current;
@@ -145,31 +160,6 @@ export const useChatScroll = ({
       }
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const messageId = entry.target.id;
-            const messageStatus = entry.target.getAttribute("data-status");
-            const currentUser =
-              entry.target.getAttribute("data-user") === "true";
-            const chatId = entry.target.getAttribute("data-chat-id");
-
-            if (messageStatus === "SENT" && !currentUser && chatId) {
-              markMessageAsSeen(messageId, chatId);
-            }
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    const messageElements = Array.from(
-      document.querySelectorAll(".message-item")
-    );
-
-    messageElements.forEach((el) => observer.observe(el));
-
     topDiv?.addEventListener("scroll", handleScroll);
 
     return () => {
@@ -179,7 +169,6 @@ export const useChatScroll = ({
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-      // updateLastSeen({ userId: first?.id! });
     };
   }, [shouldLoadMore, loadMore, chatRef, markMessageAsSeen]);
 

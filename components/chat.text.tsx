@@ -40,6 +40,7 @@ export default async function Chat_text({
               //  text={message}
               first={first}
               chatId={chat}
+              other={other}
             />
 
             <InputChat

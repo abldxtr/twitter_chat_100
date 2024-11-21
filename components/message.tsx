@@ -24,9 +24,11 @@ import { useRouter } from "next/navigation";
 export default function Messages({
   first,
   chatId,
+  other,
 }: {
   first: user | undefined;
   chatId: string | undefined;
+  other?: user | undefined;
 }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const chatRef = useRef<HTMLDivElement | null>(null);
@@ -38,6 +40,7 @@ export default function Messages({
   const { setUnreadMessages } = useGlobalContext();
 
   const currentUser = first ? first.id : "";
+  const Other = other ? other.id : "";
 
   const apiUrl = "/api/messages";
   const paramKey = "chatId";
@@ -137,6 +140,7 @@ export default function Messages({
         <AnimatePresence>
           {typingUser.userId &&
             typingUser.userId !== currentUser &&
+            Other === typingUser.userId &&
             typingUser.isTyping && <TypingLeft message="typing..." />}
         </AnimatePresence>
 
