@@ -28,7 +28,7 @@ export const useChatQuery = ({
   currentUser,
 }: ChatQueryProps) => {
   const { isConnected } = useSocket();
-  const { setUnreadMessages } = useGlobalContext();
+  const { setUnreadMessages, final, setFinal } = useGlobalContext();
   // const isConnected = false;
 
   const fetchMessages = async ({
@@ -70,7 +70,23 @@ export const useChatQuery = ({
         (message) =>
           message.senderId !== currentUser && message.status !== "READ"
       );
+      const newUnreadMessages = data.pages[0].items.filter(
+        (message) =>
+          message.receiverId === currentUser && message.status === "SENT"
+      );
       setUnreadMessages(newUnreadCount);
+      setFinal((prevFinal) => {
+        const chatIndex = prevFinal.findIndex(
+          (chat) => Object.keys(chat)[0] === paramValue
+        );
+        if (chatIndex !== -1) {
+          const updatedFinal = [...prevFinal];
+          updatedFinal[chatIndex] = { [paramValue]: newUnreadMessages };
+          return updatedFinal;
+        } else {
+          return [...prevFinal, { [paramValue]: newUnreadMessages }];
+        }
+      });
     }
   }, [data, currentUser]);
 

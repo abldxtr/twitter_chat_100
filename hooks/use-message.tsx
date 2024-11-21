@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import queryString from "query-string";
+import { usr } from "@/lib/data";
 
 const apiUrl = "/api/user";
 
@@ -47,7 +48,7 @@ const reducer = (state: State, action: Action): State => {
 type MessageContextType = {
   unreadCounts: UnreadCount[];
   updateUnreadCount: (id: string, count: number) => void;
-  fetchMessages: (userId: string) => Promise<any>;
+  fetchMessages: (userId: string) => Promise<usr[]>;
 };
 
 const MessageContext = createContext<MessageContextType | undefined>(undefined);

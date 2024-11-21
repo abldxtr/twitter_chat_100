@@ -44,6 +44,8 @@ export const useChatScroll = ({
     setUnreadMessages,
     setUnreadCountMenue,
     unreadCountMenue,
+    setFinal,
+    final,
   } = useGlobalContext();
 
   const [optimisticMessages, updateOptimisticMessages] = useOptimistic<
@@ -72,9 +74,15 @@ export const useChatScroll = ({
         if (!response.ok) {
           throw new Error("Failed to update message status");
         }
-        queryClient.invalidateQueries({
-          queryKey: [queryKey],
-        });
+
+        Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [queryKey],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["userList"],
+          }),
+        ]);
         setUnreadMessages((prev) =>
           prev.filter((item) => !messageIds.includes(item.id))
         );
@@ -99,40 +107,25 @@ export const useChatScroll = ({
   }, [updateMessageStatus]);
 
   const markMessageAsSeen = useCallback(
-    (messageId: string) => {
+    (messageId: string, chatId: string) => {
       seenMessagesRef.current.add(messageId);
-      setUnreadMessages((prev) =>
-        prev.filter((item) => item.id !== messageId)
+      setUnreadMessages((prev) => prev.filter((item) => item.id !== messageId));
+      setFinal((prevFinal) =>
+        prevFinal
+          .map((chatObj) => {
+            if (Object.keys(chatObj)[0] === chatId) {
+              const messages = chatObj[chatId].filter(
+                (msg) => msg.id !== messageId
+              );
+              return { [chatId]: messages };
+            }
+            return chatObj;
+          })
+          .filter((chatObj) => Object.values(chatObj)[0].length > 0)
       );
       scheduleUpdate();
     },
     [scheduleUpdate]
-  );
-
-  const UpdateMssRead = useCallback(
-    async (messageId: string) => {
-      try {
-        setUnreadMessages((prev) =>
-          prev.filter((item) => item.id !== messageId)
-        );
-        const response = await fetch("/api/messages/update-status", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ messageId }),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to update message status");
-        }
-        queryClient.invalidateQueries({
-          queryKey: [queryKey],
-        });
-      } catch (error) {
-        console.error("Error updating message status:", error);
-      }
-    },
-    [setUnreadMessages, queryClient, queryKey]
   );
 
   useEffect(() => {
@@ -160,21 +153,10 @@ export const useChatScroll = ({
             const messageStatus = entry.target.getAttribute("data-status");
             const currentUser =
               entry.target.getAttribute("data-user") === "true";
+            const chatId = entry.target.getAttribute("data-chat-id");
 
-            if (messageStatus === "SENT" && !currentUser) {
-              console.log("first if");
-              console.log("unreadMessages", unreadMessages);
-              console.log("messageId", messageId);
-              markMessageAsSeen(messageId);
-
-              // const messageExists = unreadMessages.some((item) =>
-              //   console.log(item.id === messageId)
-              // );
-              // if (messageExists) {
-              // console.log("second if");
-
-              // UpdateMssRead(messageId);
-              // }
+            if (messageStatus === "SENT" && !currentUser && chatId) {
+              markMessageAsSeen(messageId, chatId);
             }
           }
         });
@@ -199,31 +181,7 @@ export const useChatScroll = ({
       }
       // updateLastSeen({ userId: first?.id! });
     };
-  }, [shouldLoadMore, loadMore, chatRef, UpdateMssRead, markMessageAsSeen]);
+  }, [shouldLoadMore, loadMore, chatRef, markMessageAsSeen]);
 
   return { optimisticMessages, unreadCount };
 };
-
-// const UpdateMssRead = async (messageId: string) => {
-//   // setUnreadMessages(unreadMessages.filter((item) => item.id !== messageId));
-//   startTransition(async () => {
-//     try {
-//       updateOptimisticMessages(messageId);
-//       const response = await fetch("/api/messages/update-status", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ messageId }),
-//       });
-//       // queryClient.invalidateQueries({
-//       //   queryKey: [`${queryKey}`, "uerList"],
-//       // });
-
-//       // return { success: true };
-//     } catch (error) {
-//       console.error("Error updating message status:", error);
-//       // return { success: false };
-//     }
-//   });
-// };

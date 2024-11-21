@@ -30,8 +30,12 @@ export function ScrollDown({
 }: items) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { setUnreadCount, unreadMessages } = useGlobalContext();
+  const { setUnreadCount, unreadMessages, final } = useGlobalContext();
   const queryClient = useQueryClient();
+  const unreadCount01 =
+    final.find((chat) => Object.keys(chat)[0] === chatId)?.[chatId]?.length ??
+    0;
+
   // const [optimisticUnreadCount, updateUnreadCount] = useOptimistic(
   //   unreadCount,
   //   (state: number, newCount: number) => newCount // نحوه بروزرسانی
@@ -78,7 +82,8 @@ export function ScrollDown({
             // optimisticUnreadCount === 0 && "hidden pointer-events-none "
           )}
         >
-          {unreadMessages.length}
+          {unreadCount01}
+          {/* {unreadMessages.length} */}
           {/* {optimisticUnreadCount} */}
         </div>
 

@@ -18,6 +18,8 @@ import { sendMassage } from "@/lib/actions";
 import { text, user } from "@/lib/definitions";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
+import { useMessage2 } from "@/context/MessageContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function InputChat({
   param,
@@ -35,18 +37,18 @@ export default function InputChat({
 
   // message: text | undefined;
 }) {
-  const { openEmoji, setOpenEmoji, open, setOpen } = useEmojiState();
+  const { setOpenEmoji } = useEmojiState();
   const [cursorPosition, setCursorPosition] = useState<number>(0);
-  // const { messages, setMessages, imgtemp, setImgTemp } = useMessage();
+  const { setImgTemp } = useMessage2();
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);
   const EmojiRef = useRef(null);
   const user = useSession();
-  // const [msg, setMsg] = useState(message);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { socket } = useSocket();
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const queryClient = useQueryClient();
 
   const handleClickOutside = () => {
     setOpenEmoji(false);
@@ -58,15 +60,10 @@ export default function InputChat({
     if (!socket) return;
 
     const handleTyping = () => {
-      // ارسال رویداد isTyping به سرور
-
-      // console.log("sending.....");
       socket.emit("isTyping", { chatId, userId: first?.id });
     };
 
     const handleStopTyping = () => {
-      // console.log("stoping.....");
-
       socket.emit("stopTyping", { chatId, userId: first?.id });
     };
 
@@ -101,8 +98,6 @@ export default function InputChat({
           reeciverId: other.id,
           id: chatId,
         };
-        // console.log("message f", newMessage);
-        // const res = sendMassage(newMessage);
 
         const apiUrl = "/api/socket/messages";
         const query = { chatId: chatId };
@@ -114,23 +109,26 @@ export default function InputChat({
 
           socket.emit("stopTyping", { chatId, userId: first?.id });
           await axios.post(url, newMessage);
+          queryClient.invalidateQueries({
+            queryKey: ["userList"],
+          });
 
           // form.reset();
-          startTransition(() => {
-            router.refresh();
-          });
+          // startTransition(() => {
+          //   router.refresh();
+          // });
         } catch (error) {
           console.log(error);
         }
       }
 
       setInputValue("");
-      // setImgTemp([]);
+      setImgTemp([]);
     }
   };
 
   const handleDeleteTempImg = () => {
-    // setImgTemp([]);
+    setImgTemp([]);
   };
 
   useEffect(() => {

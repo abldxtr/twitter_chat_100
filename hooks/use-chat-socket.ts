@@ -50,6 +50,7 @@ export const useChatSocket = ({
           pages: newData,
         };
       });
+      queryClient.invalidateQueries({ queryKey: ["userList"] });
     });
 
     socket.on(

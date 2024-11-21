@@ -3,6 +3,9 @@
 import { userList } from "@/components/message/m-list";
 import { MessageData } from "@/lib/definitions";
 import React, { createContext, useContext, useEffect, useState } from "react";
+export type final = {
+  [key: string]: MessageData[];
+}[];
 
 interface CounterContextType {
   currentView: string;
@@ -32,6 +35,8 @@ interface CounterContextType {
       }[]
     >
   >;
+  final: final;
+  setFinal: React.Dispatch<React.SetStateAction<final>>;
 }
 
 const GlobalContext = createContext<CounterContextType | undefined>(undefined);
@@ -48,6 +53,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   >([]);
 
   const [unreadMessages, setUnreadMessages] = useState<MessageData[]>([]);
+
+  const [final, setFinal] = useState<final>([]);
 
   useEffect(() => {
     // if (unreadMessages) {
@@ -74,6 +81,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
         setUnreadMessages,
         unreadCountMenue,
         setUnreadCountMenue,
+        final,
+        setFinal,
       }}
     >
       {children}

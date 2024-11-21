@@ -41,8 +41,9 @@ export default function UserList({ user }: { user: userList }) {
   const me = currentUser.status;
 
   const Active = me === "authenticated" && isConnected;
-  // console.log("unreadCountMenue", unreadCountMenue);
-  // const count = unreadCountMenue.findIndex((item) => item.id === user.id);
+
+  
+
 
   return (
     <Link

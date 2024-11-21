@@ -74,7 +74,7 @@ export default function Messages({
       currentUser,
     });
   useChatSocket({ queryKey, addKey, typeKey, updateKey, stoptypekey });
-  const { optimisticMessages, unreadCount } = useChatScroll({
+  const { unreadCount } = useChatScroll({
     chatRef,
     bottomRef,
     loadMore: fetchNextPage,
@@ -156,6 +156,7 @@ export default function Messages({
                   className=" message-item"
                   data-status={message.status}
                   data-user={isCurrentUser.toString()}
+                  data-chat-id={message.chatId}
                 >
                   {isCurrentUser ? (
                     <MessRight message={message} direction={direction} />

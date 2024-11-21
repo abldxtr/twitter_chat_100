@@ -140,7 +140,22 @@ export type usr = {
     senderId: string;
     receiverId: string;
     status: $Enums.MessageStatus;
+    chatId: string;
+    type: $Enums.MessageType;
+    updatedAt: Date;
   }[];
+};
+
+type MessageData = {
+  id: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  senderId: string;
+  receiverId: string;
+  chatId: string;
+  type: $Enums.MessageType;
+  status: $Enums.MessageStatus;
 };
 
 // const usrM = usr.map((item) => item.messages.map((item) => item.status));

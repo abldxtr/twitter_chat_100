@@ -20,8 +20,8 @@ export type MessageData = {
   senderId: string;
   receiverId: string;
   chatId: string;
-  status: $Enums.MessageStatus;
   type: $Enums.MessageType;
+  status: $Enums.MessageStatus;
 };
 
 export type MessageReturn = MessageData[];

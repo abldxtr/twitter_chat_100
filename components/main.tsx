@@ -29,7 +29,7 @@ export default async function Main({ param }: { param: string }) {
   return (
     <div
       className=" overflow-auto flex flex-1 h-full 
-    md:pl-[400px] z-[9] w-full 
+    md:pl-[400px] z-[9] w-full relative
     
     "
     >

@@ -3,7 +3,7 @@
 import MessageHeader from "./message/m-header";
 import MessageRequest from "./message/m-request";
 import UserList, { Account, UserListLoading, userList } from "./message/m-list";
-import { user } from "@/lib/definitions";
+import { MessageData, user } from "@/lib/definitions";
 import { User } from "@prisma/client";
 import classNames from "classnames";
 import { useMediaQuery } from "usehooks-ts";
@@ -14,7 +14,7 @@ import { useSocket } from "@/provider/socket-provider";
 import { Session } from "next-auth";
 import { usr } from "@/lib/data";
 import queryString from "query-string";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMessage } from "@/hooks/use-message";
 // import useMessages from "@/hooks/use-message";
 
@@ -30,50 +30,6 @@ export type users = {
 
 const apiUrl = "/api/user";
 
-// const useMessages = (userId: string) => {
-//   const { setUnreadCountMenue, unreadCountMenue } = useGlobalContext();
-//   const fetchMessages = async ({ userId }: { userId: string }) => {
-//     const url = queryString.stringifyUrl(
-//       {
-//         url: apiUrl,
-//         query: {
-//           userId,
-//         },
-//       },
-//       { skipNull: true }
-//     );
-
-//     console.log("urllllllllllllll", url);
-
-//     const res = await fetch(url);
-//     return res.json() as Promise<usr[]>;
-//   };
-
-//   return useQuery({
-//     // queryKey: ["messages", userId],
-//     queryKey: ["uerList"],
-
-//     queryFn: () => {
-//       const res = fetchMessages({ userId });
-
-//       res.then((item) =>
-//         item.map((i) =>
-//           setUnreadCountMenue([
-//             ...unreadCountMenue,
-//             { id: i.id, count: i.unreadCount },
-//           ])
-//         )
-//       );
-
-//       return res;
-//     }, // تابع درخواست
-//     enabled: !!userId, // درخواست فقط زمانی اجرا می‌شود که userId معتبر باشد
-//     staleTime: 1000 * 60 * 5, // داده‌ها تا ۵ دقیقه تازه هستند
-//     // cacheTime: 1000 * 60 * 10, // داده‌ها تا ۱۰ دقیقه در کش باقی می‌مانند
-//     retry: 2, // تلاش مجدد در صورت شکست
-//   });
-// };
-
 export default function Message_list({
   // chatlist,
   first,
@@ -87,18 +43,77 @@ export default function Message_list({
   // const { data, isLoading, unreadCounts, updateUnreadCount } =
   //   useMessages(userId);
   const { unreadCounts, updateUnreadCount, fetchMessages } = useMessage();
-  const { mobileMenue, setMobileMenue } = useGlobalContext();
+  const {
+    mobileMenue,
+    setMobileMenue,
+    setUnreadCountMenue,
+    unreadCountMenue,
+    final,
+    setFinal,
+    unreadMessages,
+  } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
   // const [mounted, setMounted] = useState(false);
+  console.log("final", final);
   const param = useParams();
   const { isConnected } = useSocket();
   const { data, isLoading } = useQuery({
-    queryKey: ["userList", first],
-    queryFn: () => fetchMessages(first),
+    queryKey: ["userList"],
+    queryFn: () => {
+      const res = fetchMessages(first);
+
+      // res.then((item) => {
+
+      //   // item.map((i) =>
+      //   //   setUnreadCountMenue([
+      //   //     ...unreadCountMenue,
+      //   //     { id: i.id, count: i.unreadCount },
+      //   //   ])
+      //   // );
+      //   // const finalData = item.reduce((acc, chat) => {
+      //   //   const unreadMessages = chat.messages.filter(
+      //   //     (message) => message.senderId !== first && message.status !== "READ"
+      //   //   );
+      //   //   if (unreadMessages.length > 0) {
+      //   //     acc.push({ [chat.id]: unreadMessages });
+      //   //   }
+      //   //   return acc;
+      //   // }, [] as { [key: string]: MessageData[] }[]);
+      //   // setFinal(finalData);
+      // });
+      return res;
+    },
+
     // enabled: !!first,
     staleTime: 1000 * 60 * 5,
     retry: 2,
   });
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (data) {
+      const updatedUnreadCounts = data.map((item) => ({
+        id: item.id,
+        count: item.unreadCount,
+      }));
+
+      const finalData = data.map((chat: usr) => {
+        const unreadMessages = chat.messages.filter(
+          (message) => message.receiverId === first && message.status === "SENT"
+        );
+        return { [chat.id]: unreadMessages };
+      });
+
+      setFinal(finalData);
+      // console.log("updatedUnreadCounts", updatedUnreadCounts);
+      // به‌روزرسانی داده‌ها به صورت دستی
+      // queryClient.setQueryData(["unreadCounts"], updatedUnreadCounts);
+
+      // یا به‌صورت مستقیم به‌روزرسانی کانتکس
+      // setUnreadCountMenue(updatedUnreadCounts);
+    }
+  }, [data, setUnreadCountMenue]);
 
   useEffect(() => {
     if (matches && !mobileMenue) {
@@ -147,9 +162,17 @@ export default function Message_list({
                   const date = new Date(date1 > date2 ? date2 : date1);
 
                   // const unReadMess = item.unreadCount;
+                  // const unReadMess =
+                  //   unreadCountMenue.find((count) => count.id === item.id)
+                  //     ?.count ?? 0;
+                  // const a = unreadMessages.filter((i) => i.chatId === item.id);
+                  // const b = a.filter((i) => i.receiverId === first);
+                  // const unReadMess = b.length;
+
                   const unReadMess =
-                    unreadCounts.find((count) => count.id === item.id)?.count ??
-                    0;
+                    final.find((obj) => Object.keys(obj)[0] === item.id)?.[
+                      item.id
+                    ]?.length ?? 0;
 
                   const active = param && item.id === param.conversationId;
                   const href = `${item.id}`;

@@ -3,15 +3,23 @@
 import { user } from "@/lib/definitions";
 import { BackMenue } from "./scroll-down";
 import { useGlobalContext } from "@/context/globalContext";
+import classNames from "classnames";
 
-export default function ChatHeader({ other }: { other?: user | undefined }) {
+export default function ChatHeader({
+  other,
+  className,
+}: {
+  other?: user | undefined;
+  className?: string;
+}) {
   const { mobileMenue, setMobileMenue, chatIdActive } = useGlobalContext();
 
   return (
     <div
-      className="w-full  z-10 
-    [box-shadow:_0px_1px_4px_0px_rgba(9,_30,_66),0.15)]
-    "
+      className={classNames(
+        "w-full  z-10 [box-shadow:_0px_1px_4px_0px_rgba(9,_30,_66),0.15)]",
+        className
+      )}
     >
       <div className=" h-[53px] w-full bg-[#ffffffd9] backdrop-blur-md">
         <div className="flex h-full w-full flex-1 items-center justify-between px-[16px]">
