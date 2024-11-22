@@ -39,14 +39,14 @@ interface CounterContextType {
   setFinal: React.Dispatch<React.SetStateAction<final>>;
   files: FileList | null;
   setFiles: React.Dispatch<React.SetStateAction<FileList | null>>;
-  imgTemp: string[];
-  setImgTemp: React.Dispatch<React.SetStateAction<string[]>>;
+  imgTemp: FileList | [];
+  setImgTemp: React.Dispatch<React.SetStateAction<FileList | []>>;
 }
 
 const GlobalContext = createContext<CounterContextType | undefined>(undefined);
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
-  const [imgTemp, setImgTemp] = useState<string[]>([]);
+  const [imgTemp, setImgTemp] = useState<FileList | []>([]);
   const [currentView, setCurrentView] = useState<string>("all-chats");
   const [showFriendProfile, setShowFriendProfile] = useState<boolean>(false);
   const [files, setFiles] = useState<FileList | null>(null);

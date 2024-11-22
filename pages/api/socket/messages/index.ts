@@ -59,9 +59,11 @@ export default async function handler(
       },
     });
 
-    console.log("message Idddd", message);
+    // console.log("message Idddd", message);
 
-    const channelKey = `chat:${chatId}:messages`;
+    // const channelKey = `chat:${chatId}:messages`;
+    const channelKey = `chat:${reeciverId}:messages`;
+
 
     res?.socket?.server?.io?.emit(channelKey, message);
 

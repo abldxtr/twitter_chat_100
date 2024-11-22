@@ -8,49 +8,34 @@ export default function ImgInput() {
   const [errorMsg, setErrorMsg] = useState("");
   const { imgTemp, setImgTemp } = useGlobalContext();
 
-  const handleImages = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImages = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const validImages: string[] = [];
+    const existingFiles = Array.from(imgTemp || []);
 
-    const processFile = (file: File) => {
-      return new Promise<string | null>((resolve) => {
-        const type = file.type.split("/")[1];
-        if (!["jpeg", "png", "webp", "gif"].includes(type)) {
-          setErrorMsg(
-            `${file.name} فرمت پشتیبانی نمی‌شود! فقط JPEG، PNG، WebP و GIF مجاز هستند.`
-          );
-          return resolve(null);
-        } else if (file.size > 1024 * 1024 * 5) {
-          setErrorMsg(`${file.name} حجم بیش از حد مجاز است (حداکثر 5MB).`);
-          return resolve(null);
-        } else {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (readerEvent) => {
-            const result = readerEvent.target?.result;
-            if (result && typeof result === "string") {
-              resolve(result);
-            } else {
-              resolve(null);
-            }
-          };
-        }
-      });
-    };
+    // جلوگیری از آپلود فایل‌های تکراری
+    const newFiles = files.filter(
+      (file) =>
+        !existingFiles.some(
+          (existingFile) =>
+            existingFile.name === file.name &&
+            existingFile.size === file.size &&
+            existingFile.lastModified === file.lastModified
+        )
+    );
 
-    for (const file of files) {
-      const result = await processFile(file);
-      if (result) {
-        validImages.push(result);
-      }
+    if (newFiles.length === 0) {
+      setErrorMsg("فایل‌های انتخاب شده تکراری هستند.");
+      return;
     }
 
-    setImgTemp((prevImages) => {
-      const allImages = [...prevImages, ...validImages];
-      return Array.from(new Set(allImages));
-    });
+    // ترکیب فایل‌های جدید با فایل‌های قبلی
+    const dataTransfer = new DataTransfer();
+    [...existingFiles, ...newFiles].forEach((file) =>
+      dataTransfer.items.add(file)
+    );
+    setImgTemp(dataTransfer.files);
 
-    console.log("Updated imgTemp:", imgTemp);
+    setErrorMsg(""); // پاک کردن پیام خطا (در صورت وجود)
   };
 
   return (
@@ -63,6 +48,8 @@ export default function ImgInput() {
         hidden
         onChange={(e) => handleImages(e)}
       />
+
+      {errorMsg && <p className="text-red-500">{errorMsg}</p>}
 
       <button
         className="size-[34px] hover:bg-[#1d9bf01a] flex items-center justify-center transition-all duration-300 rounded-full"

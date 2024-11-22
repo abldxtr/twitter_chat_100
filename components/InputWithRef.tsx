@@ -12,7 +12,8 @@ export const InputWithRef = forwardRef<
 >(({ value, onChange, onSubmit }, ref) => {
   const { imgTemp } = useGlobalContext();
   const isButtonDisabled = useMemo(() => {
-    return !value.trim() && !imgTemp.length;
+    // return !value.trim() && !imgTemp.length;
+    return !value.trim() && !imgTemp;
   }, [value, imgTemp]);
 
   return (

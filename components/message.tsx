@@ -49,7 +49,9 @@ export default function Messages({
   const stoptypekey = "stoptype";
 
   const queryKey = useMemo(() => `chat:${chatId}`, [chatId]);
-  const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
+  // const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
+  const addKey = useMemo(() => `chat:${currentUser}:messages`, [currentUser]);
+
   const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
 
   useLayoutEffect(() => {

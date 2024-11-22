@@ -16,6 +16,7 @@ import { user } from "@/lib/definitions";
 import { useSocket } from "@/provider/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGlobalContext } from "@/context/globalContext";
+import DragContainer from "./drag-container";
 
 export default function InputChat({
   param,
@@ -108,7 +109,7 @@ export default function InputChat({
       }
 
       setInputValue("");
-      setImgTemp([]);
+      // setImgTemp();
     }
   };
 
@@ -123,11 +124,12 @@ export default function InputChat({
   };
 
   return (
-    <div
-      className={classNames(
-        " bg-[#fcfdfd] border-t border-[#eff3f4] px-[12px]    py-1 isolate "
-      )}
-    >
+    <DragContainer className=" bg-[#fcfdfd] border-t border-[#eff3f4] px-[12px]    py-1 isolate ">
+      {/* <div
+        className={classNames(
+          " bg-[#fcfdfd] border-t border-[#eff3f4] px-[12px]    py-1 isolate "
+        )}
+      > */}
       <div className="  flex flex-col w-full h-full bg-[#eff3f4] rounded-[16px] ">
         <TempImg />
         <div className=" my-[4px] mx-[12px] p-[4px] flex items-center justify-between bg-[#eff3f4] rounded-[16px] gap-1    ">
@@ -144,6 +146,7 @@ export default function InputChat({
           />
         </div>
       </div>
-    </div>
+      {/* </div> */}
+    </DragContainer>
   );
 }
