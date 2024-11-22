@@ -117,8 +117,8 @@ export default function Message_list({
 
           <div className=" flex-1 overflow-y-auto relative bg-[#fcfdfd] ">
             {isLoading
-              ? [...new Array(6)].map((i) => {
-                  return <UserListLoading key={i * i * i} />;
+              ? [...new Array(6)].map((i, index) => {
+                  return <UserListLoading key={index} />;
                 })
               : data?.map((item: usr) => {
                   const otherUser =

@@ -1,7 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-// import { format, isToday, isYesterday, isSameWeek, isSameYear } from "date-fns";
-// import { faIR } from "date-fns-jalali/locale";
 import moment from "moment-jalaali";
 
 export function cn(...inputs: ClassValue[]) {
@@ -75,13 +73,13 @@ export const formatPersianDate = (date: Date) => {
   let result: string;
 
   if (diffDays === 0) {
-    result = `امروز ${time}`;
+    result = `${time}`;
   } else if (diffDays === 1) {
-    result = `دیروز ${time}`;
+    result = `${time}`;
   } else if (now.jYear() === year) {
-    result = `${day} ${persianMonths[month]} ${time}`;
+    result = `${time}`;
   } else {
-    result = `${day} ${persianMonths[month]} ${year} ${time}`;
+    result = `${year} ${time}`;
   }
 
   // تبدیل اعداد به فارسی
@@ -90,15 +88,4 @@ export const formatPersianDate = (date: Date) => {
     (digit) =>
       ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"][parseInt(digit)]
   );
-  // const now = new Date();
-  // const formatString = isSameYear(date, now)
-  //   ? "d MMMM، HH:mm"
-  //   : "d MMMM yyyy، HH:mm";
-  // const persianDate = format(date, formatString, { locale: faIR });
-  // // console.log("persianDate", persianDate);
-  // return persianDate.replace(
-  //   /[0-9]/g,
-  //   (digit) =>
-  //     ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"][parseInt(digit)]
-  // );
 };

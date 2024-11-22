@@ -42,9 +42,6 @@ export default function UserList({ user }: { user: userList }) {
 
   const Active = me === "authenticated" && isConnected;
 
-  
-
-
   return (
     <Link
       className="min-h-[40px] w-full  "
@@ -134,7 +131,7 @@ export function UserListLoading() {
         <div className="flex h-full w-full  flex-col  gap-3">
           <div className=" flex items-center justify-between ">
             <Skeleton className="h-2 w-20" />
-            <Skeleton className="h-2 w-5" />
+            <Skeleton className="h-2 w-30" />
           </div>
           <div className="text-[13px] font-normal leading-[20px] text-[#536471]">
             <Skeleton className="h-2 w-10" />

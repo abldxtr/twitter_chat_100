@@ -149,7 +149,7 @@ export function MessRight({ message, direction }: mess) {
             </span>
           </div>
         </div>
-        <div className="block text-[rgb(83,100,113)] text-[13px] leading-[16px] font-[400] mt-[6px] rtlDir ">
+        <div className="block text-[#6a7485] text-[13px] leading-[16px] font-[400] mt-[6px]  rtlDir ">
           {formatPersianDate(new Date(message.createdAt))}
         </div>
       </div>
