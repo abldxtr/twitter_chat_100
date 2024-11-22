@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 interface IParams {
   conversationId: string;
 }
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 const ConversationId = async (props: {
   params: Promise<{
     conversationId: string;

@@ -54,15 +54,19 @@ export default function Messages({
 
   useLayoutEffect(() => {
     const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
-    if (storedScrollPosition && chatRef.current) {
-      chatRef.current.scrollTop = parseInt(storedScrollPosition, 10);
+
+    // ذخیره مقدار اولیه chatRef.current
+    const chatElement = chatRef.current;
+
+    if (storedScrollPosition && chatElement) {
+      chatElement.scrollTop = parseInt(storedScrollPosition, 10);
     }
 
     return () => {
-      if (chatRef.current) {
+      if (chatElement) {
         sessionStorage.setItem(
           `scrollPos-${chatId}`,
-          chatRef.current.scrollTop.toString()
+          chatElement.scrollTop.toString()
         );
       }
     };

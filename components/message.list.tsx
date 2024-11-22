@@ -87,7 +87,7 @@ export default function Message_list({
 
       setFinal(finalData);
     }
-  }, [data, setUnreadCountMenue, change]);
+  }, [data, setUnreadCountMenue, change, userId]);
 
   useLayoutEffect(() => {
     if (matches && !mobileMenue) {
@@ -95,7 +95,7 @@ export default function Message_list({
     } else if (!matches && !mobileMenue) {
       setMobileMenue(true);
     }
-  }, [matches]);
+  }, [matches, mobileMenue, setMobileMenue]);
 
   return (
     <div
@@ -118,7 +118,7 @@ export default function Message_list({
           <div className=" flex-1 overflow-y-auto relative bg-[#fcfdfd] ">
             {isLoading
               ? [...new Array(6)].map((i) => {
-                  return <UserListLoading key={i} />;
+                  return <UserListLoading key={i * i * i} />;
                 })
               : data?.map((item: usr) => {
                   const otherUser =

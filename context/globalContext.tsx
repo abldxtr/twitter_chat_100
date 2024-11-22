@@ -37,13 +37,19 @@ interface CounterContextType {
   >;
   final: final;
   setFinal: React.Dispatch<React.SetStateAction<final>>;
+  files: FileList | null;
+  setFiles: React.Dispatch<React.SetStateAction<FileList | null>>;
+  imgTemp: string[];
+  setImgTemp: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const GlobalContext = createContext<CounterContextType | undefined>(undefined);
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
+  const [imgTemp, setImgTemp] = useState<string[]>([]);
   const [currentView, setCurrentView] = useState<string>("all-chats");
   const [showFriendProfile, setShowFriendProfile] = useState<boolean>(false);
+  const [files, setFiles] = useState<FileList | null>(null);
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [mobileMenue, setMobileMenue] = useState<boolean>(true);
   const [chatIdActive, setChatIdActive] = useState<userList | null>(null);
@@ -83,6 +89,10 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
         setUnreadCountMenue,
         final,
         setFinal,
+        files,
+        setFiles,
+        imgTemp,
+        setImgTemp,
       }}
     >
       {children}
@@ -93,7 +103,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 export const useGlobalContext = () => {
   const GlobalState = useContext(GlobalContext);
   if (GlobalState === undefined) {
-    throw new Error("useMessage must be used within a CounterProvider");
+    throw new Error("useGlobalContext must be used within a CounterProvider");
   }
 
   return GlobalState;

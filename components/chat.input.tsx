@@ -5,28 +5,23 @@ import classNames from "classnames";
 import axios from "axios";
 import qs from "query-string";
 
-import { useEffect, useState, useRef, FormEvent, useTransition } from "react";
-// import { useMessage } from "@/context/MessageContext";
+import { useEffect, useState, useRef, FormEvent } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import ImgInput from "./img.input";
 import { EmojiPicker } from "./EmojiPicker";
 import { InputWithRef } from "./InputWithRef";
 import GifInput from "./Gif-input";
 import TempImg from "./temp-img";
-import { useSession } from "next-auth/react";
-import { sendMassage } from "@/lib/actions";
-import { text, user } from "@/lib/definitions";
-import { useRouter } from "next/navigation";
+import { user } from "@/lib/definitions";
 import { useSocket } from "@/provider/socket-provider";
-import { useMessage2 } from "@/context/MessageContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGlobalContext } from "@/context/globalContext";
 
 export default function InputChat({
   param,
   first,
   second,
   other,
-  // message,
   chatId,
 }: {
   param: string;
@@ -34,18 +29,13 @@ export default function InputChat({
   second: user | undefined;
   other: user | undefined;
   chatId: string | undefined;
-
-  // message: text | undefined;
 }) {
   const { setOpenEmoji } = useEmojiState();
   const [cursorPosition, setCursorPosition] = useState<number>(0);
-  const { setImgTemp } = useMessage2();
+  const { setImgTemp } = useGlobalContext();
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);
   const EmojiRef = useRef(null);
-  const user = useSession();
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
   const { socket } = useSocket();
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
@@ -112,11 +102,6 @@ export default function InputChat({
           queryClient.invalidateQueries({
             queryKey: ["userList"],
           });
-
-          // form.reset();
-          // startTransition(() => {
-          //   router.refresh();
-          // });
         } catch (error) {
           console.log(error);
         }
@@ -127,20 +112,14 @@ export default function InputChat({
     }
   };
 
-  const handleDeleteTempImg = () => {
-    setImgTemp([]);
-  };
-
   useEffect(() => {
     if (cursorPosition !== undefined && textRef.current) {
-      // console.log("cursorPosition", cursorPosition);
       textRef.current.selectionEnd = cursorPosition;
     }
   }, [cursorPosition]);
 
   const handleEmoji = (emoji: any) => {
     setInputValue(inputValue + emoji.native);
-    // setOpenEmoji(false);
   };
 
   return (
@@ -149,7 +128,6 @@ export default function InputChat({
         " bg-[#fcfdfd] border-t border-[#eff3f4] px-[12px]    py-1 isolate "
       )}
     >
-      {/* <!-- input --> */}
       <div className="  flex flex-col w-full h-full bg-[#eff3f4] rounded-[16px] ">
         <TempImg />
         <div className=" my-[4px] mx-[12px] p-[4px] flex items-center justify-between bg-[#eff3f4] rounded-[16px] gap-1    ">

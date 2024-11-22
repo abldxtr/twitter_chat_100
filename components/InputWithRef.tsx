@@ -1,4 +1,4 @@
-import { useMessage2 } from "@/context/MessageContext";
+import { useGlobalContext } from "@/context/globalContext";
 import classNames from "classnames";
 import { forwardRef, useMemo } from "react";
 
@@ -10,11 +10,10 @@ export const InputWithRef = forwardRef<
     onSubmit: (e: React.FormEvent) => void;
   }
 >(({ value, onChange, onSubmit }, ref) => {
-  const { imgtemp } = useMessage2();
+  const { imgTemp } = useGlobalContext();
   const isButtonDisabled = useMemo(() => {
-    // !value.trim() || !imgtemp.length;
-    return !value.trim() && !imgtemp.length;
-  }, [value, imgtemp]);
+    return !value.trim() && !imgTemp.length;
+  }, [value, imgTemp]);
 
   return (
     <div className="grow shrink w-full h-full">
