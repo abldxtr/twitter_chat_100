@@ -6,6 +6,11 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 export type final = {
   [key: string]: MessageData[];
 }[];
+export type FileState = {
+  file: File | string;
+  key: string; // used to identify the file in the progress callback
+  progress: "PENDING" | "COMPLETE" | "ERROR" | number;
+};
 
 interface CounterContextType {
   currentView: string;
@@ -39,14 +44,14 @@ interface CounterContextType {
   setFinal: React.Dispatch<React.SetStateAction<final>>;
   files: FileList | null;
   setFiles: React.Dispatch<React.SetStateAction<FileList | null>>;
-  imgTemp: FileList | [];
-  setImgTemp: React.Dispatch<React.SetStateAction<FileList | []>>;
+  imgTemp: FileState[];
+  setImgTemp: React.Dispatch<React.SetStateAction<FileState[]>>;
 }
 
 const GlobalContext = createContext<CounterContextType | undefined>(undefined);
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
-  const [imgTemp, setImgTemp] = useState<FileList | []>([]);
+  const [imgTemp, setImgTemp] = useState<FileState[]>([]);
   const [currentView, setCurrentView] = useState<string>("all-chats");
   const [showFriendProfile, setShowFriendProfile] = useState<boolean>(false);
   const [files, setFiles] = useState<FileList | null>(null);

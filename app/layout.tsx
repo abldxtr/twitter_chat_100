@@ -12,6 +12,7 @@ import { fetchChat, fetchChatsWithUnreadCount } from "@/lib/data";
 import Message_list from "@/components/message.list";
 import { redirect } from "next/navigation";
 import { MessageProvider } from "@/hooks/use-message";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 // export const dynamic = "force-dynamic";
 
 const geistSans = localFont({
@@ -61,24 +62,26 @@ export default async function RootLayout({
               <body className={`${geistSans.variable} ${geistMono.variable}`}>
                 <SocketProvider>
                   <SessionProvider session={current}>
-                    <QueryProvider>
-                      <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
-                        <div className=" overflow-auto  h-full scrl flex w-full  ">
-                          <main className="flex h-full items-start w-full ">
-                            <div className="flex shrink grow flex-1 items-start w-full isolate ">
-                              {/* <!-- messages list --> */}
-                              <Message_list
-                                // chatlist={users}
-                                first={userId}
-                                current={current}
-                              />
+                    <EdgeStoreProvider>
+                      <QueryProvider>
+                        <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
+                          <div className=" overflow-auto  h-full scrl flex w-full  ">
+                            <main className="flex h-full items-start w-full ">
+                              <div className="flex shrink grow flex-1 items-start w-full isolate ">
+                                {/* <!-- messages list --> */}
+                                <Message_list
+                                  // chatlist={users}
+                                  first={userId}
+                                  current={current}
+                                />
 
-                              {children}
-                            </div>
-                          </main>
+                                {children}
+                              </div>
+                            </main>
+                          </div>
                         </div>
-                      </div>
-                    </QueryProvider>
+                      </QueryProvider>
+                    </EdgeStoreProvider>
                   </SessionProvider>
                 </SocketProvider>
               </body>

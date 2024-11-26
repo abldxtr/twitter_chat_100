@@ -1,7 +1,6 @@
 "use client";
 
 import { useEmojiState } from "@/context/EmojiContext";
-import classNames from "classnames";
 import axios from "axios";
 import qs from "query-string";
 
@@ -33,7 +32,8 @@ export default function InputChat({
 }) {
   const { setOpenEmoji } = useEmojiState();
   const [cursorPosition, setCursorPosition] = useState<number>(0);
-  const { setImgTemp } = useGlobalContext();
+  const { imgTemp, setImgTemp } = useGlobalContext();
+
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);
   const EmojiRef = useRef(null);
@@ -110,6 +110,7 @@ export default function InputChat({
 
       setInputValue("");
       // setImgTemp();
+      setImgTemp([]);
     }
   };
 
@@ -134,7 +135,18 @@ export default function InputChat({
         <TempImg />
         <div className=" my-[4px] mx-[12px] p-[4px] flex items-center justify-between bg-[#eff3f4] rounded-[16px] gap-1    ">
           <div className=" flex items-center  ">
-            <ImgInput />
+            <ImgInput
+              value={imgTemp}
+              dropzoneOptions={{
+                maxFiles: 6,
+                maxSize: 1024 * 1024 * 3, // 3 MB
+              }}
+              onChange={setImgTemp}
+              onFilesAdded={async (addedFiles) => {
+                // setImgTemp([...imgTemp, ...addedFiles]);
+                setImgTemp((prev) => [...(prev || []), ...addedFiles]);
+              }}
+            />
             <GifInput />
             <EmojiPicker ref={EmojiRef} handleEmoji={handleEmoji} />
           </div>

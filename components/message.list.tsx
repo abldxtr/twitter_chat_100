@@ -95,7 +95,7 @@ export default function Message_list({
     } else if (!matches && !mobileMenue) {
       setMobileMenue(true);
     }
-  }, [matches, mobileMenue, setMobileMenue]);
+  }, []);
 
   return (
     <div

@@ -1,26 +1,81 @@
 "use client";
 
-import { useGlobalContext } from "@/context/globalContext";
-import { ChangeEvent, useRef, useState } from "react";
+import { FileState, useGlobalContext } from "@/context/globalContext";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { useDropzone, type DropzoneOptions } from "react-dropzone";
+import { twMerge } from "tailwind-merge";
 
-export default function ImgInput() {
+type InputProps = {
+  className?: string;
+  value?: FileState[];
+  onChange?: (files: FileState[]) => void | Promise<void>;
+  onFilesAdded?: (addedFiles: FileState[]) => void | Promise<void>;
+  disabled?: boolean;
+  dropzoneOptions?: Omit<DropzoneOptions, "disabled">;
+  ref?: React.RefObject<HTMLInputElement>;
+};
+export default function ImgInput({
+  dropzoneOptions,
+  value,
+  className,
+  disabled,
+  onChange,
+  onFilesAdded,
+  ref,
+}: InputProps) {
   const imagesRef = useRef<HTMLInputElement | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const { imgTemp, setImgTemp } = useGlobalContext();
 
+  // dropzone configuration
+  const {
+    getRootProps,
+    getInputProps,
+    fileRejections,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    accept: { "image/*": [] },
+    disabled,
+    onDrop: (acceptedFiles) => {
+      const files = acceptedFiles;
+      // setCustomError(undefined);
+      if (
+        dropzoneOptions?.maxFiles &&
+        (imgTemp?.length ?? 0) + files.length > dropzoneOptions.maxFiles
+      ) {
+        // setCustomError(ERROR_MESSAGES.tooManyFiles(dropzoneOptions.maxFiles));
+        return;
+      }
+      if (files) {
+        const addedFiles = files.map<FileState>((file) => ({
+          file,
+          key: Math.random().toString(36).slice(2),
+          progress: "PENDING",
+        }));
+        void onFilesAdded?.(addedFiles);
+        void onChange?.([...(value ?? []), ...addedFiles]);
+      }
+    },
+    ...dropzoneOptions,
+  });
+
   const handleImages = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const existingFiles = Array.from(imgTemp || []);
+    // const existingFiles = Array.from(imgTemp || []);
 
-    // جلوگیری از آپلود فایل‌های تکراری
     const newFiles = files.filter(
       (file) =>
-        !existingFiles.some(
-          (existingFile) =>
-            existingFile.name === file.name &&
-            existingFile.size === file.size &&
-            existingFile.lastModified === file.lastModified
-        )
+        !imgTemp.some((existingFile) => {
+          if (typeof existingFile.file === "string") {
+            return false;
+          }
+
+          existingFile.file.name === file.name &&
+            existingFile.file.size === file.size &&
+            existingFile.file.lastModified === file.lastModified;
+        })
     );
 
     if (newFiles.length === 0) {
@@ -28,12 +83,13 @@ export default function ImgInput() {
       return;
     }
 
-    // ترکیب فایل‌های جدید با فایل‌های قبلی
-    const dataTransfer = new DataTransfer();
-    [...existingFiles, ...newFiles].forEach((file) =>
-      dataTransfer.items.add(file)
-    );
-    setImgTemp(dataTransfer.files);
+    const newFileStates = newFiles.map((file) => ({
+      file,
+      key: crypto.randomUUID(), // تولید یک کلید یکتا برای هر فایل
+      progress: "PENDING" as const,
+    }));
+
+    setImgTemp((prev) => [...prev, ...newFileStates]);
 
     setErrorMsg(""); // پاک کردن پیام خطا (در صورت وجود)
   };
@@ -44,12 +100,14 @@ export default function ImgInput() {
         type="file"
         accept="image/jpeg,image/png,image/webp,image/gif"
         ref={imagesRef}
+        // ref={ref}
+        // {...getInputProps()}
         multiple
         hidden
-        onChange={(e) => handleImages(e)}
+        // onChange={(e) => handleImages(e)}
       />
 
-      {errorMsg && <p className="text-red-500">{errorMsg}</p>}
+      {/* {errorMsg && <p className="text-red-500">{errorMsg}</p>} */}
 
       <button
         className="size-[34px] hover:bg-[#1d9bf01a] flex items-center justify-center transition-all duration-300 rounded-full"

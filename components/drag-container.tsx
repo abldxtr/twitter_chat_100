@@ -30,20 +30,26 @@ export default function DragContainer({ className, children }: Props) {
     // فیلتر کردن فایل‌های تکراری
     const newFiles = droppedFiles.filter(
       (file) =>
-        !existingFiles.some(
-          (existingFile) =>
-            existingFile.name === file.name &&
-            existingFile.size === file.size &&
-            existingFile.lastModified === file.lastModified
-        )
+        !existingFiles.some((existingFile) => {
+          if (typeof existingFile.file === "string") {
+            return false;
+          }
+          existingFile.file.name === file.name &&
+            existingFile.file.size === file.size &&
+            existingFile.file.lastModified === file.lastModified;
+        })
     );
 
     if (newFiles.length > 0) {
-      const dataTransfer = new DataTransfer();
-      [...existingFiles, ...newFiles].forEach((file) =>
-        dataTransfer.items.add(file)
-      );
-      setImgTemp(dataTransfer.files);
+      const updatedFiles = [
+        ...existingFiles,
+        ...newFiles.map((file) => ({
+          file,
+          key: crypto.randomUUID(),
+          progress: "PENDING" as const,
+        })),
+      ];
+      setImgTemp(updatedFiles);
     }
 
     setIsDragging(false);

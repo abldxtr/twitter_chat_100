@@ -123,18 +123,18 @@ export function UserListLoading() {
     >
       <div
         className={classNames(
-          "flex gap-3    min-h-[40px] items-center cursor-pointer p-[12px] relative justify-between group transition-all hover:bg-[#f7f9f9] "
+          "flex gap-3    min-h-[40px] items-center cursor-pointer p-[12px] relative justify-between  "
         )}
       >
         <Skeleton className="size-[48px] shrink-0 aspect-square rounded-full " />
 
-        <div className="flex h-full w-full  flex-col  gap-3">
+        <div className="flex  w-full  flex-col  gap-3">
           <div className=" flex items-center justify-between ">
-            <Skeleton className="h-2 w-20" />
-            <Skeleton className="h-2 w-30" />
+            <Skeleton className="h-2 w-[40px] " />
+            <Skeleton className="h-2 w-5" />
           </div>
-          <div className="text-[13px] font-normal leading-[20px] text-[#536471]">
-            <Skeleton className="h-2 w-10" />
+          <div className="">
+            <Skeleton className="h-2 w-[80px] " />
           </div>
         </div>
       </div>
