@@ -12,11 +12,78 @@ export default async function handler(
   }
 
   try {
-    const { content, senderId, reeciverId, id } = req.body;
+    const { content, senderId, receiverId, id, type, urls } = req.body;
     const { chatId } = req.query;
+    console.log("server urls", urls);
 
     if (!chatId) {
       return res.status(400).json({ error: "Server ID missing" });
+    }
+
+    if (type === "IMAGE") {
+      console.log("yes imageee");
+      const chat = await db.chat.findFirst({
+        where: {
+          id: chatId as string,
+        },
+        include: {
+          initiator: true,
+          participant: true,
+        },
+      });
+      if (!chat) {
+        return res.status(404).json({ message: "chat not found" });
+      }
+      const updateField =
+        chat.initiatorId === senderId
+          ? "unreadCountParticipant"
+          : "unreadCountInitiator";
+
+      await db.chat.update({
+        where: { id: chatId as string },
+        data: {
+          [updateField]: { increment: 1 },
+        },
+      });
+
+      const message = await db.message.create({
+        data: {
+          content: content as string,
+          chatId: chatId as string,
+          senderId: senderId as string,
+          receiverId: receiverId as string,
+          status: "SENT",
+          type,
+        },
+      });
+
+      // const messageImages = await db.messageImage.createMany({
+      //   data: urls.map((url: string) => ({
+      //     url,
+      //     messageId: message.id,
+      //     chatId: message.chatId,
+      //   })),
+      // });
+      for (const url of urls) {
+        await db.messageImage.create({
+          data: {
+            url,
+            messageId: message.id,
+            chatId: message.chatId,
+          },
+        });
+      }
+
+      const returnM = db.message.findUnique({
+        where: {
+          id: message.id,
+        },
+        include: {
+          images: true,
+        },
+      });
+
+      return res.status(200).json(returnM);
     }
 
     if (!content) {
@@ -53,19 +120,20 @@ export default async function handler(
         content: content as string,
         chatId: chatId as string,
         senderId: senderId as string,
-        receiverId: reeciverId as string,
+        receiverId: receiverId as string,
         status: "SENT",
-        type: "TEXT",
+        type,
       },
     });
 
     // console.log("message Idddd", message);
 
     // const channelKey = `chat:${chatId}:messages`;
-    const channelKey = `chat:${reeciverId}:messages`;
-
+    const channelKey = `chat:${receiverId}:messages`;
+    const SenderKey = `chat:${senderId}:messages`;
 
     res?.socket?.server?.io?.emit(channelKey, message);
+    res?.socket?.server?.io?.emit(SenderKey, message);
 
     return res.status(200).json(message);
   } catch (error) {

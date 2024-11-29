@@ -10,7 +10,7 @@ type Props = {
 
 export default function DragContainer({ className, children }: Props) {
   const [isDragging, setIsDragging] = useState(false);
-  const { imgTemp, setImgTemp } = useGlobalContext();
+  const { imgTemp, setImgTemp, setIsShowImgTemp } = useGlobalContext();
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -20,6 +20,7 @@ export default function DragContainer({ className, children }: Props) {
   const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
+    setIsShowImgTemp(true);
   };
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {

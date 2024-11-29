@@ -13,6 +13,7 @@ import Message_list from "@/components/message.list";
 import { redirect } from "next/navigation";
 import { MessageProvider } from "@/hooks/use-message";
 import { EdgeStoreProvider } from "@/lib/edgestore";
+import db from "@/lib/prisma";
 // export const dynamic = "force-dynamic";
 
 const geistSans = localFont({
@@ -45,6 +46,57 @@ export default async function RootLayout({
   }
 
   const userId = current.user.id;
+
+  // const users = await db.user.findMany({
+  //   where: {
+  //     id: {
+  //       not: userId,
+  //     },
+  //   },
+  // });
+
+  // const createChat = users.map((otherUser) => {
+  //   db.chat.create({
+  //     data: {
+  //       initiatorId: userId,
+  //       participantId: otherUser.id,
+  //     },
+  //   });
+  // });
+
+  // const users = await db.user.findMany({
+  //   where: {
+  //     id: {
+  //       not: userId, // همه کاربران به جز کاربر فعلی
+  //       // می‌توانید شرایط بیشتری اضافه کنید
+  //     },
+  //   },
+  // });
+
+  // // ایجاد چت‌ها فقط اگر از قبل چتی وجود نداشته باشد
+  // const createChats = users.map(async (otherUser) => {
+  //   const existingChat = await db.chat.findFirst({
+  //     where: {
+  //       OR: [
+  //         { initiatorId: userId, participantId: otherUser.id },
+  //         { initiatorId: otherUser.id, participantId: userId },
+  //       ],
+  //     },
+  //   });
+
+  //   if (!existingChat) {
+  //     return db.chat.create({
+  //       data: {
+  //         initiatorId: userId,
+  //         participantId: otherUser.id,
+  //       },
+  //     });
+  //   }
+  //   return null; // چتی اضافه نشد
+  // });
+
+  // // منتظر تکمیل تمام عملیات
+  // const results = await Promise.all(createChats);
 
   // const users = await fetchChat(userId);
   // const users = await fetchChatsWithUnreadCount(userId);

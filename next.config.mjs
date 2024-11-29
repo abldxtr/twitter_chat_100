@@ -10,6 +10,13 @@ const nextConfig = {
         pathname: "/**",
         // search: "",
       },
+      {
+        protocol: "https",
+        hostname: "files.edgestore.dev",
+        port: "",
+        pathname: "/**",
+        // search: "",
+      },
     ],
   },
   logging: {

@@ -34,26 +34,6 @@ export default function Messages({
   const chatRef = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
   const { typingUser } = useSocket();
-
-  const router = useRouter();
-
-  const { setUnreadMessages } = useGlobalContext();
-
-  const currentUser = first ? first.id : "";
-  const Other = other ? other.id : "";
-
-  const apiUrl = "/api/messages";
-  const paramKey = "chatId";
-  const paramValue = chatId ? chatId : "";
-  const typeKey = "typing";
-  const stoptypekey = "stoptype";
-
-  const queryKey = useMemo(() => `chat:${chatId}`, [chatId]);
-  // const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
-  const addKey = useMemo(() => `chat:${currentUser}:messages`, [currentUser]);
-
-  const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
-
   useLayoutEffect(() => {
     const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
 
@@ -73,6 +53,29 @@ export default function Messages({
       }
     };
   }, [chatId]);
+
+  const router = useRouter();
+
+  const { setUnreadMessages } = useGlobalContext();
+
+  const currentUser = first ? first.id : "";
+  const Other = other ? other.id : "";
+
+  const apiUrl = "/api/messages";
+  const paramKey = "chatId";
+  const paramValue = chatId ? chatId : "";
+  const typeKey = "typing";
+  const stoptypekey = "stoptype";
+
+  const queryKey = useMemo(() => `chat:${chatId}`, [chatId]);
+
+  console.log({ queryKey });
+  const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
+  // const addKey = useMemo(() => `chat:${currentUser}:messages`, [currentUser]);
+  // const SenderKey = `chat:${senderId}:messages`;
+
+  const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
+  const channelKey = `chat:${currentUser}:messages`;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
@@ -159,6 +162,7 @@ export default function Messages({
             {msgs.reverse().map((message, index) => {
               const direction = "ltr";
               const isCurrentUser = message.senderId === currentUser;
+              const show = message.statusOU === "SENDING";
               return (
                 <div
                   key={message.id}
@@ -169,7 +173,11 @@ export default function Messages({
                   data-chat-id={message.chatId}
                 >
                   {isCurrentUser ? (
-                    <MessRight message={message} direction={direction} />
+                    <MessRight
+                      message={message}
+                      direction={direction}
+                      show={show}
+                    />
                   ) : (
                     <MessLeft message={message} direction={direction} />
                   )}

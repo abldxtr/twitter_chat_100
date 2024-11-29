@@ -10,7 +10,7 @@ export default function TempImg() {
 
   const imageUrls = useMemo(() => {
     if (imgTemp) {
-      console.log("imgTempimgTemp", imgTemp);
+      // console.log("imgTempimgTemp", imgTemp);
       return imgTemp.map((fileState) => {
         if (typeof fileState.file === "string") {
           // in case an url is passed in, use it to display the image
@@ -24,64 +24,53 @@ export default function TempImg() {
     return [];
   }, [imgTemp]);
 
-  console.log("imgTemp", imgTemp);
+  console.log("imageUrls", imageUrls);
 
-  if (!imgTemp) {
-    return null;
-  }
+  // if (!imgTemp) {
+  //   return null;
+  // }
 
-  function updateFileProgress(key: string, progress: FileState["progress"]) {
-    setImgTemp((fileStates) => {
-      const newFileStates = structuredClone(fileStates);
-      const fileState = newFileStates.find(
-        (fileState) => fileState.key === key
-      );
-      if (fileState) {
-        fileState.progress = progress;
-      }
-      return newFileStates;
-    });
-  }
+  // function updateFileProgress(key: string, progress: FileState["progress"]) {
+  //   setImgTemp((fileStates) => {
+  //     const newFileStates = structuredClone(fileStates);
+  //     const fileState = newFileStates.find(
+  //       (fileState) => fileState.key === key
+  //     );
+  //     if (fileState) {
+  //       fileState.progress = progress;
+  //     }
+  //     return newFileStates;
+  //   });
+  // }
 
   return (
     <>
       {imgTemp.length > 0 && (
         <div className="flex flex-wrap gap-4 m-[12px]">
           {Array.from(imgTemp).map((file, index) => {
-            // if (typeof file.file === "string") {
-            //   return;
-            // }
-            // if (!(file.file instanceof File)) {
-            //   console.error(`Invalid file object at index ${index}`, file.file);
-            //   return null;
-            // }
-            // const fileUrl = URL.createObjectURL(file.file);
-
             return (
               <div
                 key={index}
                 className="relative w-[150px] h-[150px] overflow-hidden rounded-md"
-                onClick={async () => {
-                  try {
-                    const res = await edgestore.publicFiles.upload({
-                      file: file.file as File,
-                      onProgressChange: async (progress) => {
-                        updateFileProgress(file.key, progress);
-                        if (progress === 100) {
-                          // wait 1 second to set it to complete
-                          // so that the user can see the progress bar at 100%
-                          await new Promise((resolve) =>
-                            setTimeout(resolve, 1000)
-                          );
-                          updateFileProgress(file.key, "COMPLETE");
-                        }
-                      },
-                    });
-                    console.log(res);
-                  } catch (err) {
-                    updateFileProgress(file.key, "ERROR");
-                  }
-                }}
+                // onClick={async () => {
+                //   try {
+                //     const res = await edgestore.publicFiles.upload({
+                //       file: file.file as File,
+                //       onProgressChange: async (progress) => {
+                //         updateFileProgress(file.key, progress);
+                //         if (progress === 100) {
+                //           await new Promise((resolve) =>
+                //             setTimeout(resolve, 1000)
+                //           );
+                //           updateFileProgress(file.key, "COMPLETE");
+                //         }
+                //       },
+                //     });
+                //     // console.log(res);
+                //   } catch (err) {
+                //     updateFileProgress(file.key, "ERROR");
+                //   }
+                // }}
               >
                 {typeof file.progress === "number" && (
                   <CircleProgress progress={file.progress} />

@@ -34,56 +34,53 @@ export const useChatScroll = ({
   first,
   queryKey,
 }: ChatScrollProps) => {
-  const [isPending, startTransition] = useTransition();
+  // const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
-  console.log("queryClient", queryClient);
+  // console.log("queryClient", queryClient);
   const { unreadCount, unreadMessages, setUnreadMessages, setFinal, final } =
     useGlobalContext();
 
-  const [optimisticMessages, updateOptimisticMessages] = useOptimistic<
-    MessageData[]
-  >(
-    unreadMessages,
-    // @ts-ignore
-    (state: MessageData[], messageId: string) =>
-      state.filter((item) => item.id !== messageId)
-  );
+  // const [optimisticMessages, updateOptimisticMessages] = useOptimistic<
+  //   MessageData[]
+  // >(
+  //   unreadMessages,
+  //   // @ts-ignore
+  //   (state: MessageData[], messageId: string) =>
+  //     state.filter((item) => item.id !== messageId)
+  // );
 
-  const router = useRouter();
+  // const router = useRouter();
   const seenMessagesRef = useRef<Set<string>>(new Set());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const updateMessageStatus = useCallback(
-    async (messageIds: string[]) => {
-      try {
-        const response = await fetch("/api/messages/update-status", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ messageIds }),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to update message status");
-        }
-
-        Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: [queryKey],
-          }),
-          queryClient.invalidateQueries({
-            queryKey: ["userList"],
-          }),
-        ]);
-        setUnreadMessages((prev) =>
-          prev.filter((item) => !messageIds.includes(item.id))
-        );
-      } catch (error) {
-        console.error("Error updating message status:", error);
+  const updateMessageStatus = useCallback(async (messageIds: string[]) => {
+    try {
+      const response = await fetch("/api/messages/update-status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messageIds }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update message status");
       }
-    },
-    [queryClient, queryKey, setUnreadMessages]
-  );
+
+      // Promise.all([
+      //   queryClient.invalidateQueries({
+      //     queryKey: [queryKey],
+      //   }),
+      //   queryClient.invalidateQueries({
+      //     queryKey: ["userList"],
+      //   }),
+      // ]);
+      setUnreadMessages((prev) =>
+        prev.filter((item) => !messageIds.includes(item.id))
+      );
+    } catch (error) {
+      console.error("Error updating message status:", error);
+    }
+  }, []);
 
   const scheduleUpdate = useCallback(() => {
     if (timerRef.current) {
@@ -137,14 +134,18 @@ export const useChatScroll = ({
     { threshold: 0.5 }
   );
 
-  const messageElements = Array.from(
-    document.querySelectorAll(".message-item")
-  );
+  // const messageElements = Array.from(
+  //   document.querySelectorAll(".message-item")
+  // );
 
-  messageElements.forEach((el) => observer.observe(el));
+  // messageElements.forEach((el) => observer.observe(el));
 
   useEffect(() => {
     const topDiv = chatRef?.current;
+    const messageElements = Array.from(
+      document.querySelectorAll(".message-item")
+    );
+    messageElements.forEach((el) => observer.observe(el));
 
     const handleScroll = () => {
       if (topDiv) {
@@ -163,6 +164,7 @@ export const useChatScroll = ({
     topDiv?.addEventListener("scroll", handleScroll);
 
     return () => {
+      // messageElements.forEach((el) => observer.unobserve(el));
       messageElements.forEach((el) => observer.unobserve(el));
 
       topDiv?.removeEventListener("scroll", handleScroll);
@@ -172,5 +174,5 @@ export const useChatScroll = ({
     };
   }, [shouldLoadMore, loadMore, chatRef, markMessageAsSeen]);
 
-  return { optimisticMessages, unreadCount };
+  return { unreadCount };
 };

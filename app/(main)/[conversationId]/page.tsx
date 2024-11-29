@@ -14,6 +14,7 @@ const ConversationId = async (props: {
 }) => {
   const param = (await props.params).conversationId;
   const current = await auth();
+  console.log("param", param);
 
   if (!current) {
     return redirect("/login");

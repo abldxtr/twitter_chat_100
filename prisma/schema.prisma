@@ -68,33 +68,46 @@ model VerificationToken {
 }
 
 model Chat {
-    id                     String    @id @default(cuid())
-    createdAt              DateTime  @default(now())
-    updatedAt              DateTime  @updatedAt
-    initiator              User      @relation("ChatInitiator", fields: [initiatorId], references: [id])
+    id                     String         @id @default(cuid())
+    createdAt              DateTime       @default(now())
+    updatedAt              DateTime       @updatedAt
+    initiator              User           @relation("ChatInitiator", fields: [initiatorId], references: [id])
     initiatorId            String
-    participant            User      @relation("ChatParticipant", fields: [participantId], references: [id])
+    participant            User           @relation("ChatParticipant", fields: [participantId], references: [id])
     participantId          String
     messages               Message[]
-    unreadCountInitiator   Int       @default(0)
-    unreadCountParticipant Int       @default(0)
+    unreadCountInitiator   Int            @default(0)
+    unreadCountParticipant Int            @default(0)
+    MessageImage           MessageImage[]
 
     @@unique([initiatorId, participantId])
 }
 
 model Message {
-    id         String        @id @default(cuid())
-    content    String        @db.Text
-    createdAt  DateTime      @default(now())
-    updatedAt  DateTime      @updatedAt
-    sender     User          @relation("SentMessages", fields: [senderId], references: [id])
+    id         String         @id @default(cuid())
+    content    String         @db.Text
+    createdAt  DateTime       @default(now())
+    updatedAt  DateTime       @updatedAt
+    sender     User           @relation("SentMessages", fields: [senderId], references: [id])
     senderId   String
-    receiver   User          @relation("ReceivedMessages", fields: [receiverId], references: [id])
+    receiver   User           @relation("ReceivedMessages", fields: [receiverId], references: [id])
     receiverId String
-    chat       Chat          @relation(fields: [chatId], references: [id])
+    chat       Chat           @relation(fields: [chatId], references: [id])
     chatId     String
     status     MessageStatus
     type       MessageType
+    opupId     String         @default(cuid())
+    images     MessageImage[]
+}
+
+model MessageImage {
+    id        String  @id @default(cuid())
+    url       String
+    messageId String
+    message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+    // chat      Chat    @relation(fields: [chatId], references: [id])
+    chatId    String
+    Chat      Chat    @relation(fields: [chatId], references: [id])
 }
 
 enum MessageStatus {

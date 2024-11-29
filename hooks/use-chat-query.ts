@@ -1,13 +1,10 @@
 import qs from "query-string";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "@/provider/socket-provider";
 import { MessageData } from "@/lib/definitions";
 import { useEffect } from "react";
-import { useGlobalContext } from "@/context/globalContext";
-// import { data } from "@/lib/definitions";
-
-// import { useSocket } from "@/components/providers/socket-provider";
-
+import { FileState, useGlobalContext } from "@/context/globalContext";
+import { useEdgeStore } from "@/lib/edgestore";
 interface ChatQueryProps {
   queryKey: string;
   apiUrl: string;
@@ -29,6 +26,22 @@ export const useChatQuery = ({
 }: ChatQueryProps) => {
   const { isConnected } = useSocket();
   const { setUnreadMessages, final, setFinal } = useGlobalContext();
+  const queryClient = useQueryClient();
+  const { edgestore } = useEdgeStore();
+  const { setImgTemp } = useGlobalContext();
+  function updateFileProgress(key: string, progress: FileState["progress"]) {
+    setImgTemp((fileStates) => {
+      const newFileStates = structuredClone(fileStates);
+      const fileState = newFileStates.find(
+        (fileState) => fileState.key === key
+      );
+      if (fileState) {
+        fileState.progress = progress;
+      }
+      return newFileStates;
+    });
+  }
+
   // const isConnected = false;
 
   const fetchMessages = async ({
@@ -63,6 +76,115 @@ export const useChatQuery = ({
       // refetchInterval: isConnected ? false : 10000,
       initialPageParam: undefined,
     });
+  //////////////////////////////////////
+
+  // Optimistic Update برای ارسال پیام جدید
+  const sendMessage = async (newMessage: any) => {
+    console.log("newMessagesendmessaage", newMessage);
+    queryClient.setQueryData([queryKey], (oldData: any) => {
+      console.log("oldData", oldData);
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page: any, index: number) => {
+          if (index === 0) {
+            return {
+              ...page,
+              items: [{ ...newMessage, statusOU: "SENDING" }, ...page.items],
+            };
+          }
+          return page;
+        }),
+      };
+    });
+    const sendDatat = "/api/socket/messages";
+    const { chatId, senderId, receiverId, content, type, images } = newMessage;
+
+    let urls = [""];
+
+    if (images) {
+      const uploadPromises = images.map((file: any) =>
+        edgestore.publicFiles.upload({
+          file: file.file as File,
+          onProgressChange: (progress) => {
+            updateFileProgress(file.key, progress); // بروزرسانی درصد پیشرفت
+          },
+        })
+      );
+
+      const uploadedFiles = await Promise.all(uploadPromises);
+      urls = uploadedFiles.map((file) => file.url);
+      console.log("urls if", urls);
+    }
+    console.log("urls", urls);
+
+    const url = qs.stringifyUrl(
+      {
+        url: sendDatat,
+        query: {
+          [paramKey]: paramValue,
+        },
+      },
+      { skipNull: true }
+    );
+
+    try {
+      // پیام به سرور ارسال می‌شود
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId,
+          receiverId,
+          content,
+          id: chatId,
+          type,
+          urls,
+        }),
+      });
+      const savedMessage = await res.json();
+      // opupId: crypto.randomUUID(),
+      console.log("queryKey", queryKey);
+      // queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${queryKey}`],
+      });
+
+      // پیام ذخیره‌شده جایگزین پیام موقت می‌شود
+      // queryClient.setQueryData([queryKey], (oldData: any) => {
+      //   return {
+      //     ...oldData,
+      //     pages: oldData.pages.map((page: any) => {
+      //       return {
+      //         ...page,
+      //         items: page.items.map((message: MessageData) =>
+      //           message.opupId === newMessage.opupId ? savedMessage : message
+      //         ),
+      //       };
+      //     }),
+      //   };
+      // });
+      setImgTemp([]);
+    } catch (err) {
+      console.error("Error sending message:", err);
+
+      // پیام موقت حذف می‌شود
+      queryClient.setQueryData([queryKey], (oldData: any) => {
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => {
+            return {
+              ...page,
+              items: page.items.filter(
+                (message: MessageData) => message.id !== newMessage.id
+              ),
+            };
+          }),
+        };
+      });
+    }
+  };
+
+  ///////////////////////////////////////////
 
   useEffect(() => {
     if (data?.pages[0]?.items) {
@@ -96,5 +218,6 @@ export const useChatQuery = ({
     hasNextPage,
     isFetchingNextPage,
     status,
+    sendMessage,
   };
 };

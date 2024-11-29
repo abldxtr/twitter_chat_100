@@ -14,8 +14,10 @@ import TempImg from "./temp-img";
 import { user } from "@/lib/definitions";
 import { useSocket } from "@/provider/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGlobalContext } from "@/context/globalContext";
+import { FileState, useGlobalContext } from "@/context/globalContext";
 import DragContainer from "./drag-container";
+import { useChatQuery } from "@/hooks/use-chat-query";
+import { useEdgeStore } from "@/lib/edgestore";
 
 export default function InputChat({
   param,
@@ -32,7 +34,8 @@ export default function InputChat({
 }) {
   const { setOpenEmoji } = useEmojiState();
   const [cursorPosition, setCursorPosition] = useState<number>(0);
-  const { imgTemp, setImgTemp } = useGlobalContext();
+  const { imgTemp, setImgTemp, isShowImgTemp, setIsShowImgTemp } =
+    useGlobalContext();
 
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);
@@ -40,6 +43,24 @@ export default function InputChat({
   const { socket } = useSocket();
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
+  const apiUrl = "/api/messages";
+  const paramKey = "chatId";
+  // const paramValue = "cm2ylbaaj000emhh56mhgvrg9";
+  const paramValue = chatId ? chatId : param;
+
+  const typeKey = "typing";
+  const stoptypekey = "stoptype";
+  const queryKey = "chat:cm2ylbaaj000emhh56mhgvrg9";
+  const currentUser = first ? first.id : "";
+  const { edgestore } = useEdgeStore();
+
+  const { sendMessage } = useChatQuery({
+    queryKey,
+    apiUrl,
+    paramKey,
+    paramValue,
+    currentUser,
+  });
 
   const handleClickOutside = () => {
     setOpenEmoji(false);
@@ -78,47 +99,111 @@ export default function InputChat({
     };
   }, [inputValue, socket, chatId, first?.id]);
 
+  // function updateFileProgress(key: string, progress: FileState["progress"]) {
+  //   setImgTemp((fileStates) => {
+  //     const newFileStates = structuredClone(fileStates);
+  //     const fileState = newFileStates.find(
+  //       (fileState) => fileState.key === key
+  //     );
+  //     if (fileState) {
+  //       fileState.progress = progress;
+  //     }
+  //     return newFileStates;
+  //   });
+  // }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (inputValue.trim()) {
+    // console.log("handleSubmit");
+    if (imgTemp.length > 0) {
       if (first && other && chatId) {
         const newMessage = {
           content: inputValue.trim(),
           senderId: first.id,
-          reeciverId: other.id,
+          receiverId: other.id,
           id: chatId,
+          createdAt: new Date().toISOString() as unknown as Date,
+          updatedAt: new Date().toISOString() as unknown as Date,
+          chatId,
+          type: "IMAGE" as const,
+          status: "SENT" as const,
+          opupId: crypto.randomUUID(),
+          images: imgTemp,
         };
 
-        const apiUrl = "/api/socket/messages";
-        const query = { chatId: chatId };
-        try {
-          const url = qs.stringifyUrl({
-            url: apiUrl,
-            query,
-          });
+        console.log("newMessage", newMessage);
+        sendMessage(newMessage);
 
-          socket.emit("stopTyping", { chatId, userId: first?.id });
-          await axios.post(url, newMessage);
-          queryClient.invalidateQueries({
-            queryKey: ["userList"],
-          });
-        } catch (error) {
-          console.log(error);
+        // }
+      }
+    } else {
+      if (inputValue.trim()) {
+        if (first && other && chatId) {
+          const newMessage = {
+            content: inputValue.trim(),
+            senderId: first.id,
+            receiverId: other.id,
+            id: chatId,
+            createdAt: new Date().toISOString() as unknown as Date,
+            updatedAt: new Date().toISOString() as unknown as Date,
+            chatId,
+
+            type: "TEXT" as const,
+            status: "SENT" as const,
+            opupId: crypto.randomUUID(),
+          };
+          sendMessage(newMessage);
         }
       }
-
-      setInputValue("");
-      // setImgTemp();
-      setImgTemp([]);
     }
+
+    // if (first && other && chatId) {
+    //   // const newMessage = {
+    //   //   content: inputValue.trim(),
+    //   //   senderId: first.id,
+    //   //   receiverId: other.id,
+    //   //   id: chatId,
+    //   //   createdAt: new Date().toISOString() as unknown as Date,
+    //   //   updatedAt: new Date().toISOString() as unknown as Date,
+    //   //   chatId,
+    //   //   type: "TEXT" as const,
+    //   //   status: "SENT" as const,
+    //   //   opupId: crypto.randomUUID(),
+    //   // };
+
+    //   const apiUrl = "/api/socket/messages";
+    //   const query = { chatId: chatId };
+    //   try {
+    //     const url = qs.stringifyUrl({
+    //       url: apiUrl,
+    //       query,
+    //     });
+
+    //     socket.emit("stopTyping", { chatId, userId: first?.id });
+    //     // await axios.post(url, newMessage);
+    //     // sendMessage(newMessage);
+    //     queryClient.invalidateQueries({
+    //       queryKey: ["userList"],
+    //     });
+    //     queryClient.invalidateQueries({
+    //       queryKey: [`${queryKey}`],
+    //     });
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
+
+    setInputValue("");
+    setIsShowImgTemp(false);
+    // setImgTemp();
+    // setImgTemp([]);
   };
 
-  useEffect(() => {
-    if (cursorPosition !== undefined && textRef.current) {
-      textRef.current.selectionEnd = cursorPosition;
-    }
-  }, [cursorPosition]);
+  // useEffect(() => {
+  //   if (cursorPosition !== undefined && textRef.current) {
+  //     textRef.current.selectionEnd = cursorPosition;
+  //   }
+  // }, [cursorPosition]);
 
   const handleEmoji = (emoji: any) => {
     setInputValue(inputValue + emoji.native);
@@ -132,7 +217,7 @@ export default function InputChat({
         )}
       > */}
       <div className="  flex flex-col w-full h-full bg-[#eff3f4] rounded-[16px] ">
-        <TempImg />
+        {isShowImgTemp && <TempImg />}
         <div className=" my-[4px] mx-[12px] p-[4px] flex items-center justify-between bg-[#eff3f4] rounded-[16px] gap-1    ">
           <div className=" flex items-center  ">
             <ImgInput

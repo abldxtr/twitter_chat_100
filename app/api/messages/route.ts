@@ -61,6 +61,7 @@ export async function GET(req: Request) {
               lastSeen: true,
             },
           },
+          images: true,
         },
         orderBy: {
           createdAt: "desc",
@@ -91,6 +92,7 @@ export async function GET(req: Request) {
               lastSeen: true,
             },
           },
+          images: true,
         },
         orderBy: {
           createdAt: "desc",
