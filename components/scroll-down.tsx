@@ -73,7 +73,7 @@ export function ScrollDown({
     <>
       <div
         className={classNames(
-          " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
+          " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] z-[99] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
           "cursor-pointer transiton-all duration-300 ",
           goDown ? "opacity-100" : "opacity-0 pointer-events-none "
         )}
@@ -171,8 +171,8 @@ export function MessRight({ message, direction, show }: mess) {
             >
               <div
                 className={cn(
-                  " grid  h-auto max-h-[300px] w-full shrink-0 overflow-hidden ",
-                  message.images.length > 2 ? "grid-cols-2" : "grid-cols-1"
+                  " grid  h-auto max-h-[calc(55dvh)] w-full shrink-0 overflow-hidden relative ",
+                  message.images.length > 1 ? "grid-cols-2" : "grid-cols-1"
                   // message.images.length === 2 && "grid-cols-2",
                 )}
               >
@@ -184,38 +184,39 @@ export function MessRight({ message, direction, show }: mess) {
                       //   key={index}
                       //   className="relative w-[200px] h-[300px] max-h-[280px] shrink-0 overflow-hidden"
                       // >
-                      <Image
+                      <img
                         src={file.url}
                         alt={`uploaded-img-${index}`}
                         key={index}
                         // fill
-                        width={200}
-                        height={300}
+                        // width={200}
+                        // height={300}
                         className={cn(
-                          "  bg-[#0f1419bf]  shrike-0 hover:bg-[#272c30bf] object-cover "
+                          "  bg-[#0f1419bf] h-auto max-h-[calc(55dvh)]   shrike-0  object-cover relative"
                           // typeof file.progress === "number" && "opacity-10"
                         )}
                       />
                       // </div>
                     );
                   }
+                  console.log("progress", file.progress);
                   return (
-                    <Fragment key={index}>
+                    <div key={index} className="relative">
                       <img
                         src={imageUrls[index]}
                         // src={file}
                         alt={`uploaded-img-${index}`}
                         className={cn(
-                          " h-auto bg-[#0f1419bf] shrike-0 hover:bg-[#272c30bf] object-cover ",
-                          typeof file.progress === "number" &&
-                            "opacity-10 rounded-full blur-lg "
+                          " h-auto max-h-[calc(55dvh)] bg-[#0f1419bf] shrike-0  object-cover relative",
+                          typeof file.progress === "string" &&
+                            "opacity-50  blur-lg "
                         )}
                       />
 
-                      {typeof file.progress === "number" && (
+                      {typeof file.progress === "string" && (
                         <CircleProgress progress={file.progress} />
                       )}
-                    </Fragment>
+                    </div>
                   );
                 })}
               </div>
@@ -298,12 +299,144 @@ export function MessRight({ message, direction, show }: mess) {
   );
 }
 
-export function MessLeft({ message, direction }: mess) {
+export function MessLeft({ message, direction, show }: mess) {
+  const { imgTemp, setImgTemp } = useGlobalContext();
+  // console.log("message", message);
+
+  function hasKeyRuntime(key: string, obj: object): boolean {
+    return key in obj;
+  }
+
+  const imageUrls = useMemo(() => {
+    if (imgTemp) {
+      // console.log("imgTempimgTemp", imgTemp);
+      return imgTemp.map((fileState) => {
+        if (typeof fileState.file === "string") {
+          // in case an url is passed in, use it to display the image
+          return fileState.file;
+        } else {
+          // in case a file is passed in, create a base64 url to display the image
+          return URL.createObjectURL(fileState.file);
+        }
+      });
+    }
+    return [];
+  }, [imgTemp]);
+  const isImg = message.type === "IMAGE";
+  if (isImg) {
+    const rr = message.images.length === 0;
+    if (rr) {
+      return null;
+    }
+    return (
+      <motion.div
+        className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out "
+        // initial={{ y: 5, opacity: 0 }}
+        // animate={{ y: 0, opacity: 1 }}
+      >
+        <div className="flex flex-col w-full items-start ">
+          <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
+            {/* for delete messag */}
+            <div className="  ">
+              {/* <button
+                // onClick={() => deleteMessageById(it.id)}
+                className=" size-[34px] hover:bg-[#1d9bf01a] flex items-center justify-center transition-all duration-300
+                       rounded-full opacity-0 group-hover:opacity-100  "
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="size-[20px] shrink-0 fill-[#6b7f8e]  "
+                >
+                  <g>
+                    <path d="M16 6V4.5C16 3.12 14.88 2 13.5 2h-3C9.11 2 8 3.12 8 4.5V6H3v2h1.06l.81 11.21C4.98 20.78 6.28 22 7.86 22h8.27c1.58 0 2.88-1.22 3-2.79L19.93 8H21V6h-5zm-6-1.5c0-.28.22-.5.5-.5h3c.27 0 .5.22.5.5V6h-4V4.5zm7.13 14.57c-.04.52-.47.93-1 .93H7.86c-.53 0-.96-.41-1-.93L6.07 8h11.85l-.79 11.07zM9 17v-6h2v6H9zm4 0v-6h2v6h-2z"></path>
+                  </g>
+                </svg>
+              </button> */}
+            </div>
+            {show && <Loader2 className="size-4 text-blue-700 animate-spin " />}
+
+            <div
+              className=" flex cursor-pointer flex-col text-[#091e42] bg-[#f4f5f7] rounded-bl-sm rounded-2xl py-[12px]
+              px-[16px] text-right leading-[20px] text-[1rem] font-normal transition-all duration-300    "
+            >
+              <div
+                className={cn(
+                  " grid  h-auto max-h-[calc(55dvh)] w-full shrink-0 overflow-hidden relative ",
+                  message.images.length > 1 ? "grid-cols-2" : "grid-cols-1"
+                  // message.images.length === 2 && "grid-cols-2",
+                )}
+              >
+                {message.images?.map((file: any, index: number) => {
+                  // console.log("file", file);
+                  if (hasKeyRuntime("id", file)) {
+                    return (
+                      // <div
+                      //   key={index}
+                      //   className="relative w-[200px] h-[300px] max-h-[280px] shrink-0 overflow-hidden"
+                      // >
+                      <img
+                        src={file.url}
+                        alt={`uploaded-img-${index}`}
+                        key={index}
+                        // fill
+                        // width={200}
+                        // height={300}
+                        className={cn(
+                          "  bg-[#0f1419bf] h-auto max-h-[calc(55dvh)]   shrike-0  object-cover relative"
+                          // typeof file.progress === "number" && "opacity-10"
+                        )}
+                      />
+                      // </div>
+                    );
+                  }
+                  console.log("progress", file.progress);
+                  return (
+                    <div key={index} className="relative">
+                      <img
+                        src={imageUrls[index]}
+                        // src={file}
+                        alt={`uploaded-img-${index}`}
+                        className={cn(
+                          " h-auto max-h-[calc(55dvh)] bg-[#0f1419bf] shrike-0  object-cover relative",
+                          typeof file.progress === "string" &&
+                            "opacity-20  blur-lg "
+                        )}
+                      />
+
+                      {typeof file.progress === "string" && (
+                        <CircleProgress progress={file.progress} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <span
+                className={classNames(
+                  " break-all "
+                  // show && "!text-red-600"
+                  // direction === "rtl" ? "rtlDir text-right " : "text-left"
+                )}
+              >
+                {message.content}
+              </span>
+            </div>
+          </div>
+          <div className="block text-[#6a7485] text-[13px] leading-[16px] font-[400] mt-[6px]  rtlDir ">
+            {formatPersianDate(new Date(message.createdAt))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+  if (message.content.length === 0) {
+    return null;
+  }
   return (
     <motion.div
       className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out "
-      initial={{ y: 5, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      // initial={{ y: 5, opacity: 0 }}
+      // animate={{ y: 0, opacity: 1 }}
     >
       <div className="flex flex-col w-full items-start ">
         <div className="flex items-center flex-row-reverse gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">

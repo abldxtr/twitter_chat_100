@@ -40,16 +40,6 @@ export const useChatScroll = ({
   const { unreadCount, unreadMessages, setUnreadMessages, setFinal, final } =
     useGlobalContext();
 
-  // const [optimisticMessages, updateOptimisticMessages] = useOptimistic<
-  //   MessageData[]
-  // >(
-  //   unreadMessages,
-  //   // @ts-ignore
-  //   (state: MessageData[], messageId: string) =>
-  //     state.filter((item) => item.id !== messageId)
-  // );
-
-  // const router = useRouter();
   const seenMessagesRef = useRef<Set<string>>(new Set());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -154,8 +144,10 @@ export const useChatScroll = ({
         const distanceFromBottom = topDiv.scrollTop;
 
         distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
+        // console.log({ distanceFromTop });
+        // console.log({ shouldLoadMore });
 
-        if (distanceFromTop === 0 && shouldLoadMore) {
+        if (distanceFromTop < 100 && shouldLoadMore) {
           loadMore();
         }
       }

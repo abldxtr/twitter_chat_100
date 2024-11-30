@@ -2,7 +2,7 @@ import qs from "query-string";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "@/provider/socket-provider";
 import { MessageData } from "@/lib/definitions";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { FileState, useGlobalContext } from "@/context/globalContext";
 import { useEdgeStore } from "@/lib/edgestore";
 interface ChatQueryProps {
@@ -26,6 +26,7 @@ export const useChatQuery = ({
 }: ChatQueryProps) => {
   const { isConnected } = useSocket();
   const { setUnreadMessages, final, setFinal } = useGlobalContext();
+  const [_, startTransition] = useTransition();
   const queryClient = useQueryClient();
   const { edgestore } = useEdgeStore();
   const { setImgTemp } = useGlobalContext();
@@ -148,29 +149,34 @@ export const useChatQuery = ({
       const a = [`${queryKey}`];
       console.log("queryKeyaaaa", a);
       setImgTemp([]);
-      queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+      if (type === "TEXT") {
+        queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+      } else {
+        queryClient.setQueryData([`${queryKey}`], (oldData: any) => {
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => {
+              return {
+                ...page,
+                items: page.items.map((message: MessageData) =>
+                  message.opupId === newMessage.opupId
+                    ? { ...message, statusOU: "SUCCESS" }
+                    : message
+                ),
+              };
+            }),
+          };
+        });
+        startTransition(async () => {
+          queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+        });
+      }
 
       // queryClient.invalidateQueries({
       //   queryKey: ["chat:cm3z5gifo000210g5xz9iw5yj"],
       // });
 
       // پیام ذخیره‌شده جایگزین پیام موقت می‌شود
-      // queryClient.setQueryData(
-      //   ["chat:cm3z5gifo000210g5xz9iw5yj"],
-      //   (oldData: any) => {
-      //     return {
-      //       ...oldData,
-      //       pages: oldData.pages.map((page: any) => {
-      //         return {
-      //           ...page,
-      //           items: page.items.map((message: MessageData) =>
-      //             message.opupId === newMessage.opupId ? savedMessage : message
-      //           ),
-      //         };
-      //       }),
-      //     };
-      //   }
-      // );
     } catch (err) {
       console.error("Error sending message:", err);
 

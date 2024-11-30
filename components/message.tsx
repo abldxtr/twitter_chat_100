@@ -68,15 +68,12 @@ export default function Messages({
   const typeKey = "typing";
   const stoptypekey = "stoptype";
 
-  let queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
-  const aaaa = useMemo(() => `chat:${paramValue}`, [paramValue]);
+  const queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
 
   // const param = useParams()
-  queryKey = aaaa;
 
-  console.log(queryKey);
   const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
-  // const addKey = useMemo(() => `chat:${currentUser}:messages`, [currentUser]);
+  const userId = useMemo(() => `chat:${currentUser}:messages`, [currentUser]);
   // const SenderKey = `chat:${senderId}:messages`;
 
   const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
@@ -87,10 +84,10 @@ export default function Messages({
       queryKey,
       apiUrl,
       paramKey,
-      paramValue: aaaa,
+      paramValue,
       currentUser,
     });
-  useChatSocket({ queryKey, addKey, typeKey, updateKey, stoptypekey });
+  useChatSocket({ queryKey, addKey, typeKey, updateKey, stoptypekey, userId });
   const { unreadCount } = useChatScroll({
     chatRef,
     bottomRef,
@@ -136,7 +133,7 @@ export default function Messages({
   }
 
   return (
-    <div className=" flex-1 overflow-hidden relative">
+    <div className=" flex-1 overflow-hidden relative isolate ">
       <ScrollDown
         goDown={goDown}
         func={HandleScrollDown}
@@ -184,7 +181,11 @@ export default function Messages({
                       show={show}
                     />
                   ) : (
-                    <MessLeft message={message} direction={direction} />
+                    <MessLeft
+                      message={message}
+                      direction={direction}
+                      show={show}
+                    />
                   )}
                 </div>
               );

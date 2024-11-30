@@ -10,6 +10,7 @@ type ChatSocketProps = {
   queryKey: string;
   typeKey: string;
   stoptypekey: string;
+  userId: string;
 };
 
 export const useChatSocket = ({
@@ -18,6 +19,7 @@ export const useChatSocket = ({
   queryKey,
   typeKey,
   stoptypekey,
+  userId,
 }: ChatSocketProps) => {
   const { socket, setTypingUser, typingUser } = useSocket();
   const queryClient = useQueryClient();
@@ -28,6 +30,33 @@ export const useChatSocket = ({
     }
 
     socket.on(addKey, (message: MessageData) => {
+      queryClient.setQueryData([queryKey], (oldData: any) => {
+        if (!oldData || !oldData.pages || oldData.pages.length === 0) {
+          return {
+            pages: [
+              {
+                items: [message],
+              },
+            ],
+          };
+        }
+
+        const newData = [...oldData.pages];
+
+        newData[0] = {
+          ...newData[0],
+          items: [message, ...newData[0].items],
+        };
+
+        return {
+          ...oldData,
+          pages: newData,
+        };
+      });
+      // queryClient.invalidateQueries({ queryKey: ["userList"] });
+    });
+
+    socket.on(userId, (message: MessageData) => {
       queryClient.setQueryData([queryKey], (oldData: any) => {
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {
           return {

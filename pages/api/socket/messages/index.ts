@@ -166,10 +166,10 @@ export default async function handler(
 
     // const channelKey = `chat:${chatId}:messages`;
     const channelKey = `chat:${receiverId}:messages`;
-    const SenderKey = `chat:${senderId}:messages`;
+    // const SenderKey = `chat:${senderId}:messages`;
 
     res?.socket?.server?.io?.emit(channelKey, message);
-    res?.socket?.server?.io?.emit(SenderKey, message);
+    // res?.socket?.server?.io?.emit(SenderKey, message);
 
     return res.status(200).json(message);
   } catch (error) {
