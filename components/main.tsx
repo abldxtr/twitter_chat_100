@@ -38,7 +38,6 @@ export default async function Main({ param }: { param: string }) {
         first={currentUser}
         second={other}
         other={other}
-        chat={param}
       />
     </div>
   );

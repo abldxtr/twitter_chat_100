@@ -81,8 +81,10 @@ export const useChatQuery = ({
   // Optimistic Update برای ارسال پیام جدید
   const sendMessage = async (newMessage: any) => {
     console.log("newMessagesendmessaage", newMessage);
-    queryClient.setQueryData([queryKey], (oldData: any) => {
+    queryClient.setQueryData([`${queryKey}`], (oldData: any) => {
       console.log("oldData", oldData);
+      // console.log("[queryKey]", [queryKey]);
+
       return {
         ...oldData,
         pages: oldData.pages.map((page: any, index: number) => {
@@ -143,27 +145,32 @@ export const useChatQuery = ({
       });
       const savedMessage = await res.json();
       // opupId: crypto.randomUUID(),
-      console.log("queryKey", queryKey);
-      // queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
-      queryClient.invalidateQueries({
-        queryKey: [`${queryKey}`],
-      });
+      const a = [`${queryKey}`];
+      console.log("queryKeyaaaa", a);
+      setImgTemp([]);
+      queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+
+      // queryClient.invalidateQueries({
+      //   queryKey: ["chat:cm3z5gifo000210g5xz9iw5yj"],
+      // });
 
       // پیام ذخیره‌شده جایگزین پیام موقت می‌شود
-      // queryClient.setQueryData([queryKey], (oldData: any) => {
-      //   return {
-      //     ...oldData,
-      //     pages: oldData.pages.map((page: any) => {
-      //       return {
-      //         ...page,
-      //         items: page.items.map((message: MessageData) =>
-      //           message.opupId === newMessage.opupId ? savedMessage : message
-      //         ),
-      //       };
-      //     }),
-      //   };
-      // });
-      setImgTemp([]);
+      // queryClient.setQueryData(
+      //   ["chat:cm3z5gifo000210g5xz9iw5yj"],
+      //   (oldData: any) => {
+      //     return {
+      //       ...oldData,
+      //       pages: oldData.pages.map((page: any) => {
+      //         return {
+      //           ...page,
+      //           items: page.items.map((message: MessageData) =>
+      //             message.opupId === newMessage.opupId ? savedMessage : message
+      //           ),
+      //         };
+      //       }),
+      //     };
+      //   }
+      // );
     } catch (err) {
       console.error("Error sending message:", err);
 

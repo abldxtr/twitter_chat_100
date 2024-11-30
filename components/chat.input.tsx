@@ -4,7 +4,7 @@ import { useEmojiState } from "@/context/EmojiContext";
 import axios from "axios";
 import qs from "query-string";
 
-import { useEffect, useState, useRef, FormEvent } from "react";
+import { useEffect, useState, useRef, FormEvent, useMemo } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import ImgInput from "./img.input";
 import { EmojiPicker } from "./EmojiPicker";
@@ -50,7 +50,9 @@ export default function InputChat({
 
   const typeKey = "typing";
   const stoptypekey = "stoptype";
-  const queryKey = "chat:cm2ylbaaj000emhh56mhgvrg9";
+  // const queryKey = `chat:cm2ylbaaj000emhh56mhgvrg9`;
+  let queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
+
   const currentUser = first ? first.id : "";
   const { edgestore } = useEdgeStore();
 
@@ -99,19 +101,6 @@ export default function InputChat({
     };
   }, [inputValue, socket, chatId, first?.id]);
 
-  // function updateFileProgress(key: string, progress: FileState["progress"]) {
-  //   setImgTemp((fileStates) => {
-  //     const newFileStates = structuredClone(fileStates);
-  //     const fileState = newFileStates.find(
-  //       (fileState) => fileState.key === key
-  //     );
-  //     if (fileState) {
-  //       fileState.progress = progress;
-  //     }
-  //     return newFileStates;
-  //   });
-  // }
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     // console.log("handleSubmit");
@@ -157,53 +146,9 @@ export default function InputChat({
       }
     }
 
-    // if (first && other && chatId) {
-    //   // const newMessage = {
-    //   //   content: inputValue.trim(),
-    //   //   senderId: first.id,
-    //   //   receiverId: other.id,
-    //   //   id: chatId,
-    //   //   createdAt: new Date().toISOString() as unknown as Date,
-    //   //   updatedAt: new Date().toISOString() as unknown as Date,
-    //   //   chatId,
-    //   //   type: "TEXT" as const,
-    //   //   status: "SENT" as const,
-    //   //   opupId: crypto.randomUUID(),
-    //   // };
-
-    //   const apiUrl = "/api/socket/messages";
-    //   const query = { chatId: chatId };
-    //   try {
-    //     const url = qs.stringifyUrl({
-    //       url: apiUrl,
-    //       query,
-    //     });
-
-    //     socket.emit("stopTyping", { chatId, userId: first?.id });
-    //     // await axios.post(url, newMessage);
-    //     // sendMessage(newMessage);
-    //     queryClient.invalidateQueries({
-    //       queryKey: ["userList"],
-    //     });
-    //     queryClient.invalidateQueries({
-    //       queryKey: [`${queryKey}`],
-    //     });
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // }
-
     setInputValue("");
     setIsShowImgTemp(false);
-    // setImgTemp();
-    // setImgTemp([]);
   };
-
-  // useEffect(() => {
-  //   if (cursorPosition !== undefined && textRef.current) {
-  //     textRef.current.selectionEnd = cursorPosition;
-  //   }
-  // }, [cursorPosition]);
 
   const handleEmoji = (emoji: any) => {
     setInputValue(inputValue + emoji.native);
@@ -228,7 +173,6 @@ export default function InputChat({
               }}
               onChange={setImgTemp}
               onFilesAdded={async (addedFiles) => {
-                // setImgTemp([...imgTemp, ...addedFiles]);
                 setImgTemp((prev) => [...(prev || []), ...addedFiles]);
               }}
             />

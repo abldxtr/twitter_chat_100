@@ -8,13 +8,11 @@ export default async function Chat_text({
   first,
   second,
   other,
-  chat,
 }: {
   param: string;
   first: user | undefined;
   second: user | undefined;
   other: user | undefined;
-  chat: string | undefined;
 }) {
   return (
     <section
@@ -39,7 +37,7 @@ export default async function Chat_text({
             <Messages
               //  text={message}
               first={first}
-              chatId={chat}
+              chatId={param}
               other={other}
             />
 
@@ -49,7 +47,7 @@ export default async function Chat_text({
               second={second}
               other={other}
               // message={message}
-              chatId={chat}
+              chatId={param}
             />
           </>
         ) : (

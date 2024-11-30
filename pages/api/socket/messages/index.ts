@@ -2,6 +2,7 @@ import { NextApiRequest } from "next";
 
 import { NextApiResponseServerIo } from "@/types";
 import db from "@/lib/prisma";
+import { Message } from "@prisma/client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -57,13 +58,6 @@ export default async function handler(
         },
       });
 
-      // const messageImages = await db.messageImage.createMany({
-      //   data: urls.map((url: string) => ({
-      //     url,
-      //     messageId: message.id,
-      //     chatId: message.chatId,
-      //   })),
-      // });
       for (const url of urls) {
         await db.messageImage.create({
           data: {
@@ -74,16 +68,58 @@ export default async function handler(
         });
       }
 
-      const returnM = db.message.findUnique({
+      // const returnM = db.message.findFirst({
+      //   take: 1,
+      //   where: {
+      //     // id: message.id,
+      //     chatId: chatId as string,
+      //   },
+      //   include: {
+      //     images: true,
+      //   },
+      // });
+      let messages = [];
+      const aaa = await db.message.findMany({
+        take: 1,
         where: {
-          id: message.id,
+          chatId: chatId as string,
         },
         include: {
+          receiver: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+              lastSeen: true,
+            },
+          },
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+              lastSeen: true,
+            },
+          },
           images: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       });
 
-      return res.status(200).json(returnM);
+      // const returnM = db.message.findUnique({
+      //   where: {
+      //     id: message.id,
+      //   },
+      //   include: {
+      //     images: true,
+      //   },
+      // });
+
+      return res.status(200).json(aaa);
     }
 
     if (!content) {

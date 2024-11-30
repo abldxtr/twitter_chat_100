@@ -30,7 +30,8 @@ export async function GET(req: Request) {
       return new NextResponse("Channel ID missing", { status: 400 });
     }
 
-    let messages: Message[] = [];
+    // let messages: Message[] = [];
+    let messages = [];
 
     if (cursor) {
       messages = await db.message.findMany({
@@ -106,31 +107,7 @@ export async function GET(req: Request) {
       nextCursor = messages[MESSAGES_BATCH - 1].id;
     }
 
-    // Update unread count
-    // const chat = await db.chat.findUnique({
-    //   where: { id: chatId },
-    // });
-
-    // if (chat) {
-    //   if (chat.initiatorId === currentUser.user.id) {
-    //     await db.chat.update({
-    //       where: { id: chatId },
-    //       data: { unreadCountInitiator: 0 },
-    //     });
-    //   } else {
-    //     await db.chat.update({
-    //       where: { id: chatId },
-    //       data: { unreadCountParticipant: 0 },
-    //     });
-    //   }
-    // }
-
-    // after(() => {
-    revalidateTag("fetchChat");
-    revalidatePath("/", "layout");
-
-    // Execute after the layout is rendered and sent to the user
-    // });
+    console.log("api/message", messages);
 
     return NextResponse.json({
       items: messages,
@@ -142,35 +119,61 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
-  try {
-    const currentUser = await auth();
-    const { chatId } = await req.json();
+// export async function POST(req: Request) {
+//   try {
+//     const currentUser = await auth();
+//     const { chatId } = await req.json();
 
-    if (!currentUser || !currentUser.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+//     if (!currentUser || !currentUser.user) {
+//       return new NextResponse("Unauthorized", { status: 401 });
+//     }
 
-    if (!chatId) {
-      return new NextResponse("Chat ID missing", { status: 400 });
-    }
+//     if (!chatId) {
+//       return new NextResponse("Chat ID missing", { status: 400 });
+//     }
 
-    await db.message.updateMany({
-      where: {
-        chatId,
-        receiverId: currentUser.user.id,
-        status: {
-          not: "READ",
-        },
-      },
-      data: {
-        status: "READ",
-      },
-    });
+//     await db.message.updateMany({
+//       where: {
+//         chatId,
+//         receiverId: currentUser.user.id,
+//         status: {
+//           not: "READ",
+//         },
+//       },
+//       data: {
+//         status: "READ",
+//       },
+//     });
 
-    return new NextResponse("Status updated", { status: 200 });
-  } catch (error) {
-    console.error("[MESSAGE_STATUS_UPDATE]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
-}
+//     return new NextResponse("Status updated", { status: 200 });
+//   } catch (error) {
+//     console.error("[MESSAGE_STATUS_UPDATE]", error);
+//     return new NextResponse("Internal Error", { status: 500 });
+//   }
+// }
+
+// Update unread count
+// const chat = await db.chat.findUnique({
+//   where: { id: chatId },
+// });
+
+// if (chat) {
+//   if (chat.initiatorId === currentUser.user.id) {
+//     await db.chat.update({
+//       where: { id: chatId },
+//       data: { unreadCountInitiator: 0 },
+//     });
+//   } else {
+//     await db.chat.update({
+//       where: { id: chatId },
+//       data: { unreadCountParticipant: 0 },
+//     });
+//   }
+// }
+
+// after(() => {
+// revalidateTag("fetchChat");
+// revalidatePath("/", "layout");
+
+// Execute after the layout is rendered and sent to the user
+// });

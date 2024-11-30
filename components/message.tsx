@@ -20,6 +20,7 @@ import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
 import { useGlobalContext } from "@/context/globalContext";
 import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 export default function Messages({
   first,
@@ -67,9 +68,13 @@ export default function Messages({
   const typeKey = "typing";
   const stoptypekey = "stoptype";
 
-  const queryKey = useMemo(() => `chat:${chatId}`, [chatId]);
+  let queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
+  const aaaa = useMemo(() => `chat:${paramValue}`, [paramValue]);
 
-  console.log({ queryKey });
+  // const param = useParams()
+  queryKey = aaaa;
+
+  console.log(queryKey);
   const addKey = useMemo(() => `chat:${chatId}:messages`, [chatId]);
   // const addKey = useMemo(() => `chat:${currentUser}:messages`, [currentUser]);
   // const SenderKey = `chat:${senderId}:messages`;
@@ -82,7 +87,7 @@ export default function Messages({
       queryKey,
       apiUrl,
       paramKey,
-      paramValue,
+      paramValue: aaaa,
       currentUser,
     });
   useChatSocket({ queryKey, addKey, typeKey, updateKey, stoptypekey });

@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useOptimistic, useTransition } from "react";
+import { Fragment, useMemo, useOptimistic, useTransition } from "react";
+import { CircleProgress } from "./circle-progress";
 
 export type items = {
   goDown: boolean;
@@ -139,8 +140,8 @@ export function MessRight({ message, direction, show }: mess) {
     return (
       <motion.div
         className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out  "
-        initial={{ y: 5, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        // initial={{ y: 5, opacity: 0 }}
+        // animate={{ y: 0, opacity: 1 }}
       >
         <div className="flex flex-col w-full items-end ">
           <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
@@ -199,16 +200,22 @@ export function MessRight({ message, direction, show }: mess) {
                     );
                   }
                   return (
-                    <img
-                      src={imageUrls[index]}
-                      key={index}
-                      // src={file}
-                      alt={`uploaded-img-${index}`}
-                      className={cn(
-                        " h-auto bg-[#0f1419bf] shrike-0 hover:bg-[#272c30bf] object-cover ",
-                        typeof file.progress === "number" && "opacity-10"
+                    <Fragment key={index}>
+                      <img
+                        src={imageUrls[index]}
+                        // src={file}
+                        alt={`uploaded-img-${index}`}
+                        className={cn(
+                          " h-auto bg-[#0f1419bf] shrike-0 hover:bg-[#272c30bf] object-cover ",
+                          typeof file.progress === "number" &&
+                            "opacity-10 rounded-full blur-lg "
+                        )}
+                      />
+
+                      {typeof file.progress === "number" && (
+                        <CircleProgress progress={file.progress} />
                       )}
-                    />
+                    </Fragment>
                   );
                 })}
               </div>
@@ -236,8 +243,8 @@ export function MessRight({ message, direction, show }: mess) {
   return (
     <motion.div
       className="  pb-[5px]  p-2  w-full group flex items-center gap-2 justify-end hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out  "
-      initial={{ y: 5, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      // initial={{ y: 5, opacity: 0 }}
+      // animate={{ y: 0, opacity: 1 }}
     >
       <div className="flex flex-col w-full items-end ">
         <div className="flex items-center gap-2 max-w-[calc((100%_/_2)_+_(100%_/_3))]  ">
