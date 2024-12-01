@@ -33,6 +33,7 @@ export default function Messages({
 }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const chatRef = useRef<HTMLDivElement | null>(null);
+  const unReadDiv = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
   const { typingUser } = useSocket();
   useLayoutEffect(() => {
@@ -40,9 +41,20 @@ export default function Messages({
 
     // ذخیره مقدار اولیه chatRef.current
     const chatElement = chatRef.current;
+    const unReadElement = chatRef.current;
 
     if (storedScrollPosition && chatElement) {
       chatElement.scrollTop = parseInt(storedScrollPosition, 10);
+    } else if (storedScrollPosition && unReadElement) {
+      // chatElement?.scrollTo(0, unReadElement?.getBoundingClientRect().top)
+      // unReadElement.scrollIntoView({ behavior: "instant" });
+      const unreadMessageElement = document.getElementById("uuuu");
+      if (unreadMessageElement) {
+        unreadMessageElement.scrollIntoView({
+          behavior: "instant",
+          block: "center",
+        });
+      }
     }
 
     return () => {
@@ -165,6 +177,11 @@ export default function Messages({
               const direction = "ltr";
               const isCurrentUser = message.senderId === currentUser;
               const show = message.statusOU === "SENDING";
+              let unReadMessId = "";
+              if (!unReadMessId) {
+                unReadMessId =
+                  message.status === "SENT" && !isCurrentUser ? message.id : "";
+              }
               return (
                 <div
                   key={message.id}
@@ -185,6 +202,7 @@ export default function Messages({
                       message={message}
                       direction={direction}
                       show={show}
+                      id={unReadMessId}
                     />
                   )}
                 </div>

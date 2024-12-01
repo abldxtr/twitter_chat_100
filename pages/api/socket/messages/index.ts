@@ -79,8 +79,7 @@ export default async function handler(
       //   },
       // });
       let messages = [];
-      const aaa = await db.message.findMany({
-        take: 1,
+      const aaa = await db.message.findFirst({
         where: {
           chatId: chatId as string,
         },
@@ -104,11 +103,67 @@ export default async function handler(
             },
           },
           images: true,
+          chat: true,
         },
         orderBy: {
           createdAt: "desc",
         },
       });
+
+      //   type MessageData = {
+      //     id: string;
+      //     content: string;
+      //     createdAt: Date;
+      //     updatedAt: Date;
+      //     senderId: string;
+      //     receiverId: string;
+      //     chatId: string;
+      //     type: $Enums.MessageType;
+      //     status: $Enums.MessageStatus;
+      //     statusOU?: string | undefined;
+      //     opupId: string;
+      //     images?: FileState[] | undefined;
+      // }
+      const idd = aaa?.id;
+      const contentt = aaa?.content;
+      const createdAtt = aaa?.createdAt;
+      const updatedAtt = aaa?.updatedAt;
+      const senderIdd = aaa?.senderId;
+      const receiverIdd = aaa?.receiverId;
+      const chatIdd = aaa?.chatId;
+      const typee = aaa?.type;
+      const statuss = aaa?.status;
+      // const statusOU = aaa?.st
+      const opupIdd = aaa?.opupId;
+      const imagess = aaa?.images;
+      // const x = aaa?.chatId ?? "";
+      // const xx = aaa?.senderId ?? "";
+      // const xxx = aaa?.receiverId ?? "";
+      // const xxxx = aaa?.status;
+      // const y = aaa?.createdAt ?? "";
+      // const yy = aaa?.type ?? "IMAGE";
+
+      const rr = {
+        id,
+        content,
+        createdAt: createdAtt,
+        updatedAt: updatedAtt,
+        senderId,
+        receiverId,
+        chatIdd,
+        type,
+        opupId: opupIdd,
+        images: imagess,
+        status: statuss,
+      };
+      // data: {
+      //   content: content as string,
+      //   chatId: chatId as string,
+      //   senderId: senderId as string,
+      //   receiverId: receiverId as string,
+      //   status: "SENT",
+      //   type,
+      // },
 
       // const returnM = db.message.findUnique({
       //   where: {
@@ -118,8 +173,12 @@ export default async function handler(
       //     images: true,
       //   },
       // });
+      const channelKey = `chat:${receiverId}:messages`;
+      // const SenderKey = `chat:${senderId}:messages`;
 
-      return res.status(200).json(aaa);
+      res?.socket?.server?.io?.emit(channelKey, rr);
+
+      return res.status(200).json(rr);
     }
 
     if (!content) {

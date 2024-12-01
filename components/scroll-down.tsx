@@ -25,87 +25,9 @@ export type mess = {
 
   direction: "rtl" | "ltr";
   show?: boolean;
+  // send ref to a component in next.js 15
+  id?: string;
 };
-
-export function ScrollDown({
-  goDown,
-  func,
-  unreadCount,
-  chatId,
-  queryKey,
-}: items) {
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-  const { setUnreadCount, unreadMessages, final } = useGlobalContext();
-  const queryClient = useQueryClient();
-  const unreadCount01 =
-    final.find((chat) => Object.keys(chat)[0] === chatId)?.[chatId]?.length ??
-    0;
-
-  // const [optimisticUnreadCount, updateUnreadCount] = useOptimistic(
-  //   unreadCount,
-  //   (state: number, newCount: number) => newCount // نحوه بروزرسانی
-  // );
-  // queryKey: ["messages", userId]
-
-  async function updateAll(chatId: string) {
-    startTransition(async () => {
-      try {
-        // updateUnreadCount(0);
-        const response = await fetch("/api/messages/update-all-status", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ chatId }),
-        });
-        queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
-
-        // return { success: true };
-      } catch (error) {
-        // updateUnreadCount(unreadCount);
-        console.error("Error updating all message status:", error);
-        // return { success: false };
-      }
-    });
-  }
-  return (
-    <>
-      <div
-        className={classNames(
-          " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] z-[99] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
-          "cursor-pointer transiton-all duration-300 ",
-          goDown ? "opacity-100" : "opacity-0 pointer-events-none "
-        )}
-        onClick={() => {
-          updateAll(chatId);
-          func();
-        }}
-      >
-        <div
-          className={classNames(
-            " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 "
-            // optimisticUnreadCount === 0 && "hidden pointer-events-none "
-          )}
-        >
-          {unreadCount01}
-          {/* {unreadMessages.length} */}
-          {/* {optimisticUnreadCount} */}
-        </div>
-
-        <svg
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          className=" fill-[rgb(29,155,240)] shrink-0 size-[24px] "
-        >
-          <g>
-            <path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"></path>
-          </g>
-        </svg>
-      </div>
-    </>
-  );
-}
 
 export function MessRight({ message, direction, show }: mess) {
   const { imgTemp, setImgTemp } = useGlobalContext();
@@ -299,9 +221,10 @@ export function MessRight({ message, direction, show }: mess) {
   );
 }
 
-export function MessLeft({ message, direction, show }: mess) {
+export function MessLeft({ message, direction, show, id }: mess) {
   const { imgTemp, setImgTemp } = useGlobalContext();
   // console.log("message", message);
+  const Id = id ? "uuuu" : "";
 
   function hasKeyRuntime(key: string, obj: object): boolean {
     return key in obj;
@@ -331,6 +254,7 @@ export function MessLeft({ message, direction, show }: mess) {
     return (
       <motion.div
         className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out "
+        id={Id}
         // initial={{ y: 5, opacity: 0 }}
         // animate={{ y: 0, opacity: 1 }}
       >
@@ -435,6 +359,8 @@ export function MessLeft({ message, direction, show }: mess) {
   return (
     <motion.div
       className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 hover:bg-[rgba(66,82,110,0.03)] transition-colors duration-200 ease-out "
+      id={Id}
+
       // initial={{ y: 5, opacity: 0 }}
       // animate={{ y: 0, opacity: 1 }}
     >
@@ -563,5 +489,85 @@ export function BackMenue({ func }: { func: () => void }) {
         </g>
       </svg>
     </div>
+  );
+}
+
+export function ScrollDown({
+  goDown,
+  func,
+  unreadCount,
+  chatId,
+  queryKey,
+}: items) {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { setUnreadCount, unreadMessages, final } = useGlobalContext();
+  const queryClient = useQueryClient();
+  const unreadCount01 =
+    final.find((chat) => Object.keys(chat)[0] === chatId)?.[chatId]?.length ??
+    0;
+
+  // const [optimisticUnreadCount, updateUnreadCount] = useOptimistic(
+  //   unreadCount,
+  //   (state: number, newCount: number) => newCount // نحوه بروزرسانی
+  // );
+  // queryKey: ["messages", userId]
+
+  async function updateAll(chatId: string) {
+    startTransition(async () => {
+      try {
+        // updateUnreadCount(0);
+        const response = await fetch("/api/messages/update-all-status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ chatId }),
+        });
+        queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
+
+        // return { success: true };
+      } catch (error) {
+        // updateUnreadCount(unreadCount);
+        console.error("Error updating all message status:", error);
+        // return { success: false };
+      }
+    });
+  }
+  return (
+    <>
+      <div
+        className={classNames(
+          " absolute bottom-6 right-8 flex items-center justify-center min-w-[36px] z-[99] min-h-[36px] rounded-full bg-white border-transparent  px-[16px] [box-shadow:rgb(101_119_134_/_20%)_0px_0px_8px,_rgb(101_119_134_/_25%)_0px_1px_3px_1px]   ",
+          "cursor-pointer transiton-all duration-300 ",
+          goDown ? "opacity-100" : "opacity-0 pointer-events-none "
+        )}
+        onClick={() => {
+          updateAll(chatId);
+          func();
+        }}
+      >
+        <div
+          className={classNames(
+            " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 "
+            // optimisticUnreadCount === 0 && "hidden pointer-events-none "
+          )}
+        >
+          {unreadCount01}
+          {/* {unreadMessages.length} */}
+          {/* {optimisticUnreadCount} */}
+        </div>
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className=" fill-[rgb(29,155,240)] shrink-0 size-[24px] "
+        >
+          <g>
+            <path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"></path>
+          </g>
+        </svg>
+      </div>
+    </>
   );
 }
