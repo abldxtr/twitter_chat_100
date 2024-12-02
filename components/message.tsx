@@ -15,7 +15,7 @@ import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
 import { Loader2 } from "lucide-react";
 import { formatMessageDate } from "@/lib/utils";
-import { MessLeft, MessRight, ScrollDown, TypingLeft } from "./scroll-down";
+import ChatMessage, { ScrollDown, TypingLeft } from "./scroll-down";
 import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
 import { useGlobalContext } from "@/context/globalContext";
@@ -99,7 +99,15 @@ export default function Messages({
       paramValue,
       currentUser,
     });
-  useChatSocket({ queryKey, addKey, typeKey, updateKey, stoptypekey, userId });
+  useChatSocket({
+    queryKey,
+    addKey,
+    typeKey,
+    updateKey,
+    stoptypekey,
+    userId,
+    chatId: paramValue,
+  });
   const { unreadCount } = useChatScroll({
     chatRef,
     bottomRef,
@@ -136,20 +144,20 @@ export default function Messages({
     });
   }, []);
 
-  if (status === "pending") {
-    return (
-      <div className=" w-full h-full flex justify-center my-2 ">
-        <Loader2 className="size-8 text-zinc-500 animate-spin " />
-      </div>
-    );
-  }
+  // if (status === "pending") {
+  //   return (
+  //     <div className=" w-full h-full flex justify-center my-2 ">
+  //       <Loader2 className="size-8 text-zinc-500 animate-spin " />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className=" flex-1 overflow-hidden relative isolate ">
       <ScrollDown
         goDown={goDown}
         func={HandleScrollDown}
-        unreadCount={unreadCount}
+        // unreadCount={unreadCount}
         // unreadCount={optimisticMessages.length}
         chatId={paramValue}
         queryKey={queryKey}
@@ -186,25 +194,16 @@ export default function Messages({
                 <div
                   key={message.id}
                   id={message.id}
-                  className=" message-item"
+                  className=" message-item isolate"
                   data-status={message.status}
                   data-user={isCurrentUser.toString()}
                   data-chat-id={message.chatId}
                 >
-                  {isCurrentUser ? (
-                    <MessRight
-                      message={message}
-                      direction={direction}
-                      show={show}
-                    />
-                  ) : (
-                    <MessLeft
-                      message={message}
-                      direction={direction}
-                      show={show}
-                      id={unReadMessId}
-                    />
-                  )}
+                  <ChatMessage
+                    key={message.id}
+                    message={message}
+                    isCurrentUser={message.senderId === currentUser}
+                  />
                 </div>
               );
             })}

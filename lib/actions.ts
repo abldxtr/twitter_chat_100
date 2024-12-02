@@ -9,7 +9,7 @@ import { RegisterSchema, LoginSchema } from "@/index";
 import { getUserByEmail } from "@/data/user";
 import { auth, signIn } from "@/auth";
 import { PrismaClient } from "@prisma/client";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const prisma = new PrismaClient();
 
@@ -110,6 +110,13 @@ export async function createChat({
   if (!senderId || !receiverId) {
     throw new Error("Missing required fields");
   }
+
+  // find user
+  // const isExist = db.user.findFirst({
+  //   where:{
+  //     id:
+  //   }
+  // })
 
   // Find or create a chat between the sender and receiver
   const chat = await db.chat.upsert({
@@ -243,3 +250,87 @@ export async function updateMessageReadStatus(messageId: string) {
 //     // throw error;
 //   }
 // }
+
+export async function createChatFromId({ userId }: { userId: string }) {
+  const user = await auth();
+
+  if (!user) {
+    return {
+      success: false,
+      message: "there is a problem with auth",
+    };
+  }
+
+  if (!userId) {
+    return {
+      success: false,
+      message: "Missing required fields",
+    };
+  }
+
+  // find user
+  const isExist = db.user.findFirst({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!isExist) {
+    return {
+      success: false,
+      message: "the user doens't exist",
+    };
+  }
+
+  // Find or create a chat between the sender and receiver
+  const chat = await db.chat.findFirst({
+    where: {
+      OR: [
+        {
+          initiatorId: userId,
+          participantId: user.user.id!,
+        },
+        {
+          initiatorId: user.user.id!,
+          participantId: userId,
+        },
+      ],
+    },
+  });
+
+  if (!chat) {
+    const newChat = await db.chat.create({
+      data: {
+        initiatorId: userId,
+        participantId: user.user.id!,
+      },
+    });
+    revalidatePath("/", "layout");
+
+    return {
+      success: true,
+      message: `${newChat.id}`,
+    };
+  } else {
+    revalidatePath("/", "layout");
+
+    return {
+      success: true,
+      message: `${chat.id}`,
+    };
+  }
+
+  // Create the message
+  //   const message = await prisma.message.create({
+  //     data: {
+  //       content,
+  //       senderId: senderId,
+  //       receiverId: receiverId,
+  //       chatId: chat.id,
+  //       status: "SENT",
+  //       type: "TEXT",
+  //     },
+  //   });
+
+  //   return message;
+}

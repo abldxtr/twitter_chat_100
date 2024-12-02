@@ -1,10 +1,15 @@
+import { useCallback, useEffect, useRef } from "react";
+import {
+  useInfiniteQuery,
+  useQueryClient,
+  useMutation,
+} from "@tanstack/react-query";
 import qs from "query-string";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "@/provider/socket-provider";
-import { MessageData } from "@/lib/definitions";
-import { useEffect, useTransition } from "react";
-import { FileState, useGlobalContext } from "@/context/globalContext";
+import { useGlobalContext } from "@/context/globalContext";
 import { useEdgeStore } from "@/lib/edgestore";
+import { MessageData, FileState } from "@/lib/definitions";
+
 interface ChatQueryProps {
   queryKey: string;
   apiUrl: string;
@@ -12,6 +17,7 @@ interface ChatQueryProps {
   paramValue: string;
   currentUser: string;
 }
+
 interface MessagesResponse {
   items: MessageData[];
   nextCursor: string | null;
@@ -25,31 +31,12 @@ export const useChatQuery = ({
   currentUser,
 }: ChatQueryProps) => {
   const { isConnected } = useSocket();
-  const { setUnreadMessages, final, setFinal } = useGlobalContext();
-  const [_, startTransition] = useTransition();
+  const { setUnreadMessages, setFinal, setImgTemp } = useGlobalContext();
   const queryClient = useQueryClient();
   const { edgestore } = useEdgeStore();
-  const { setImgTemp } = useGlobalContext();
-  function updateFileProgress(key: string, progress: FileState["progress"]) {
-    setImgTemp((fileStates) => {
-      const newFileStates = structuredClone(fileStates);
-      const fileState = newFileStates.find(
-        (fileState) => fileState.key === key
-      );
-      if (fileState) {
-        fileState.progress = progress;
-      }
-      return newFileStates;
-    });
-  }
+  const uploadProgressRef = useRef<{ [key: string]: number }>({});
 
-  // const isConnected = false;
-
-  const fetchMessages = async ({
-    pageParam = undefined,
-  }: {
-    pageParam?: string;
-  }) => {
+  const fetchMessages = async ({ pageParam = undefined }) => {
     const url = qs.stringifyUrl(
       {
         url: apiUrl,
@@ -69,70 +56,51 @@ export const useChatQuery = ({
     useInfiniteQuery({
       queryKey: [queryKey],
       queryFn: fetchMessages,
-      getNextPageParam: (lastPage) => {
-        // console.log("lastPage", lastPage);
-
-        return lastPage?.nextCursor;
-      },
-      // refetchInterval: isConnected ? false : 10000,
+      getNextPageParam: (lastPage) => lastPage?.nextCursor,
       initialPageParam: undefined,
     });
-  //////////////////////////////////////
 
-  // Optimistic Update برای ارسال پیام جدید
-  const sendMessage = async (newMessage: any) => {
-    console.log("newMessagesendmessaage", newMessage);
-    queryClient.setQueryData([`${queryKey}`], (oldData: any) => {
-      console.log("oldData", oldData);
-      // console.log("[queryKey]", [queryKey]);
+  const updateFileProgress = useCallback(
+    (key: string, progress: number) => {
+      uploadProgressRef.current[key] = progress;
+      setImgTemp((prevState) =>
+        prevState.map((fileState) =>
+          fileState.key === key ? { ...fileState, progress } : fileState
+        )
+      );
+    },
+    [setImgTemp]
+  );
 
-      return {
-        ...oldData,
-        pages: oldData.pages.map((page: any, index: number) => {
-          if (index === 0) {
-            return {
-              ...page,
-              items: [{ ...newMessage, statusOU: "SENDING" }, ...page.items],
-            };
-          }
-          return page;
-        }),
-      };
-    });
-    const sendDatat = "/api/socket/messages";
-    const { chatId, senderId, receiverId, content, type, images } = newMessage;
+  const sendMessageMutation = useMutation({
+    mutationFn: async (newMessage: any) => {
+      const { chatId, senderId, receiverId, content, type, images } =
+        newMessage;
+      let urls: string[] = [];
 
-    let urls = [""];
+      if (images && images.length > 0) {
+        const uploadPromises = images.map((file: FileState) =>
+          edgestore.publicFiles.upload({
+            file: file.file as File,
+            onProgressChange: (progress) => {
+              updateFileProgress(file.key, progress);
+            },
+          })
+        );
 
-    if (images) {
-      const uploadPromises = images.map((file: any) =>
-        edgestore.publicFiles.upload({
-          file: file.file as File,
-          onProgressChange: (progress) => {
-            updateFileProgress(file.key, progress); // بروزرسانی درصد پیشرفت
-          },
-        })
+        const uploadedFiles = await Promise.all(uploadPromises);
+        urls = uploadedFiles.map((file) => file.url);
+      }
+
+      const sendDataUrl = qs.stringifyUrl(
+        {
+          url: "/api/socket/messages",
+          query: { [paramKey]: paramValue },
+        },
+        { skipNull: true }
       );
 
-      const uploadedFiles = await Promise.all(uploadPromises);
-      urls = uploadedFiles.map((file) => file.url);
-      console.log("urls if", urls);
-    }
-    console.log("urls", urls);
-
-    const url = qs.stringifyUrl(
-      {
-        url: sendDatat,
-        query: {
-          [paramKey]: paramValue,
-        },
-      },
-      { skipNull: true }
-    );
-
-    try {
-      // پیام به سرور ارسال می‌شود
-      const res = await fetch(url, {
+      const res = await fetch(sendDataUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -144,72 +112,51 @@ export const useChatQuery = ({
           urls,
         }),
       });
-      const savedMessage = await res.json();
-      // opupId: crypto.randomUUID(),
-      const a = [`${queryKey}`];
-      console.log("queryKeyaaaa", a);
-      setImgTemp([]);
-      if (type === "TEXT") {
-        queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
-      } else {
-        queryClient.setQueryData([`${queryKey}`], (oldData: any) => {
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page: any) => {
-              return {
-                ...page,
-                items: page.items.map((message: MessageData) =>
-                  message.opupId === newMessage.opupId
-                    ? { ...message, statusOU: "SUCCESS" }
-                    : message
-                ),
-              };
-            }),
-          };
-        });
-        startTransition(async () => {
-          queryClient.invalidateQueries({ queryKey: [`${queryKey}`] });
-        });
+
+      if (!res.ok) {
+        throw new Error("Failed to send message");
       }
 
-      // queryClient.invalidateQueries({
-      //   queryKey: ["chat:cm3z5gifo000210g5xz9iw5yj"],
-      // });
-
-      // پیام ذخیره‌شده جایگزین پیام موقت می‌شود
-    } catch (err) {
-      console.error("Error sending message:", err);
-
-      // پیام موقت حذف می‌شود
-      queryClient.setQueryData([queryKey], (oldData: any) => {
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page: any) => {
-            return {
-              ...page,
-              items: page.items.filter(
-                (message: MessageData) => message.id !== newMessage.id
-              ),
-            };
-          }),
-        };
-      });
-    }
-  };
-
-  ///////////////////////////////////////////
+      return res.json();
+    },
+    onMutate: (newMessage) => {
+      queryClient.setQueryData([queryKey], (oldData: any) => ({
+        ...oldData,
+        pages: oldData.pages.map((page: any, index: number) =>
+          index === 0
+            ? {
+                ...page,
+                items: [{ ...newMessage, statusOU: "SENDING" }, ...page.items],
+              }
+            : page
+        ),
+      }));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      setImgTemp([]);
+    },
+    onError: (error, newMessage) => {
+      console.error("Error sending message:", error);
+      queryClient.setQueryData([queryKey], (oldData: any) => ({
+        ...oldData,
+        pages: oldData.pages.map((page: any) => ({
+          ...page,
+          items: page.items.filter(
+            (message: MessageData) => message.id !== newMessage.id
+          ),
+        })),
+      }));
+    },
+  });
 
   useEffect(() => {
     if (data?.pages[0]?.items) {
-      const newUnreadCount = data.pages[0].items.filter(
-        (message) =>
-          message.senderId !== currentUser && message.status !== "READ"
-      );
       const newUnreadMessages = data.pages[0].items.filter(
         (message) =>
           message.receiverId === currentUser && message.status === "SENT"
       );
-      setUnreadMessages(newUnreadCount);
+      setUnreadMessages(newUnreadMessages);
       setFinal((prevFinal) => {
         const chatIndex = prevFinal.findIndex(
           (chat) => Object.keys(chat)[0] === paramValue
@@ -223,7 +170,7 @@ export const useChatQuery = ({
         }
       });
     }
-  }, [data, currentUser]);
+  }, [data, currentUser, paramValue, setUnreadMessages, setFinal]);
 
   return {
     data,
@@ -231,6 +178,7 @@ export const useChatQuery = ({
     hasNextPage,
     isFetchingNextPage,
     status,
-    sendMessage,
+    sendMessage: sendMessageMutation.mutate,
+    isLoading: sendMessageMutation.isPending,
   };
 };

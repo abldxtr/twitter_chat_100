@@ -48,6 +48,8 @@ interface CounterContextType {
   setImgTemp: React.Dispatch<React.SetStateAction<FileState[]>>;
   isShowImgTemp: boolean;
   setIsShowImgTemp: React.Dispatch<React.SetStateAction<boolean>>;
+  openChatCreate: boolean;
+  setOpenChatCreate: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const GlobalContext = createContext<CounterContextType | undefined>(undefined);
@@ -62,6 +64,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [chatIdActive, setChatIdActive] = useState<userList | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isShowImgTemp, setIsShowImgTemp] = useState<boolean>(true);
+  const [openChatCreate, setOpenChatCreate] = useState<boolean>(false);
 
   const [unreadCountMenue, setUnreadCountMenue] = useState<
     { id: string; count: number }[]
@@ -104,6 +107,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
         setImgTemp,
         isShowImgTemp,
         setIsShowImgTemp,
+        openChatCreate,
+        setOpenChatCreate,
       }}
     >
       {children}
