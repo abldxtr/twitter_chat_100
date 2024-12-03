@@ -1,6 +1,7 @@
 import { useGlobalContext } from "@/context/globalContext";
 import { updateLastSeen } from "@/lib/actions";
 import { MessageData, user } from "@/lib/definitions";
+import { useSocket } from "@/provider/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
@@ -23,6 +24,7 @@ type ChatScrollProps = {
   setGoDown: Dispatch<SetStateAction<boolean>>;
   first: user | undefined;
   queryKey: string;
+  other: string;
 };
 
 export const useChatScroll = ({
@@ -33,12 +35,15 @@ export const useChatScroll = ({
   setGoDown,
   first,
   queryKey,
+  other,
 }: ChatScrollProps) => {
   // const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
   // console.log("queryClient", queryClient);
   const { unreadCount, unreadMessages, setUnreadMessages, setFinal, final } =
     useGlobalContext();
+  const { socket } = useSocket();
+  console.log("socket", socket);
 
   const seenMessagesRef = useRef<Set<string>>(new Set());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,6 +58,8 @@ export const useChatScroll = ({
         body: JSON.stringify({ messageIds }),
       });
       queryClient.invalidateQueries({ queryKey: [queryKey] });
+      socket.io.emit(`${other}:update`);
+      console.log("other:update", `${other}:update`);
 
       if (!response.ok) {
         throw new Error("Failed to update message status");

@@ -113,7 +113,7 @@ const MessageFooter: React.FC<{
           </g>
           <defs>
             <clipPath id="clip0">
-              <rect width="12" height="7" fill="white"></rect>
+              <rect width="12" height="7" fill="#04CC83"></rect>
             </clipPath>
           </defs>
         </svg>

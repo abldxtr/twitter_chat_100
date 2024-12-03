@@ -3,6 +3,7 @@ import {
   useInfiniteQuery,
   useQueryClient,
   useMutation,
+  QueryFunction,
 } from "@tanstack/react-query";
 import qs from "query-string";
 import { useSocket } from "@/provider/socket-provider";
@@ -37,29 +38,45 @@ export const useChatQuery = ({
   const { edgestore } = useEdgeStore();
   const uploadProgressRef = useRef<{ [key: string]: number }>({});
 
-  const fetchMessages = async ({ pageParam = undefined }) => {
-    const url = qs.stringifyUrl(
-      {
-        url: apiUrl,
-        query: {
-          cursor: pageParam,
-          [paramKey]: paramValue,
+  const fetchMessages: QueryFunction<
+    MessagesResponse,
+    string[],
+    string | undefined
+  > = useCallback(
+    async ({ pageParam }) => {
+      const url = qs.stringifyUrl(
+        {
+          url: apiUrl,
+          query: {
+            cursor: pageParam,
+            [paramKey]: paramValue,
+          },
         },
-      },
-      { skipNull: true }
-    );
+        { skipNull: true }
+      );
 
-    const res = await fetch(url);
-    return res.json() as Promise<MessagesResponse>;
-  };
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error("Failed to fetch messages");
+      }
+      return res.json();
+    },
+    [apiUrl, paramKey, paramValue]
+  );
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useInfiniteQuery({
-      queryKey: [queryKey],
-      queryFn: fetchMessages,
-      getNextPageParam: (lastPage) => lastPage?.nextCursor,
-      initialPageParam: undefined,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: [queryKey],
+    queryFn: fetchMessages,
+    getNextPageParam: (lastPage) => lastPage?.nextCursor,
+    initialPageParam: undefined,
+  });
 
   const updateFileProgress = useCallback(
     (key: string, progress: number) => {

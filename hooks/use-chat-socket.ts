@@ -69,6 +69,12 @@ export const useChatSocket = ({
 
         if (existingChatIndex !== -1) {
           const updatedFinal = [...prevFinal];
+          const isHas = updatedFinal[existingChatIndex][0]?.every(
+            (item) => item.id === message.id
+          );
+          if (isHas) {
+            return updatedFinal;
+          }
           const chatId = Object.keys(updatedFinal[existingChatIndex])[0];
           updatedFinal[existingChatIndex] = {
             [chatId]: [...updatedFinal[existingChatIndex][chatId], message],
@@ -108,6 +114,11 @@ export const useChatSocket = ({
         });
       }
       // queryClient.invalidateQueries({ queryKey: ["userList"] });
+    });
+
+    socket.on(`${userId}:update`, () => {
+      console.log("userId:update", `${userId}:update`);
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
     });
 
     socket.on(

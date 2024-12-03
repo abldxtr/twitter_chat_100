@@ -117,6 +117,7 @@ export default function Messages({
     setGoDown: setGoDown,
     first: first,
     queryKey,
+    other: Other,
   });
 
   const groupMessagesByDate = (
