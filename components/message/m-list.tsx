@@ -32,9 +32,13 @@ export default function UserList({ user }: { user: userList }) {
     chatIdActive,
     setChatIdActive,
     unreadCountMenue,
+    final,
   } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
   const { isConnected } = useSocket();
+  const unReadMess =
+    final.find((obj) => Object.keys(obj)[0] === user.id)?.[user.id]?.length ??
+    0;
 
   const currentUser = useSession();
 
@@ -70,7 +74,7 @@ export default function UserList({ user }: { user: userList }) {
           )}
         >
           {/* {count} */}
-          {user.unReadMess}
+          {unReadMess}
         </div>
         <div className="mr-[16px] flex relative size-[50px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">
           <Image

@@ -143,6 +143,7 @@ export type usr = {
     chatId: string;
     type: $Enums.MessageType;
     updatedAt: Date;
+    opupId: string;
   }[];
 };
 

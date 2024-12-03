@@ -52,6 +52,8 @@ export const useChatScroll = ({
         },
         body: JSON.stringify({ messageIds }),
       });
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+
       if (!response.ok) {
         throw new Error("Failed to update message status");
       }

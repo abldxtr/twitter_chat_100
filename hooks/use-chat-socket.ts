@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { User, Message, Chat } from "@prisma/client";
 import { useSocket } from "@/provider/socket-provider";
 import { MessageData } from "@/lib/definitions";
+import { useGlobalContext } from "@/context/globalContext";
 
 type ChatSocketProps = {
   addKey: string;
@@ -25,40 +26,62 @@ export const useChatSocket = ({
 }: ChatSocketProps) => {
   const { socket, setTypingUser, typingUser } = useSocket();
   const queryClient = useQueryClient();
+  const { final, setFinal } = useGlobalContext();
 
   useEffect(() => {
     if (!socket) {
       return;
     }
 
-    socket.on(addKey, (message: MessageData) => {
-      queryClient.setQueryData([queryKey], (oldData: any) => {
-        if (!oldData || !oldData.pages || oldData.pages.length === 0) {
-          return {
-            pages: [
-              {
-                items: [message],
-              },
-            ],
-          };
-        }
+    // socket.on(addKey, (message: MessageData) => {
+    //   queryClient.setQueryData([queryKey], (oldData: any) => {
+    //     if (!oldData || !oldData.pages || oldData.pages.length === 0) {
+    //       return {
+    //         pages: [
+    //           {
+    //             items: [message],
+    //           },
+    //         ],
+    //       };
+    //     }
 
-        const newData = [...oldData.pages];
+    //     const newData = [...oldData.pages];
 
-        newData[0] = {
-          ...newData[0],
-          items: [message, ...newData[0].items],
-        };
+    //     newData[0] = {
+    //       ...newData[0],
+    //       items: [message, ...newData[0].items],
+    //     };
 
-        return {
-          ...oldData,
-          pages: newData,
-        };
-      });
-      // queryClient.invalidateQueries({ queryKey: ["userList"] });
-    });
+    //     return {
+    //       ...oldData,
+    //       pages: newData,
+    //     };
+    //   });
+    //   // queryClient.invalidateQueries({ queryKey: ["userList"] });
+    // });
 
     socket.on(userId, (message: MessageData) => {
+      console.log("fanl userId sec", final);
+      setFinal((prevFinal) => {
+        const existingChatIndex = prevFinal.findIndex(
+          (item) => Object.keys(item)[0] === message.chatId
+        );
+
+        if (existingChatIndex !== -1) {
+          const updatedFinal = [...prevFinal];
+          const chatId = Object.keys(updatedFinal[existingChatIndex])[0];
+          updatedFinal[existingChatIndex] = {
+            [chatId]: [...updatedFinal[existingChatIndex][chatId], message],
+          };
+          return updatedFinal;
+        } else {
+          return [...prevFinal, { [message.chatId]: [message] }];
+        }
+      });
+      console.log("fanl userId sec", final);
+
+      queryClient.invalidateQueries({ queryKey: ["userList"] });
+
       if (message.chatId === chatId) {
         queryClient.setQueryData([queryKey], (oldData: any) => {
           if (!oldData || !oldData.pages || oldData.pages.length === 0) {

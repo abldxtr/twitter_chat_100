@@ -8,7 +8,8 @@ import qs from "query-string";
 import { useSocket } from "@/provider/socket-provider";
 import { useGlobalContext } from "@/context/globalContext";
 import { useEdgeStore } from "@/lib/edgestore";
-import { MessageData, FileState } from "@/lib/definitions";
+import { MessageData } from "@/lib/definitions";
+import { FileState } from "@/context/globalContext";
 
 interface ChatQueryProps {
   queryKey: string;

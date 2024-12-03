@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, startTransition } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { formatPersianDate, cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 interface ChatMessageProps {
   message: MessageData;
@@ -104,7 +105,7 @@ const MessageFooter: React.FC<{
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g clip-path="url(#clip0)">
+          <g clipPath="url(#clip0)">
             <path
               d="M11.6381 0.371138C11.4351 0.166704 11.1044 0.16702 10.9018 0.371841L5.84865 5.48024C5.82537 5.50377 5.78736 5.50379 5.76406 5.48028L4.01688 3.71737C3.81421 3.51288 3.48365 3.513 3.28113 3.71765C3.08155 3.91933 3.08148 4.24408 3.28098 4.44585L5.31611 6.50414C5.58571 6.7768 6.02606 6.77681 6.29568 6.50417L11.6389 1.10086C11.8389 0.89861 11.8386 0.572974 11.6381 0.371138Z"
               fill="#FFFFFF"
@@ -239,6 +240,7 @@ export function ScrollDown({
   const { setUnreadCount, unreadMessages, final } = useGlobalContext();
   const queryClient = useQueryClient();
 
+  const router = useRouter();
   const { data: unreadCount } = useQuery({
     queryKey: ["unreadCount", chatId],
     queryFn: () =>
@@ -262,8 +264,12 @@ export function ScrollDown({
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount", chatId] });
+      startTransition(async () => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+        router.refresh();
+      });
+
+      // queryClient.invalidateQueries({ queryKey: ["unreadCount", chatId] });
     },
     onError: (error) => {
       console.error("Error updating all message status:", error);

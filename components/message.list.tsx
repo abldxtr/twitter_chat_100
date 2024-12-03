@@ -58,31 +58,31 @@ export default function Message_list({
 
   useEffect(() => {
     if (data) {
-      // const finalData = data.reduce((acc, chat: usr) => {
-      //   const unreadMessages = chat.messages.filter(
-      //     (message) =>
-      //       message.receiverId === userId && message.status === "SENT"
-      //   );
-      //   const existingChat = final.find(
-      //     (item) => Object.keys(item)[0] === chat.id
-      //   );
-      //   const existingUnreadMessages = existingChat
-      //     ? existingChat[chat.id]
-      //     : [];
-      //   const updatedUnreadMessages = [
-      //     ...existingUnreadMessages,
-      //     ...unreadMessages.filter(
-      //       (newMsg) =>
-      //         !existingUnreadMessages.some(
-      //           (existingMsg) => existingMsg.id === newMsg.id
-      //         )
-      //     ),
-      //   ];
-      //   acc.push({ [chat.id]: updatedUnreadMessages });
-      //   return acc;
-      // }, [] as { [key: string]: MessageData[] }[]);
-      // console.log("finalData", finalData);
-      // setFinal(finalData);
+      const finalData = data.reduce((acc, chat: usr) => {
+        const unreadMessages = chat.messages.filter(
+          (message) =>
+            message.receiverId === userId && message.status === "SENT"
+        );
+        const existingChat = final.find(
+          (item) => Object.keys(item)[0] === chat.id
+        );
+        const existingUnreadMessages = existingChat
+          ? existingChat[chat.id]
+          : [];
+        const updatedUnreadMessages = [
+          ...existingUnreadMessages,
+          ...unreadMessages.filter(
+            (newMsg) =>
+              !existingUnreadMessages.some(
+                (existingMsg) => existingMsg.id === newMsg.id
+              )
+          ),
+        ];
+        acc.push({ [chat.id]: updatedUnreadMessages });
+        return acc;
+      }, [] as { [key: string]: MessageData[] }[]);
+      console.log("finalData", finalData);
+      setFinal(finalData);
     }
   }, [data, setUnreadCountMenue, change, userId]);
 
