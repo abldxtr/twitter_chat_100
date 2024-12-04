@@ -93,7 +93,7 @@ export default function Message_list({
   useLayoutEffect(() => {
     if (matches) {
       setMobileMenue(true);
-    } else if (!matches && mobileMenue && param !== undefined) {
+    } else if (!matches && mobileMenue) {
       setMobileMenue(false);
     }
   }, [matches]);

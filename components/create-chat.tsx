@@ -11,7 +11,6 @@ import { useOnClickOutside } from "usehooks-ts";
 import { BeatLoader } from "react-spinners";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 
-
 export function CreateChat() {
   const { openChatCreate, setOpenChatCreate } = useGlobalContext();
 
@@ -19,7 +18,6 @@ export function CreateChat() {
   const router = useRouter();
   const ref = useRef<HTMLDivElement | null>(null);
   const queryClient = useQueryClient();
-
 
   const handleClickOutside = () => {
     // Your custom logic here
@@ -34,8 +32,8 @@ export function CreateChat() {
       const { success, message } = await createChatFromId({ userId });
 
       if (success) {
+        queryClient.invalidateQueries({ queryKey: ["userList"] });
         setOpenChatCreate(false);
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
 
         router.push(message);
       } else {

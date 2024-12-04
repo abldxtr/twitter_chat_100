@@ -47,7 +47,7 @@ export const useChatScroll = ({
         },
         body: JSON.stringify({ messageIds }),
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to update message status");
       }
@@ -63,15 +63,18 @@ export const useChatScroll = ({
     },
   });
 
-  const updateMessageStatus = useCallback((messageIds: string[]) => {
-    updateMessageStatusMutation.mutate(messageIds, {
-      onSuccess: () => {
-        setUnreadMessages((prev) =>
-          prev.filter((item) => !messageIds.includes(item.id))
-        );
-      },
-    });
-  }, [updateMessageStatusMutation, setUnreadMessages]);
+  const updateMessageStatus = useCallback(
+    (messageIds: string[]) => {
+      updateMessageStatusMutation.mutate(messageIds, {
+        onSuccess: () => {
+          setUnreadMessages((prev) =>
+            prev.filter((item) => !messageIds.includes(item.id))
+          );
+        },
+      });
+    },
+    [updateMessageStatusMutation, setUnreadMessages]
+  );
 
   const scheduleUpdate = useCallback(() => {
     if (timerRef.current) {
@@ -89,7 +92,7 @@ export const useChatScroll = ({
   const markMessageAsSeen = useCallback(
     (messageId: string, chatId: string) => {
       seenMessagesRef.current.add(messageId);
-      setUnreadMessages((prev) => prev.filter((item) => item.id !== messageId));
+      // setUnreadMessages((prev) => prev.filter((item) => item.id !== messageId));
       setFinal((prevFinal) =>
         prevFinal
           .map((chatObj) => {
@@ -105,7 +108,7 @@ export const useChatScroll = ({
       );
       scheduleUpdate();
     },
-    [scheduleUpdate, setUnreadMessages, setFinal]
+    [scheduleUpdate, setFinal]
   );
 
   useEffect(() => {
@@ -116,7 +119,8 @@ export const useChatScroll = ({
           if (entry.isIntersecting) {
             const messageId = entry.target.id;
             const messageStatus = entry.target.getAttribute("data-status");
-            const currentUser = entry.target.getAttribute("data-user") === "true";
+            const currentUser =
+              entry.target.getAttribute("data-user") === "true";
             const chatId = entry.target.getAttribute("data-chat-id");
 
             if (messageStatus === "SENT" && !currentUser && chatId) {

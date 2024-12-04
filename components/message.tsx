@@ -108,7 +108,7 @@ export default function Messages({
     userId,
     chatId: paramValue,
   });
-  const { unreadCount } = useChatScroll({
+  const {} = useChatScroll({
     chatRef,
     bottomRef,
     loadMore: fetchNextPage,
@@ -145,13 +145,13 @@ export default function Messages({
     });
   }, []);
 
-  // if (status === "pending") {
-  //   return (
-  //     <div className=" w-full h-full flex justify-center my-2 ">
-  //       <Loader2 className="size-8 text-zinc-500 animate-spin " />
-  //     </div>
-  //   );
-  // }
+  if (status === "pending") {
+    return (
+      <div className=" w-full h-full flex justify-center my-2 ">
+        <Loader2 className="size-8 text-zinc-500 animate-spin " />
+      </div>
+    );
+  }
 
   return (
     <div className=" flex-1 overflow-hidden relative isolate ">
@@ -169,12 +169,12 @@ export default function Messages({
         )}
         ref={chatRef}
       >
-        <AnimatePresence>
-          {typingUser.userId &&
-            typingUser.userId !== currentUser &&
-            Other === typingUser.userId &&
-            typingUser.isTyping && <TypingLeft message="typing..." />}
-        </AnimatePresence>
+        {/* <AnimatePresence> */}
+        {typingUser.userId &&
+          typingUser.userId !== currentUser &&
+          Other === typingUser.userId &&
+          typingUser.isTyping && <TypingLeft message="typing..." />}
+        {/* </AnimatePresence> */}
 
         <div ref={bottomRef} />
         {Object.entries(groupedMessages).map(([date, msgs]) => (
