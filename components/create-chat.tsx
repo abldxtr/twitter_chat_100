@@ -9,6 +9,8 @@ import { useGlobalContext } from "@/context/globalContext";
 import { CirclePlus } from "lucide-react";
 import { useOnClickOutside } from "usehooks-ts";
 import { BeatLoader } from "react-spinners";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+
 
 export function CreateChat() {
   const { openChatCreate, setOpenChatCreate } = useGlobalContext();
@@ -16,6 +18,8 @@ export function CreateChat() {
   const [userId, setUserId] = useState("");
   const router = useRouter();
   const ref = useRef<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
+
 
   const handleClickOutside = () => {
     // Your custom logic here
@@ -31,6 +35,8 @@ export function CreateChat() {
 
       if (success) {
         setOpenChatCreate(false);
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+
         router.push(message);
       } else {
         console.log("there is a problem");
