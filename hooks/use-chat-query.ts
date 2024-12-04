@@ -174,21 +174,32 @@ export const useChatQuery = ({
         (message) =>
           message.receiverId === currentUser && message.status === "SENT"
       );
-      setUnreadMessages(newUnreadMessages);
+  
       setFinal((prevFinal) => {
         const chatIndex = prevFinal.findIndex(
           (chat) => Object.keys(chat)[0] === paramValue
         );
+  
         if (chatIndex !== -1) {
           const updatedFinal = [...prevFinal];
-          updatedFinal[chatIndex] = { [paramValue]: newUnreadMessages };
+          const chatId = Object.keys(updatedFinal[chatIndex])[0];
+          const currentMessages = updatedFinal[chatIndex][chatId];
+          
+          const updatedMessages = newUnreadMessages.reduce((acc, message) => {
+            if (!acc.some(item => item.id === message.id)) {
+              acc.push(message);
+            }
+            return acc;
+          }, [...currentMessages]);
+  
+          updatedFinal[chatIndex] = { [chatId]: updatedMessages };
           return updatedFinal;
         } else {
           return [...prevFinal, { [paramValue]: newUnreadMessages }];
         }
       });
     }
-  }, [data, currentUser, paramValue, setUnreadMessages, setFinal]);
+  }, [data, currentUser, paramValue, setFinal]);
 
   return {
     data,

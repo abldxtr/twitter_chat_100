@@ -1,18 +1,13 @@
 import { useGlobalContext } from "@/context/globalContext";
-import { updateLastSeen } from "@/lib/actions";
 import { MessageData, user } from "@/lib/definitions";
 import { useSocket } from "@/provider/socket-provider";
-import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   Dispatch,
   SetStateAction,
   useCallback,
   useEffect,
-  useOptimistic,
   useRef,
-  useState,
-  useTransition,
 } from "react";
 
 type ChatScrollProps = {
@@ -20,7 +15,6 @@ type ChatScrollProps = {
   bottomRef: React.RefObject<HTMLDivElement>;
   shouldLoadMore: boolean;
   loadMore: () => void;
-  count: number;
   setGoDown: Dispatch<SetStateAction<boolean>>;
   first: user | undefined;
   queryKey: string;
@@ -37,19 +31,15 @@ export const useChatScroll = ({
   queryKey,
   other,
 }: ChatScrollProps) => {
-  // const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
-  // console.log("queryClient", queryClient);
-  const { unreadCount, unreadMessages, setUnreadMessages, setFinal, final } =
-    useGlobalContext();
+  const { setUnreadMessages, setFinal } = useGlobalContext();
   const { socket } = useSocket();
-  console.log("socket", socket);
 
   const seenMessagesRef = useRef<Set<string>>(new Set());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const updateMessageStatus = useCallback(async (messageIds: string[]) => {
-    try {
+  const updateMessageStatusMutation = useMutation({
+    mutationFn: async (messageIds: string[]) => {
       const response = await fetch("/api/messages/update-status", {
         method: "POST",
         headers: {
@@ -57,29 +47,31 @@ export const useChatScroll = ({
         },
         body: JSON.stringify({ messageIds }),
       });
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
-      socket.io.emit(`${other}:update`);
-      console.log("other:update", `${other}:update`);
-
+      
       if (!response.ok) {
         throw new Error("Failed to update message status");
       }
 
-      // Promise.all([
-      //   queryClient.invalidateQueries({
-      //     queryKey: [queryKey],
-      //   }),
-      //   queryClient.invalidateQueries({
-      //     queryKey: ["userList"],
-      //   }),
-      // ]);
-      setUnreadMessages((prev) =>
-        prev.filter((item) => !messageIds.includes(item.id))
-      );
-    } catch (error) {
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      socket.emit(`${other}:update`);
+    },
+    onError: (error) => {
       console.error("Error updating message status:", error);
-    }
-  }, []);
+    },
+  });
+
+  const updateMessageStatus = useCallback((messageIds: string[]) => {
+    updateMessageStatusMutation.mutate(messageIds, {
+      onSuccess: () => {
+        setUnreadMessages((prev) =>
+          prev.filter((item) => !messageIds.includes(item.id))
+        );
+      },
+    });
+  }, [updateMessageStatusMutation, setUnreadMessages]);
 
   const scheduleUpdate = useCallback(() => {
     if (timerRef.current) {
@@ -113,48 +105,36 @@ export const useChatScroll = ({
       );
       scheduleUpdate();
     },
-    [scheduleUpdate]
+    [scheduleUpdate, setUnreadMessages, setFinal]
   );
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const messageId = entry.target.id;
-          const messageStatus = entry.target.getAttribute("data-status");
-          const currentUser = entry.target.getAttribute("data-user") === "true";
-          const chatId = entry.target.getAttribute("data-chat-id");
-
-          if (messageStatus === "SENT" && !currentUser && chatId) {
-            markMessageAsSeen(messageId, chatId);
-          }
-        }
-      });
-    },
-    { threshold: 0.5 }
-  );
-
-  // const messageElements = Array.from(
-  //   document.querySelectorAll(".message-item")
-  // );
-
-  // messageElements.forEach((el) => observer.observe(el));
 
   useEffect(() => {
     const topDiv = chatRef?.current;
-    const messageElements = Array.from(
-      document.querySelectorAll(".message-item")
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const messageId = entry.target.id;
+            const messageStatus = entry.target.getAttribute("data-status");
+            const currentUser = entry.target.getAttribute("data-user") === "true";
+            const chatId = entry.target.getAttribute("data-chat-id");
+
+            if (messageStatus === "SENT" && !currentUser && chatId) {
+              markMessageAsSeen(messageId, chatId);
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
     );
-    messageElements.forEach((el) => observer.observe(el));
 
     const handleScroll = () => {
       if (topDiv) {
         const distanceFromTop =
-          topDiv?.scrollHeight + topDiv.scrollTop - topDiv.clientHeight;
+          topDiv.scrollHeight + topDiv.scrollTop - topDiv.clientHeight;
         const distanceFromBottom = topDiv.scrollTop;
 
-        distanceFromBottom < 0 ? setGoDown(true) : setGoDown(false);
-        // console.log({ distanceFromTop });
-        // console.log({ shouldLoadMore });
+        setGoDown(distanceFromBottom < 0);
 
         if (distanceFromTop < 100 && shouldLoadMore) {
           loadMore();
@@ -162,18 +142,22 @@ export const useChatScroll = ({
       }
     };
 
+    const messageElements = Array.from(
+      document.querySelectorAll(".message-item")
+    );
+    messageElements.forEach((el) => observer.observe(el));
+
     topDiv?.addEventListener("scroll", handleScroll);
 
     return () => {
-      // messageElements.forEach((el) => observer.unobserve(el));
       messageElements.forEach((el) => observer.unobserve(el));
-
       topDiv?.removeEventListener("scroll", handleScroll);
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
+      observer.disconnect();
     };
-  }, [shouldLoadMore, loadMore, chatRef, markMessageAsSeen]);
+  }, [shouldLoadMore, loadMore, chatRef, markMessageAsSeen, setGoDown]);
 
-  return { unreadCount };
+  return { markMessageAsSeen };
 };
