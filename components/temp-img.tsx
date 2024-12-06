@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 export default function TempImg() {
   const { imgTemp, setImgTemp } = useGlobalContext();
-  const { edgestore } = useEdgeStore();
+  // const { edgestore } = useEdgeStore();
 
   const imageUrls = useMemo(() => {
     if (imgTemp) {
@@ -24,7 +24,7 @@ export default function TempImg() {
     return [];
   }, [imgTemp]);
 
-  console.log("imageUrls", imageUrls);
+  // console.log("imageUrls", imageUrls);
 
   // if (!imgTemp) {
   //   return null;

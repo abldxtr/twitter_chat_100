@@ -14,6 +14,8 @@ import { useMessage } from "@/hooks/use-message";
 import classNames from "classnames";
 import { MessageData } from "@/lib/definitions";
 import { CreateChat, CreateChatIcon } from "./create-chat";
+import { useChatSeen } from "@/hooks/user-chat-seen";
+// import { useChatSeen } from "@/hooks/use-chat-seen";
 
 export type users = {
   id: string;
@@ -33,15 +35,29 @@ export default function Message_list({
   current: Session | null;
 }) {
   const userId = first;
+  const param = useParams<{ conversationId: string }>();
   const queryClient = useQueryClient();
+  const queryKey = `chat:${param}`;
+  const matches = useMediaQuery("(min-width: 768px)");
+
+  useLayoutEffect(() => {
+    console.log("param?.conversationId", param?.conversationId);
+    if (matches) {
+      setMobileMenue(true);
+    } else if (!matches && mobileMenue && param?.conversationId !== undefined) {
+      setMobileMenue(false);
+    }
+  }, [matches, param?.conversationId]);
+  const aas = useChatSeen({
+    queryKey,
+  });
 
   const { fetchMessages } = useMessage();
   const { mobileMenue, setMobileMenue, setUnreadCountMenue, final, setFinal } =
     useGlobalContext();
-  const matches = useMediaQuery("(min-width: 768px)");
   const [change, setChange] = useState(false);
   // console.log("final", final);
-  const param = useParams();
+
   // console.log("parammmmmmmmmmm", typeof param.key);
   const { data, isLoading } = useQuery({
     queryKey: ["userList"],
@@ -89,14 +105,6 @@ export default function Message_list({
   // useLayoutEffect(() => {
   //   const value = param.
   // }, []);
-
-  useLayoutEffect(() => {
-    if (matches) {
-      setMobileMenue(true);
-    } else if (!matches && mobileMenue) {
-      setMobileMenue(false);
-    }
-  }, [matches]);
 
   return (
     <>

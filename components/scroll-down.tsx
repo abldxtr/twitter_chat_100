@@ -261,10 +261,10 @@ export function ScrollDown({
       return response.json();
     },
     onSuccess: () => {
-      startTransition(async () => {
-        queryClient.invalidateQueries({ queryKey: [queryKey] });
-        router.refresh();
-      });
+      // startTransition(async () => {
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      // router.refresh();
+      // });
 
       // queryClient.invalidateQueries({ queryKey: ["unreadCount", chatId] });
     },

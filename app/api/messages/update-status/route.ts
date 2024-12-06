@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     });
 
     if (messages.length === 0) {
-      return new NextResponse("No valid messages found", { status: 404 });
+      return new NextResponse("No valid messages found", { status: 200 });
     }
 
     // Update message statuses to "READ"

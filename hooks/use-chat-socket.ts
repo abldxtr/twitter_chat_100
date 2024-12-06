@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { User, Message, Chat } from "@prisma/client";
 import { useSocket } from "@/provider/socket-provider";
@@ -27,66 +27,42 @@ export const useChatSocket = ({
   const { socket, setTypingUser, typingUser } = useSocket();
   const queryClient = useQueryClient();
   const { final, setFinal } = useGlobalContext();
+  const receivedMessagesRef = useRef(new Set<string>());
 
   useEffect(() => {
     if (!socket) {
       return;
     }
 
-    // socket.on(addKey, (message: MessageData) => {
-    //   queryClient.setQueryData([queryKey], (oldData: any) => {
-    //     if (!oldData || !oldData.pages || oldData.pages.length === 0) {
-    //       return {
-    //         pages: [
-    //           {
-    //             items: [message],
-    //           },
-    //         ],
-    //       };
-    //     }
-
-    //     const newData = [...oldData.pages];
-
-    //     newData[0] = {
-    //       ...newData[0],
-    //       items: [message, ...newData[0].items],
-    //     };
-
-    //     return {
-    //       ...oldData,
-    //       pages: newData,
-    //     };
-    //   });
-    //   // queryClient.invalidateQueries({ queryKey: ["userList"] });
-    // });
-
     socket.on(userId, (message: MessageData) => {
-      console.log("fanl userId sec", final);
-      setFinal((prevFinal) => {
-        const existingChatIndex = prevFinal.findIndex(
-          (item) => Object.keys(item)[0] === message.chatId
-        );
+      console.log("fanl userId sec", message);
+      if (receivedMessagesRef.current.has(message.id)) {
+        return;
+      }
+      receivedMessagesRef.current.add(message.id);
+      // setFinal((prevFinal) => {
+      //   const existingChatIndex = prevFinal.findIndex(
+      //     (item) => Object.keys(item)[0] === message.chatId
+      //   );
 
-        if (existingChatIndex !== -1) {
-          const updatedFinal = [...prevFinal];
-          const isHas = updatedFinal[existingChatIndex][0]?.every(
-            (item) => item.id === message.id
-          );
-          if (isHas) {
-            return updatedFinal;
-          }
-          const chatId = Object.keys(updatedFinal[existingChatIndex])[0];
-          updatedFinal[existingChatIndex] = {
-            [chatId]: [...updatedFinal[existingChatIndex][chatId], message],
-          };
-          return updatedFinal;
-        } else {
-          return [...prevFinal, { [message.chatId]: [message] }];
-        }
-      });
-      console.log("fanl userId sec", final);
-
-      queryClient.invalidateQueries({ queryKey: ["userList"] });
+      //   if (existingChatIndex !== -1) {
+      //     const updatedFinal = [...prevFinal];
+      //     const isHas = updatedFinal[existingChatIndex][0]?.every(
+      //       (item) => item.id === message.id
+      //     );
+      //     if (isHas) {
+      //       return updatedFinal;
+      //     }
+      //     const chatId = Object.keys(updatedFinal[existingChatIndex])[0];
+      //     updatedFinal[existingChatIndex] = {
+      //       [chatId]: [...updatedFinal[existingChatIndex][chatId], message],
+      //     };
+      //     return updatedFinal;
+      //   } else {
+      //     return [...prevFinal, { [message.chatId]: [message] }];
+      //   }
+      // });
+      // console.log("fanl userId sec", final);
 
       if (message.chatId === chatId) {
         queryClient.setQueryData([queryKey], (oldData: any) => {
@@ -114,11 +90,14 @@ export const useChatSocket = ({
         });
       }
       // queryClient.invalidateQueries({ queryKey: ["userList"] });
+      // queryClient.invalidateQueries({ queryKey: ["userList"] });
+      console.log("message.chatId", message.chatId);
+      // queryClient.invalidateQueries({ queryKey: [`chat:${message.chatId}`] });
     });
 
-    socket.on(`${userId}:update`, () => {
-      console.log("userId:update", `${userId}:update`);
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
+    socket.on(`${userId}:update`, (data: any) => {
+      console.log("userId:update", `${queryKey}`);
+      // queryClient.invalidateQueries({ queryKey: [data.queryKey] });
     });
 
     socket.on(
@@ -138,9 +117,39 @@ export const useChatSocket = ({
     );
 
     return () => {
-      socket.off(addKey);
+      socket.off(userId);
+
+      // socket.off(addKey);
       socket.off(typeKey);
       socket.off(stoptypekey);
+      socket.off(`${userId}:update`);
     };
-  }, [queryClient, addKey, queryKey, socket, typeKey, stoptypekey]);
+  }, [queryClient, addKey, queryKey, socket, typeKey, stoptypekey, userId]);
 };
+
+// socket.on(addKey, (message: MessageData) => {
+//   queryClient.setQueryData([queryKey], (oldData: any) => {
+//     if (!oldData || !oldData.pages || oldData.pages.length === 0) {
+//       return {
+//         pages: [
+//           {
+//             items: [message],
+//           },
+//         ],
+//       };
+//     }
+
+//     const newData = [...oldData.pages];
+
+//     newData[0] = {
+//       ...newData[0],
+//       items: [message, ...newData[0].items],
+//     };
+
+//     return {
+//       ...oldData,
+//       pages: newData,
+//     };
+//   });
+//   // queryClient.invalidateQueries({ queryKey: ["userList"] });
+// });

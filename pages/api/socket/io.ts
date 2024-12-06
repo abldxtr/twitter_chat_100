@@ -28,6 +28,11 @@ const ioHandler = (req: NextApiRequest, res: any) => {
         // console.log(`${data.userId} stopped typing`);
         io.emit("stoptype", { isTyping: false, userId: data.userId });
       });
+      // socket.emit(`${first?.id}:update`, { other });
+      socket.on("update", (data) => {
+        console.log("updateeeeeee", data);
+        io.emit(`${data.other}:update`, { queryKey: data.queryKey });
+      });
 
       io.on("disconnect", () => {
         console.log("A user disconnected");

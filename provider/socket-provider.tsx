@@ -52,11 +52,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socketInstance.on("connect", () => {
       setIsConnected(true);
+      socketInstance.on("disconnect", () => {
+        setIsConnected(false);
+      });
     });
 
-    socketInstance.on("disconnect", () => {
-      setIsConnected(false);
-    });
 
     setSocket(socketInstance);
 

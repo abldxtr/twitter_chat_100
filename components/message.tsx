@@ -108,16 +108,16 @@ export default function Messages({
     userId,
     chatId: paramValue,
   });
-  const {} = useChatScroll({
+  const aaaa = useChatScroll({
     chatRef,
     bottomRef,
     loadMore: fetchNextPage,
     shouldLoadMore: !isFetchingNextPage && !!hasNextPage,
-    count: data?.pages?.[0]?.items?.length ?? 0,
+    // count: data?.pages?.[0]?.items?.length ?? 0,
     setGoDown: setGoDown,
-    first: first,
-    queryKey,
-    other: Other,
+    // first: first,
+    // queryKey,
+    // other: Other,
   });
 
   const groupMessagesByDate = (
@@ -144,6 +144,7 @@ export default function Messages({
       behavior: "smooth",
     });
   }, []);
+  console.log("aaaaaaaaaaaaaaaaa", groupedMessages);
 
   if (status === "pending") {
     return (

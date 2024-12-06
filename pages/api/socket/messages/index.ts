@@ -128,11 +128,11 @@ export default async function handler(
       const contentt = aaa?.content;
       const createdAtt = aaa?.createdAt;
       const updatedAtt = aaa?.updatedAt;
-      const senderIdd = aaa?.senderId;
+      const senderIdd = aaa?.senderId!;
       const receiverIdd = aaa?.receiverId;
-      const chatIdd = aaa?.chatId;
+      const chatIdd = aaa?.chatId!;
       const typee = aaa?.type;
-      const statuss = aaa?.status;
+      const statuss = aaa?.status!;
       // const statusOU = aaa?.st
       const opupIdd = aaa?.opupId;
       const imagess = aaa?.images;
@@ -146,15 +146,15 @@ export default async function handler(
       const rr = {
         id,
         content,
-        createdAt: createdAtt,
-        updatedAt: updatedAtt,
-        senderId,
-        receiverId,
-        chatIdd,
+        createdAt: createdAtt!,
+        updatedAt: updatedAtt!,
+        senderId: senderIdd,
+        receiverId: receiverIdd,
+        chatId: chatIdd,
         type,
-        opupId: opupIdd,
+        opupId: opupIdd!,
         images: imagess,
-        status: statuss,
+        status: statuss!,
       };
       // data: {
       //   content: content as string,
@@ -174,6 +174,7 @@ export default async function handler(
       //   },
       // });
       const channelKey = `chat:${receiverId}:messages`;
+
       // const SenderKey = `chat:${senderId}:messages`;
 
       res?.socket?.server?.io?.emit(channelKey, rr);

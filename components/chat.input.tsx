@@ -54,7 +54,7 @@ export default function InputChat({
   let queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
 
   const currentUser = first ? first.id : "";
-  const { edgestore } = useEdgeStore();
+  // const { edgestore } = useEdgeStore();
 
   const { sendMessage } = useChatQuery({
     queryKey,
