@@ -14,13 +14,14 @@ import { useChatQuery } from "@/hooks/use-chat-query";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
 import { Loader2 } from "lucide-react";
-import { formatMessageDate } from "@/lib/utils";
+import { cn, formatMessageDate } from "@/lib/utils";
 import ChatMessage, { ScrollDown, TypingLeft } from "./scroll-down";
 import { useSocket } from "@/provider/socket-provider";
 import { AnimatePresence } from "framer-motion";
 import { useGlobalContext } from "@/context/globalContext";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
+import { useChatSeen } from "@/hooks/user-chat-seen";
 
 export default function Messages({
   first,
@@ -90,6 +91,7 @@ export default function Messages({
 
   const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
   const channelKey = `chat:${currentUser}:messages`;
+  const { ref } = useChatSeen({ queryKey, other: Other });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
@@ -144,7 +146,7 @@ export default function Messages({
       behavior: "smooth",
     });
   }, []);
-  console.log("aaaaaaaaaaaaaaaaa", groupedMessages);
+  // console.log("aaaaaaaaaaaaaaaaa", groupedMessages);
 
   if (status === "pending") {
     return (
@@ -179,27 +181,40 @@ export default function Messages({
 
         <div ref={bottomRef} />
         {Object.entries(groupedMessages).map(([date, msgs]) => (
-          <div key={date} className="mb-4">
-            <div className="text-center text-sm text-gray-500 my-2 sticky top-0 rtlDir  w-full flex items-center justify-center  ">
-              <div className="px-2 py-1 bg-gray-100 rounded-full">{date}</div>
+          <div key={date} className="mb-4 isolate ">
+            <div className="text-center text-sm text-gray-500 my-2 sticky top-0 rtlDir z-[200]  w-full flex items-center justify-center  ">
+              <div className="px-2 py-1 bg-gray-100 rounded-full  ">{date}</div>
             </div>
             {msgs.reverse().map((message, index) => {
               const direction = "ltr";
               const isCurrentUser = message.senderId === currentUser;
               const show = message.statusOU === "SENDING";
+              const isss = message.status;
+
               let unReadMessId = "";
               if (!unReadMessId) {
-                unReadMessId =
-                  message.status === "SENT" && !isCurrentUser ? message.id : "";
+                if (unReadMessId.length === 0) {
+                  unReadMessId =
+                    message.status === "SENT" && !isCurrentUser
+                      ? message.id
+                      : "";
+                }
               }
               return (
                 <div
                   key={message.id}
-                  id={message.id}
-                  className=" message-item isolate"
+                  id={unReadMessId ? "uuuu" : message.id}
+                  className={cn(
+                    "  isolate z-[110] ",
+                    message.status === "SENT" &&
+                      !isCurrentUser &&
+                      "message-item"
+                  )}
+                  data-messid={message.id}
                   data-status={message.status}
                   data-user={isCurrentUser.toString()}
                   data-chat-id={message.chatId}
+                  ref={ref}
                 >
                   <ChatMessage
                     key={message.id}

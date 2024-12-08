@@ -40,28 +40,28 @@ export const useChatSocket = ({
         return;
       }
       receivedMessagesRef.current.add(message.id);
-      // setFinal((prevFinal) => {
-      //   const existingChatIndex = prevFinal.findIndex(
-      //     (item) => Object.keys(item)[0] === message.chatId
-      //   );
+      setFinal((prevFinal) => {
+        const existingChatIndex = prevFinal.findIndex(
+          (item) => Object.keys(item)[0] === message.chatId
+        );
 
-      //   if (existingChatIndex !== -1) {
-      //     const updatedFinal = [...prevFinal];
-      //     const isHas = updatedFinal[existingChatIndex][0]?.every(
-      //       (item) => item.id === message.id
-      //     );
-      //     if (isHas) {
-      //       return updatedFinal;
-      //     }
-      //     const chatId = Object.keys(updatedFinal[existingChatIndex])[0];
-      //     updatedFinal[existingChatIndex] = {
-      //       [chatId]: [...updatedFinal[existingChatIndex][chatId], message],
-      //     };
-      //     return updatedFinal;
-      //   } else {
-      //     return [...prevFinal, { [message.chatId]: [message] }];
-      //   }
-      // });
+        if (existingChatIndex !== -1) {
+          const updatedFinal = [...prevFinal];
+          const isHas = updatedFinal[existingChatIndex][0]?.every(
+            (item) => item.id === message.id
+          );
+          if (isHas) {
+            return updatedFinal;
+          }
+          const chatId = Object.keys(updatedFinal[existingChatIndex])[0];
+          updatedFinal[existingChatIndex] = {
+            [chatId]: [...updatedFinal[existingChatIndex][chatId], message],
+          };
+          return updatedFinal;
+        } else {
+          return [...prevFinal, { [message.chatId]: [message] }];
+        }
+      });
       // console.log("fanl userId sec", final);
 
       if (message.chatId === chatId) {

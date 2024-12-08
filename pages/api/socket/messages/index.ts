@@ -68,16 +68,6 @@ export default async function handler(
         });
       }
 
-      // const returnM = db.message.findFirst({
-      //   take: 1,
-      //   where: {
-      //     // id: message.id,
-      //     chatId: chatId as string,
-      //   },
-      //   include: {
-      //     images: true,
-      //   },
-      // });
       let messages = [];
       const aaa = await db.message.findFirst({
         where: {
@@ -110,20 +100,6 @@ export default async function handler(
         },
       });
 
-      //   type MessageData = {
-      //     id: string;
-      //     content: string;
-      //     createdAt: Date;
-      //     updatedAt: Date;
-      //     senderId: string;
-      //     receiverId: string;
-      //     chatId: string;
-      //     type: $Enums.MessageType;
-      //     status: $Enums.MessageStatus;
-      //     statusOU?: string | undefined;
-      //     opupId: string;
-      //     images?: FileState[] | undefined;
-      // }
       const idd = aaa?.id;
       const contentt = aaa?.content;
       const createdAtt = aaa?.createdAt;
@@ -131,17 +107,11 @@ export default async function handler(
       const senderIdd = aaa?.senderId!;
       const receiverIdd = aaa?.receiverId;
       const chatIdd = aaa?.chatId!;
-      const typee = aaa?.type;
+      const typee = aaa?.type!;
       const statuss = aaa?.status!;
       // const statusOU = aaa?.st
       const opupIdd = aaa?.opupId;
       const imagess = aaa?.images;
-      // const x = aaa?.chatId ?? "";
-      // const xx = aaa?.senderId ?? "";
-      // const xxx = aaa?.receiverId ?? "";
-      // const xxxx = aaa?.status;
-      // const y = aaa?.createdAt ?? "";
-      // const yy = aaa?.type ?? "IMAGE";
 
       const rr = {
         id,
@@ -151,31 +121,13 @@ export default async function handler(
         senderId: senderIdd,
         receiverId: receiverIdd,
         chatId: chatIdd,
-        type,
+        type: typee,
         opupId: opupIdd!,
         images: imagess,
         status: statuss!,
       };
-      // data: {
-      //   content: content as string,
-      //   chatId: chatId as string,
-      //   senderId: senderId as string,
-      //   receiverId: receiverId as string,
-      //   status: "SENT",
-      //   type,
-      // },
 
-      // const returnM = db.message.findUnique({
-      //   where: {
-      //     id: message.id,
-      //   },
-      //   include: {
-      //     images: true,
-      //   },
-      // });
       const channelKey = `chat:${receiverId}:messages`;
-
-      // const SenderKey = `chat:${senderId}:messages`;
 
       res?.socket?.server?.io?.emit(channelKey, rr);
 

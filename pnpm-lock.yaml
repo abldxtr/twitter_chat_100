@@ -110,6 +110,9 @@ dependencies:
   react-hook-form:
     specifier: ^7.53.1
     version: 7.53.1(react@19.0.0-rc-f994737d14-20240522)
+  react-intersection-observer:
+    specifier: 9.4.0
+    version: 9.4.0(react@19.0.0-rc-f994737d14-20240522)
   react-spinners:
     specifier: ^0.14.1
     version: 0.14.1(react-dom@19.0.0-rc-f994737d14-20240522)(react@19.0.0-rc-f994737d14-20240522)
@@ -4693,6 +4696,14 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
+    dependencies:
+      react: 19.0.0-rc-f994737d14-20240522
+    dev: false
+
+  /react-intersection-observer@9.4.0(react@19.0.0-rc-f994737d14-20240522):
+    resolution: {integrity: sha512-v0403CmomOVlzhqFXlzOxg0ziLcVq8mfbP0AwAcEQWgZmR2OulOT79Ikznw4UlB3N+jlUYqLMe4SDHUOyp0t2A==}
+    peerDependencies:
+      react: ^15.0.0 || ^16.0.0 || ^17.0.0|| ^18.0.0
     dependencies:
       react: 19.0.0-rc-f994737d14-20240522
     dev: false

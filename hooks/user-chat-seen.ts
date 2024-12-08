@@ -1,26 +1,26 @@
 import { useGlobalContext } from "@/context/globalContext";
-import { MessageData, user } from "@/lib/definitions";
 import { useSocket } from "@/provider/socket-provider";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useInView } from "react-intersection-observer";
 
-type ChatScrollProps = {
+type ChatSeenProps = {
   queryKey: string;
+  other: string;
 };
 
-export const useChatSeen = ({ queryKey }: ChatScrollProps) => {
+export const useChatSeen = ({ queryKey, other }: ChatSeenProps) => {
   const queryClient = useQueryClient();
   const { setUnreadMessages, setFinal } = useGlobalContext();
   const { socket } = useSocket();
 
   const seenMessagesRef = useRef(new Set<string>());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+    triggerOnce: true,
+  });
 
   const updateMessageStatusMutation = useMutation({
     mutationFn: async (messageIds: string[]) => {
@@ -39,103 +39,87 @@ export const useChatSeen = ({ queryKey }: ChatScrollProps) => {
       return response.json();
     },
     onSuccess: () => {
+      console.log("onSuccess onSuccess onSuccess");
       queryClient.invalidateQueries({ queryKey: [queryKey] });
+      // io.emit(`${data.other}:update`, { queryKey: data.queryKey });
 
-      socket.emit("update");
+      socket.emit("update", { queryKey, other });
     },
     onError: (error) => {
       console.error("Error updating message status:", error);
     },
   });
 
-  const updateMessageStatus = (messageIds: string[]) => {
-    console.log("messageIds", messageIds);
+  const updateMessageStatus = useCallback(
+    (messageIds: string[]) => {
+      console.log("Updating message status for:", messageIds);
 
-    updateMessageStatusMutation.mutate(messageIds, {
-      onSuccess: () => {
-        setUnreadMessages((prev) =>
-          prev.filter((item) => !messageIds.includes(item.id))
-        );
-      },
-    });
-  };
+      updateMessageStatusMutation.mutate(messageIds, {
+        onSuccess: () => {
+          // setUnreadMessages((prev) =>
+          //   prev.filter((item) => !messageIds.includes(item.id))
+          // );
+        },
+      });
+    },
+    [updateMessageStatusMutation, setUnreadMessages]
+  );
 
-  const scheduleUpdate = () => {
+  const scheduleUpdate = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
     timerRef.current = setTimeout(() => {
       const messageIds = Array.from(seenMessagesRef.current);
       if (messageIds.length > 0) {
-        console.log("seenMessagesRef.current", seenMessagesRef.current);
+        console.log("Scheduled update for messages:", seenMessagesRef.current);
         updateMessageStatus(messageIds);
         seenMessagesRef.current.clear();
       }
     }, 2000);
-  };
+  }, [updateMessageStatus]);
 
-  const markMessageAsSeen = (messageId: string, chatId: string) => {
-    seenMessagesRef.current.add(messageId);
-    // console.log("********", seenMessagesRef.current);
+  const markMessageAsSeen = useCallback(
+    (messageId: string, chatId: string) => {
+      seenMessagesRef.current.add(messageId);
+      console.log("Marking message as seen:", messageId);
 
-    scheduleUpdate();
-    setFinal((prevFinal) =>
-      prevFinal
-        .map((chatObj) => {
-          if (Object.keys(chatObj)[0] === chatId) {
-            const messages = chatObj[chatId].filter(
-              (msg) => msg.id !== messageId
-            );
-            return { [chatId]: messages };
-          }
-          return chatObj;
-        })
-        .filter((chatObj) => Object.values(chatObj)[0].length > 0)
-    );
-  };
-  const createObserver = () => {
-    return new IntersectionObserver(
-      (entries) => {
-        console.log(entries);
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const messageElement = entry.target;
-            const messageId = entry.target.id;
-            const messageStatus = entry.target.getAttribute("data-status");
-            const currentUser =
-              entry.target.getAttribute("data-user") === "true";
-            const chatId = entry.target.getAttribute("data-chat-id");
-
-            if (messageStatus === "SENT" && !currentUser && chatId) {
-              console.log("if if if if ");
-              markMessageAsSeen(messageId, chatId);
-              seenMessagesRef.current.add(messageId);
+      setFinal((prevFinal) =>
+        prevFinal
+          .map((chatObj) => {
+            if (Object.keys(chatObj)[0] === chatId) {
+              const messages = chatObj[chatId].filter(
+                (msg) => msg.id !== messageId
+              );
+              return { [chatId]: messages };
             }
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-  };
+            return chatObj;
+          })
+          .filter((chatObj) => Object.values(chatObj)[0].length > 0)
+      );
+      scheduleUpdate();
+    },
+    [scheduleUpdate, setFinal]
+  );
 
   useEffect(() => {
-    const observer = createObserver();
-    const messageElements = Array.from(
-      document.querySelectorAll(".message-item")
-    );
-    messageElements.forEach((el) => observer.observe(el));
+    const messageElements = document.querySelectorAll(".message-item");
+    messageElements.forEach((el) => {
+      // const messageId = el.id;
+      const messageId = el.getAttribute("data-messid")!;
 
-    return () => {
-      messageElements.forEach((el) => {
-        observer.unobserve(el);
-        seenMessagesRef.current.delete(el.id); // Updated: Remove message from seenMessages
-      });
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
+      const messageStatus = el.getAttribute("data-status");
+      const currentUser = el.getAttribute("data-user") === "true";
+      const chatId = el.getAttribute("data-chat-id");
+      console.log("el", el);
+      console.log("inView", inView);
+
+      if (inView && messageStatus === "SENT" && !currentUser && chatId) {
+        console.log("Message came into view:", messageId);
+        markMessageAsSeen(messageId, chatId);
       }
-      observer.disconnect();
-    };
-  }, []);
+    });
+  }, [inView, markMessageAsSeen]);
 
-  //   return { markMessageAsSeen };
+  return { ref, markMessageAsSeen };
 };

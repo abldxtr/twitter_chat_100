@@ -1,4 +1,4 @@
-import React, { useState, useEffect, startTransition } from "react";
+import React, { useState, useEffect, startTransition, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { formatPersianDate, cn } from "@/lib/utils";
@@ -6,6 +6,7 @@ import { formatPersianDate, cn } from "@/lib/utils";
 import { MessageData } from "@/lib/definitions";
 import { CircleProgress } from "./circle-progress";
 import { useGlobalContext } from "@/context/globalContext";
+import { useInView, IntersectionOptions } from "react-intersection-observer";
 import {
   useInfiniteQuery,
   useQueryClient,
@@ -24,6 +25,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   isCurrentUser,
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  // const {ref, inView}= useInView(inViewOptions);
 
   const MessageWrapper = isCurrentUser ? MessRight : MessLeft;
 
@@ -158,19 +160,21 @@ const MessRight: React.FC<{
 const MessLeft: React.FC<{
   message: MessageData;
   children: React.ReactNode;
-}> = ({ message, children }) => (
-  <motion.div
-    className="pb-1 p-2 w-full group flex items-end gap-2 z-[9] "
-    // initial={{ y: 20, opacity: 0 }}
-    // animate={{ y: 0, opacity: 1 }}
-  >
-    <div className="flex flex-col items-start max-w-[75%]">
-      <div className="bg-[#f4f5f7] rounded-tr-2xl rounded-tl-sm rounded-br-2xl p-3 text-[#091e42]">
-        {children}
+}> = ({ message, children }) => {
+  return (
+    <motion.div
+      className="pb-1 p-2 w-full group flex items-end gap-2 z-[9] "
+      // initial={{ y: 20, opacity: 0 }}
+      // animate={{ y: 0, opacity: 1 }}
+    >
+      <div className="flex flex-col items-start max-w-[75%]">
+        <div className="bg-[#f4f5f7] rounded-tr-2xl rounded-tl-sm rounded-br-2xl p-3 text-[#091e42]">
+          {children}
+        </div>
       </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 export function BackMenue({ func }: { func: () => void }) {
   return (

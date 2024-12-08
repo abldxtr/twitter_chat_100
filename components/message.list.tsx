@@ -48,9 +48,9 @@ export default function Message_list({
       setMobileMenue(false);
     }
   }, [matches, param?.conversationId]);
-  const aas = useChatSeen({
-    queryKey,
-  });
+  // const aas = useChatSeen({
+  //   queryKey,
+  // });
 
   const { fetchMessages } = useMessage();
   const { mobileMenue, setMobileMenue, setUnreadCountMenue, final, setFinal } =
