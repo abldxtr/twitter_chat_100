@@ -36,7 +36,7 @@ const ioHandler = (req: NextApiRequest, res: any) => {
         io.emit("abcd");
       });
 
-      io.on("disconnect", () => {
+      socket.on("disconnect", () => {
         console.log("A user disconnected");
       });
     });

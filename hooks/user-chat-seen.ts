@@ -2,7 +2,6 @@ import { useGlobalContext } from "@/context/globalContext";
 import { useSocket } from "@/provider/socket-provider";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
-import { useInView } from "react-intersection-observer";
 
 type ChatSeenProps = {
   queryKey: string;
@@ -16,11 +15,6 @@ export const useChatSeen = ({ queryKey, other }: ChatSeenProps) => {
 
   const seenMessagesRef = useRef(new Set<string>());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const { ref, inView } = useInView({
-    threshold: 0.5,
-    triggerOnce: true,
-  });
 
   const updateMessageStatusMutation = useMutation({
     mutationFn: async (messageIds: string[]) => {
@@ -39,87 +33,97 @@ export const useChatSeen = ({ queryKey, other }: ChatSeenProps) => {
       return response.json();
     },
     onSuccess: () => {
-      console.log("onSuccess onSuccess onSuccess");
+      console.log("Batch update successful");
       queryClient.invalidateQueries({ queryKey: [queryKey] });
-      // io.emit(`${data.other}:update`, { queryKey: data.queryKey });
-
       socket.emit("update", { queryKey, other });
+    },
+    onMutate: async (messageIds) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: [queryKey] });
+
+      // Snapshot the previous value
+      const previousMessages = queryClient.getQueryData([queryKey]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData([queryKey], (oldData: any) => {
+        if (!oldData || !oldData.pages || oldData.pages.length === 0) {
+          return oldData;
+        }
+
+        const newPages = oldData.pages.map((page: any) => ({
+          ...page,
+          items: page.items.map((message: any) =>
+            messageIds.includes(message.id)
+              ? { ...message, status: "READ" }
+              : message
+          ),
+        }));
+
+        return {
+          ...oldData,
+          pages: newPages,
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousMessages };
     },
     onError: (error) => {
       console.error("Error updating message status:", error);
     },
   });
 
-  const updateMessageStatus = useCallback(
-    (messageIds: string[]) => {
-      console.log("Updating message status for:", messageIds);
-
-      updateMessageStatusMutation.mutate(messageIds, {
-        onSuccess: () => {
-          // setUnreadMessages((prev) =>
-          //   prev.filter((item) => !messageIds.includes(item.id))
-          // );
-        },
-      });
-    },
-    [updateMessageStatusMutation, setUnreadMessages]
-  );
+  const updateMessageStatus = useCallback(() => {
+    const messageIds = Array.from(seenMessagesRef.current);
+    if (messageIds.length > 0) {
+      console.log("Sending batch update for messages:", messageIds);
+      updateMessageStatusMutation.mutate(messageIds);
+      seenMessagesRef.current.clear();
+    }
+  }, [updateMessageStatusMutation]);
 
   const scheduleUpdate = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
     timerRef.current = setTimeout(() => {
-      const messageIds = Array.from(seenMessagesRef.current);
-      if (messageIds.length > 0) {
-        console.log("Scheduled update for messages:", seenMessagesRef.current);
-        updateMessageStatus(messageIds);
-        seenMessagesRef.current.clear();
-      }
+      updateMessageStatus();
     }, 2000);
   }, [updateMessageStatus]);
 
   const markMessageAsSeen = useCallback(
     (messageId: string, chatId: string) => {
-      seenMessagesRef.current.add(messageId);
-      console.log("Marking message as seen:", messageId);
+      if (!seenMessagesRef.current.has(messageId)) {
+        seenMessagesRef.current.add(messageId);
+        console.log("Marking message as seen (not sent yet):", messageId);
 
-      setFinal((prevFinal) =>
-        prevFinal
-          .map((chatObj) => {
-            if (Object.keys(chatObj)[0] === chatId) {
-              const messages = chatObj[chatId].filter(
-                (msg) => msg.id !== messageId
-              );
-              return { [chatId]: messages };
-            }
-            return chatObj;
-          })
-          .filter((chatObj) => Object.values(chatObj)[0].length > 0)
-      );
-      scheduleUpdate();
+        setFinal((prevFinal) =>
+          prevFinal
+            .map((chatObj) => {
+              if (Object.keys(chatObj)[0] === chatId) {
+                const messages = chatObj[chatId].filter(
+                  (msg) => msg.id !== messageId
+                );
+                return { [chatId]: messages };
+              }
+              return chatObj;
+            })
+            .filter((chatObj) => Object.values(chatObj)[0].length > 0)
+        );
+        scheduleUpdate();
+      }
     },
-    [scheduleUpdate, setFinal]
+    [setFinal, scheduleUpdate]
   );
 
   useEffect(() => {
-    const messageElements = document.querySelectorAll(".message-item");
-    messageElements.forEach((el) => {
-      // const messageId = el.id;
-      const messageId = el.getAttribute("data-messid")!;
-
-      const messageStatus = el.getAttribute("data-status");
-      const currentUser = el.getAttribute("data-user") === "true";
-      const chatId = el.getAttribute("data-chat-id");
-      console.log("el", el);
-      console.log("inView", inView);
-
-      if (inView && messageStatus === "SENT" && !currentUser && chatId) {
-        console.log("Message came into view:", messageId);
-        markMessageAsSeen(messageId, chatId);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
       }
-    });
-  }, [inView, markMessageAsSeen]);
+      updateMessageStatus();
+    };
+  }, [updateMessageStatus]);
 
-  return { ref, markMessageAsSeen };
+  return { markMessageAsSeen };
 };
