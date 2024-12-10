@@ -1,7 +1,7 @@
 "use client";
 
 import { useGlobalContext } from "@/context/globalContext";
-import { formatMessageDate, formatPersianDate } from "@/lib/utils";
+import { cn, formatMessageDate, formatPersianDate } from "@/lib/utils";
 import { useSocket } from "@/provider/socket-provider";
 import classNames from "classnames";
 import { Session } from "next-auth";
@@ -12,11 +12,13 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Skeleton } from "../ui/skeleton";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { Copy, Check } from "lucide-react";
 
 export type userList = {
   name: string | null;
   id: string;
-  img?: string;
+  img: string;
   href: string;
   active: boolean | null;
   username: string | null;
@@ -79,7 +81,7 @@ export default function UserList({ user }: { user: userList }) {
         <div className="mr-[16px] flex relative size-[50px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">
           <Image
             alt="alt img"
-            src={user.img ? user.img : ""}
+            src={user.img}
             className="size-full rounded-full shrink-0 "
             fill
           />
@@ -152,15 +154,16 @@ export function Account({ user }: { user: Session | null }) {
     "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
 
   const { isConnected } = useSocket();
+  const { isCopied, copyToClipboard } = useCopyToClipboard({});
 
   if (!user) {
     return null;
   }
 
   return (
-    <Link
-      className="min-h-[40px] w-full sticky top-0  "
-      href={`/${me?.id}`}
+    <div
+      className="min-h-[40px] w-full sticky top-0 group  "
+      // href={`/${me?.id}`}
       // prefetch={true}
       // onClick={() => {
       //   if (!matches) {
@@ -168,10 +171,11 @@ export function Account({ user }: { user: Session | null }) {
       //   }
       //   setChatIdActive(user);
       // }}
+      onClick={() => copyToClipboard(me?.id!)}
     >
       <div
         className={classNames(
-          "flex  min-h-[40px] items-center cursor-pointer  border-y  p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] "
+          "flex  min-h-[40px] items-center cursor-pointer  border-y  p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] ",
           // chatIdActive?.href === user.href
           //   ? "bg-[#f7f9f9] border-r-2 border-blue-300 "
           //   : ""
@@ -208,7 +212,15 @@ export function Account({ user }: { user: Session | null }) {
             {/* <span>{user.lastMessage.substring(0, 30)}</span> */}
           </div>
         </div>
+        <div
+          className={cn(
+            "   transition-[opacity] duration-300 mr-4 ",
+            isCopied ? "text-green-400 group-hover:text-green-400 " : "text-gray-900/50 group-hover:text-gray-900"
+          )}
+        >
+          {isCopied ? <Check /> : <Copy />}
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }

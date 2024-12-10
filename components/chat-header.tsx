@@ -4,6 +4,7 @@ import { user } from "@/lib/definitions";
 import { BackMenue } from "./scroll-down";
 import { useGlobalContext } from "@/context/globalContext";
 import classNames from "classnames";
+import Image from "next/image";
 
 export default function ChatHeader({
   other,
@@ -25,10 +26,30 @@ export default function ChatHeader({
         <div className="flex h-full w-full flex-1 items-center justify-between px-[16px]">
           <div className=" flex items-center gap-x-4 ">
             <BackMenue func={() => setMobileMenue(!mobileMenue)} />
-            <div className="w-full flex-1">
-              <h2 className="py-[2px] text-[20px] font-bold leading-[24px] text-[#0f1419]">
-                {chatIdActive?.name || other?.name}
-              </h2>
+            <div className="w-full flex-1 flex items-center  ">
+              <div className="mr-[14px] flex relative size-[40px] cursor-pointer items-center justify-center rounded-full border-y border-[#e5eaec]  transition-all duration-300  ">
+                <Image
+                  alt="other"
+                  src={other?.image!}
+                  className="size-full rounded-full shrink-0 "
+                  fill
+                />
+                {/* <div
+            className={classNames(
+              " size-3 rounded-full absolute top-[30px] right-0   ",
+              isConnected && "bg-green-400"
+            )}
+          /> */}
+              </div>
+
+              <div className="flex flex-col  text-left ">
+                <h2 className=" text-[20px] font-bold leading-[24px] text-[#0f1419]">
+                  {chatIdActive?.name || other?.name}
+                </h2>
+                <h2 className=" text-[14px] text-[#0f1419]">
+                  {chatIdActive?.name || other?.name}
+                </h2>
+              </div>
             </div>
           </div>
 

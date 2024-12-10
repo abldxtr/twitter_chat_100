@@ -155,8 +155,9 @@ export default function Message_list({
 
                     const active = param && item.id === param.conversationId;
                     const href = `${item.id}`;
-                    const img =
-                      "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
+                    // const img =
+                    //   "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
+                    const img = otherUser.image!;
 
                     const userItem: userList = {
                       id: item.id,

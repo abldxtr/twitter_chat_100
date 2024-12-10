@@ -10,6 +10,7 @@ import { getUserByEmail } from "@/data/user";
 import { auth, signIn } from "@/auth";
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
@@ -34,12 +35,14 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
       message: "Email already in use!",
     };
   }
+  const Avatar = faker.image.avatar();
 
   await db.user.create({
     data: {
       name,
       email,
       password,
+      image: Avatar,
     },
   });
 

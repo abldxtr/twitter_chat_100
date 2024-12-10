@@ -43,6 +43,7 @@ export async function GET(req: Request) {
         unreadCountParticipant: true,
         initiator: true,
         participant: true,
+
         messages: {
           orderBy: {
             createdAt: "desc",
@@ -58,6 +59,7 @@ export async function GET(req: Request) {
             chatId: true,
             type: true,
             updatedAt: true,
+            images: true,
           },
         },
       },

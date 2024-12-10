@@ -147,6 +147,32 @@ export type usr = {
   }[];
 };
 
+// const updatedChats: {
+//   unreadCount: number;
+//   id: string;
+//   unreadCountInitiator: number;
+//   unreadCountParticipant: number;
+//   initiator: {
+//       id: string;
+//       createdAt: Date;
+//       updatedAt: Date;
+//       name: string | null;
+//       ... 9 more ...;
+//       lastSeen: Date;
+//   };
+//   participant: {
+//       id: string;
+//       createdAt: Date;
+//       updatedAt: Date;
+//       name: string | null;
+//       ... 9 more ...;
+//       lastSeen: Date;
+//   };
+//   messages: {
+//       ...;
+//   }[];
+// }[]
+
 type MessageData = {
   id: string;
   content: string;
