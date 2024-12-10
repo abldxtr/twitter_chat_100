@@ -96,7 +96,12 @@ export const useChatSocket = ({
     });
 
     socket.on(`${userId}:update`, (data: any) => {
-      console.log("userId:update", `${queryKey}`);
+      console.log("userId:update", data);
+      queryClient.invalidateQueries({ queryKey: [data.queryKey] });
+    });
+
+    socket.on("abcd", (data: any) => {
+      console.log("userId:update", data);
       // queryClient.invalidateQueries({ queryKey: [data.queryKey] });
     });
 

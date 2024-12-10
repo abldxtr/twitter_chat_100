@@ -153,7 +153,11 @@ export default function Message_list({
                         item.id
                       ]?.length ?? 0;
 
-                    const active = param && item.id === param.conversationId;
+                    const active =
+                      !!param?.conversationId &&
+                      item.id === param.conversationId
+                        ? true
+                        : false;
                     const href = `${item.id}`;
                     // const img =
                     //   "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";

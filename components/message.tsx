@@ -91,7 +91,7 @@ export default function Messages({
 
   const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
   const channelKey = `chat:${currentUser}:messages`;
-  const { ref } = useChatSeen({ queryKey, other: Other });
+  // const { ref } = useChatSeen({ queryKey, other: Other });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
@@ -214,7 +214,7 @@ export default function Messages({
                   data-status={message.status}
                   data-user={isCurrentUser.toString()}
                   data-chat-id={message.chatId}
-                  ref={ref}
+                  // ref={ref}
                 >
                   <ChatMessage
                     key={message.id}

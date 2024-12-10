@@ -29,9 +29,11 @@ const ioHandler = (req: NextApiRequest, res: any) => {
         io.emit("stoptype", { isTyping: false, userId: data.userId });
       });
       // socket.emit(`${first?.id}:update`, { other });
-      socket.on("update", (data) => {
-        console.log("updateeeeeee", data);
-        io.emit(`${data.other}:update`, { queryKey: data.queryKey });
+      socket.on("update", () => {
+        console.log("updateeeeeeeee");
+        // `${userId}:update`
+        // io.emit(`${other}:update`, { queryKey });
+        io.emit("abcd");
       });
 
       io.on("disconnect", () => {

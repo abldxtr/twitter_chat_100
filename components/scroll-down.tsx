@@ -1,4 +1,10 @@
-import React, { useState, useEffect, startTransition, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  startTransition,
+  useRef,
+  useCallback,
+} from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { formatPersianDate, cn } from "@/lib/utils";
@@ -14,6 +20,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useSocket } from "@/provider/socket-provider";
 
 interface ChatMessageProps {
   message: MessageData;
@@ -161,9 +168,134 @@ const MessLeft: React.FC<{
   message: MessageData;
   children: React.ReactNode;
 }> = ({ message, children }) => {
+  const queryClient = useQueryClient();
+  const { setUnreadMessages, setFinal } = useGlobalContext();
+  const { socket } = useSocket();
+  const other = message.senderId;
+
+  const seenMessagesRef = useRef(new Set<string>());
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const queryKey = `chat:${message.chatId}`;
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+    triggerOnce: true,
+  });
+  const updateMessageStatusMutation = useMutation({
+    mutationFn: async (messageIds: string[]) => {
+      const response = await fetch("/api/messages/update-status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messageIds }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update message status");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      console.log("onSuccess onSuccess onSuccess");
+      console.log("querykey", queryKey);
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      // io.emit(`${data.other}:update`, { queryKey: data.queryKey });
+      // const other = message.senderId;
+
+      // const seenMessagesRef = useRef(new Set<string>());
+      // const timerRef = useRef<NodeJS.Timeout | null>(null);
+      // const queryKey = `chat:${message.chatId}`;
+      // `${userId}:update`
+      socket.emit("update", { queryKey, other });
+    },
+    onError: (error) => {
+      console.error("Error updating message status:", error);
+    },
+  });
+
+  const updateMessageStatus = useCallback(
+    (messageIds: string[]) => {
+      console.log("Updating message status for:", messageIds);
+
+      updateMessageStatusMutation.mutate(messageIds, {
+        onSuccess: () => {
+          // setUnreadMessages((prev) =>
+          //   prev.filter((item) => !messageIds.includes(item.id))
+          // );
+        },
+      });
+    },
+    [updateMessageStatusMutation, setUnreadMessages]
+  );
+
+  const scheduleUpdate = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      const messageIds = Array.from(seenMessagesRef.current);
+      if (messageIds.length > 0) {
+        console.log("Scheduled update for messages:", seenMessagesRef.current);
+        updateMessageStatus(messageIds);
+        seenMessagesRef.current.clear();
+      }
+    }, 2000);
+  }, [updateMessageStatus]);
+
+  const markMessageAsSeen = useCallback(
+    (messageId: string, chatId: string) => {
+      seenMessagesRef.current.add(messageId);
+      console.log("Marking message as seen:", messageId);
+
+      setFinal((prevFinal) =>
+        prevFinal
+          .map((chatObj) => {
+            if (Object.keys(chatObj)[0] === chatId) {
+              const messages = chatObj[chatId].filter(
+                (msg) => msg.id !== messageId
+              );
+              return { [chatId]: messages };
+            }
+            return chatObj;
+          })
+          .filter((chatObj) => Object.values(chatObj)[0].length > 0)
+      );
+      scheduleUpdate();
+    },
+    [scheduleUpdate, setFinal]
+  );
+
+  // useEffect(() => {
+  //   if (message.status === "SENT" && inView) {
+  //     markMessageAsSeen(message.id, message.chatId);
+  //   }
+  // }, []);
+  useEffect(() => {
+    if (message.status === "SENT" && inView) {
+      console.log("wwwwwwwwwwwwwwwwwwwwwww");
+
+      markMessageAsSeen(message.id, message.chatId);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [message.status, inView, message.id, message.chatId]);
+
+  // useEffect(() => {
+  //   return () => {
+  //     if (timerRef.current) {
+  //       clearTimeout(timerRef.current);
+  //     }
+  //   };
+  // }, []);
   return (
-    <motion.div
+    <div
       className="pb-1 p-2 w-full group flex items-end gap-2 z-[9] "
+      ref={ref}
       // initial={{ y: 20, opacity: 0 }}
       // animate={{ y: 0, opacity: 1 }}
     >
@@ -172,7 +304,7 @@ const MessLeft: React.FC<{
           {children}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { messageIds } = await req.json();
 
     if (!currentUser || !currentUser.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     let messageIdsArray: string[];
@@ -22,11 +22,17 @@ export async function POST(req: Request) {
     ) {
       messageIdsArray = messageIds;
     } else {
-      return new NextResponse("Invalid message ID(s) format", { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid message ID(s) format" },
+        { status: 400 }
+      );
     }
 
     if (messageIdsArray.length === 0) {
-      return new NextResponse("No message IDs provided", { status: 400 });
+      return NextResponse.json(
+        { error: "No message IDs provided" },
+        { status: 400 }
+      );
     }
 
     const messages = await db.message.findMany({
@@ -38,7 +44,10 @@ export async function POST(req: Request) {
     });
 
     if (messages.length === 0) {
-      return new NextResponse("No valid messages found", { status: 200 });
+      return NextResponse.json(
+        { message: "No valid messages found" },
+        { status: 200 }
+      );
     }
 
     // Update message statuses to "READ"
@@ -81,9 +90,12 @@ export async function POST(req: Request) {
     revalidateTag("fetchChat");
     revalidatePath("/", "layout");
 
-    return new NextResponse("Statuses updated successfully", { status: 200 });
+    return NextResponse.json(
+      { message: "Statuses updated successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("[MESSAGE_STATUS_UPDATE]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }
