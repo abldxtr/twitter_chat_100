@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dispatch,
   SetStateAction,
@@ -35,6 +36,8 @@ export const useSocket = () => {
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [socket, setSocket] = useState(null);
+  const queryClient = useQueryClient();
+
   const [isConnected, setIsConnected] = useState(false);
   const [typingUser, setTypingUser] = useState<typing>({
     isTyping: false,
@@ -49,6 +52,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         addTrailingSlash: false,
       }
     );
+    // io.emit("abcd");
 
     socketInstance.on("connect", () => {
       setIsConnected(true);
@@ -58,7 +62,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     socketInstance.on("aaaa", (data: any) => {
-      console.log("kkkkkkkkkkkk", { ...data });
+      console.log("kkkkkkkkkkkk", { data });
+    });
+
+    socketInstance.on("abcd", (data: any) => {
+      console.log("client update", { data });
+      queryClient.invalidateQueries({ queryKey: [`${data}`] });
     });
 
     setSocket(socketInstance);

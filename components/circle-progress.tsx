@@ -16,7 +16,7 @@ export function CircleProgress({ progress }: { progress: number }) {
           cy="54"
           r="24"
           fill="none"
-          stroke-miterlimit="10"
+          strokeMiterlimit="10"
         ></circle>
       </svg>
 

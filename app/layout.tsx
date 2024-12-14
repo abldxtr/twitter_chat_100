@@ -112,10 +112,10 @@ export default async function RootLayout({
           <MessageProvider2>
             <EmojiProvider>
               <body className={`${geistSans.variable} ${geistMono.variable}`}>
-                <SocketProvider>
-                  <SessionProvider session={current}>
-                    <EdgeStoreProvider>
-                      <QueryProvider>
+                <QueryProvider>
+                  <SocketProvider>
+                    <SessionProvider session={current}>
+                      <EdgeStoreProvider>
                         <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
                           <div className=" overflow-auto  h-full scrl flex w-full  ">
                             <main className="flex h-full items-start w-full ">
@@ -132,10 +132,10 @@ export default async function RootLayout({
                             </main>
                           </div>
                         </div>
-                      </QueryProvider>
-                    </EdgeStoreProvider>
-                  </SessionProvider>
-                </SocketProvider>
+                      </EdgeStoreProvider>
+                    </SessionProvider>
+                  </SocketProvider>
+                </QueryProvider>
               </body>
             </EmojiProvider>
           </MessageProvider2>

@@ -27,9 +27,9 @@ const ioHandler = (req: NextApiRequest, res: any) => {
           schema: "public",
           table: "Message",
         },
-        (event: any) => {
-          console.log("sssssssssssssss",{...event});
-          io.emit("aaaa", { data: event });
+        (payload: any) => {
+          console.log("sssssssssssssss",{payload});
+          io.emit("aaaa", { data: payload });
 
           // revalidatePath("/");
         }
@@ -49,11 +49,11 @@ const ioHandler = (req: NextApiRequest, res: any) => {
         io.emit("stoptype", { isTyping: false, userId: data.userId });
       });
       // socket.emit(`${first?.id}:update`, { other });
-      socket.on("update", () => {
-        console.log("updateeeeeeeee");
+      socket.on("update", (data:any) => {
+        console.log("updateeeeeeeee",data);
         // `${userId}:update`
         // io.emit(`${other}:update`, { queryKey });
-        io.emit("abcd");
+        io.emit("abcd",{data:data.queryKey});
       });
 
       socket.on("disconnect", () => {

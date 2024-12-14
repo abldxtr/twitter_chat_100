@@ -37,6 +37,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   // const {ref, inView}= useInView(inViewOptions);
 
   const MessageWrapper = isCurrentUser ? MessRight : MessLeft;
+  // message.statusOU === "SENDING"
 
   return (
     <MessageWrapper message={message}>
@@ -46,6 +47,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <ImageContent
             images={message.images}
             setImageLoaded={setImageLoaded}
+            uploading={message.statusOU === "SENDING" ? true : false}
           />
         )}
       {message.content && <span className="break-all">{message.content}</span>}
@@ -57,7 +59,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 const ImageContent: React.FC<{
   images: any[];
   setImageLoaded: (loaded: boolean) => void;
-}> = ({ images, setImageLoaded }) => {
+  uploading: boolean;
+}> = ({ images, setImageLoaded, uploading }) => {
   return (
     <div
       className={cn(
@@ -66,7 +69,12 @@ const ImageContent: React.FC<{
       )}
     >
       {images.map((image, index) => (
-        <ImageItem key={index} image={image} setImageLoaded={setImageLoaded} />
+        <ImageItem
+          key={index}
+          image={image}
+          setImageLoaded={setImageLoaded}
+          uploading={uploading}
+        />
       ))}
     </div>
   );
@@ -75,25 +83,32 @@ const ImageContent: React.FC<{
 const ImageItem: React.FC<{
   image: any;
   setImageLoaded: (loaded: boolean) => void;
-}> = ({ image, setImageLoaded }) => {
+  uploading: boolean;
+}> = ({ image, setImageLoaded, uploading }) => {
   const [loading, setLoading] = useState(true);
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center justify-center">
       <Image
         src={image.url || URL.createObjectURL(image.file)}
         alt={`uploaded-img-${image.id || image.key}`}
         width={600}
         height={600}
         className={cn(
-          "h-auto max-h-[calc(55dvh)] bg-[#0f141981] shrink-0 object-cover"
-          // loading ? "blur-sm" : "blur-0"
+          "h-auto max-h-[calc(55dvh)] bg-[#0f141981] shrink-0 object-cover",
+          uploading ? "blur-md" : "blur-0"
         )}
         // onLoadingComplete={() => {
         //   setLoading(false);
         //   setImageLoaded(true);
         // }}
       />
+      {uploading && (
+        <div className="absolute inset-0 flex items-center justify-center w-full h-full ">
+          <Loader2 className="size-8 text-black animate-spin  " />
+        </div>
+      )}
+
       {typeof image.progress === "number" && image.progress < 100 && (
         <CircleProgress progress={image.progress} />
       )}
@@ -203,7 +218,7 @@ const MessLeft: React.FC<{
   // }, []);
   useEffect(() => {
     if (message.status === "SENT" && inView) {
-      console.log("wwwwwwwwwwwwwwwwwwwwwww");
+      // console.log("wwwwwwwwwwwwwwwwwwwwwww");
 
       markMessageAsSeen(message.id, message.chatId);
     }
