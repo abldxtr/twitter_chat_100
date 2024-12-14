@@ -22,8 +22,8 @@ interface CounterContextType {
   setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
   mobileMenue: boolean;
   setMobileMenue: React.Dispatch<React.SetStateAction<boolean>>;
-  chatIdActive: userList | null;
-  setChatIdActive: React.Dispatch<React.SetStateAction<userList | null>>;
+  chatIdActive: string | null;
+  setChatIdActive: React.Dispatch<React.SetStateAction<string | null>>;
   unreadCount: number;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   unreadMessages: MessageData[];
@@ -61,7 +61,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [files, setFiles] = useState<FileList | null>(null);
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [mobileMenue, setMobileMenue] = useState<boolean>(true);
-  const [chatIdActive, setChatIdActive] = useState<userList | null>(null);
+  const [chatIdActive, setChatIdActive] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isShowImgTemp, setIsShowImgTemp] = useState<boolean>(true);
   const [openChatCreate, setOpenChatCreate] = useState<boolean>(false);

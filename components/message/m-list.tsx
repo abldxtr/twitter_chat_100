@@ -57,13 +57,13 @@ export default function UserList({ user }: { user: userList }) {
         if (!matches) {
           setMobileMenue(false);
         }
-        setChatIdActive(user);
+        setChatIdActive(user.href);
       }}
     >
       <div
         className={classNames(
           "flex  min-h-[74px]  items-center cursor-pointer p-[12px] relative justify-between group transition-all  ",
-          chatIdActive?.href === user.href
+          chatIdActive === user.href
             ? "bg-[rgba(0,184,147,0.15)] "
             : "hover:bg-[#f4f5f7]"
           // chatIdActive?.active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : ""
@@ -175,7 +175,7 @@ export function Account({ user }: { user: Session | null }) {
     >
       <div
         className={classNames(
-          "flex  min-h-[40px] items-center cursor-pointer  border-y  p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] ",
+          "flex  min-h-[40px] items-center cursor-pointer  border-y  p-[12px] justify-between group transition-all hover:bg-[#f7f9f9] "
           // chatIdActive?.href === user.href
           //   ? "bg-[#f7f9f9] border-r-2 border-blue-300 "
           //   : ""
@@ -215,7 +215,9 @@ export function Account({ user }: { user: Session | null }) {
         <div
           className={cn(
             "   transition-[opacity] duration-300 mr-4 ",
-            isCopied ? "text-green-400 group-hover:text-green-400 " : "text-gray-900/50 group-hover:text-gray-900"
+            isCopied
+              ? "text-green-400 group-hover:text-green-400 "
+              : "text-gray-900/50 group-hover:text-gray-900"
           )}
         >
           {isCopied ? <Check /> : <Copy />}

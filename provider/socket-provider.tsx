@@ -57,6 +57,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
+    socketInstance.on("aaaa", (data: any) => {
+      console.log("kkkkkkkkkkkk", { ...data });
+    });
 
     setSocket(socketInstance);
 

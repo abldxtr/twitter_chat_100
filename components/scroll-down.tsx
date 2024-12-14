@@ -22,6 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
 import { useChatSeen } from "@/hooks/user-chat-seen";
+import { Loader2 } from "lucide-react";
 
 interface ChatMessageProps {
   message: MessageData;
@@ -103,11 +104,12 @@ const ImageItem: React.FC<{
 const MessageFooter: React.FC<{
   message: MessageData;
   imageLoaded: boolean;
-}> = ({ message, imageLoaded }) => (
-  <div className="text-[#6a7485] text-xs leading-4 mt-1 flex items-center">
-    {formatPersianDate(new Date(message.createdAt))}
-    {message.status === "SENT" && (
-      <span className="ml-2 pb-1 ">
+}> = ({ message, imageLoaded }) => {
+  const renderStatusIcon = () => {
+    if (message.statusOU === "SENDING") {
+      return <Loader2 className="size-4 text-green-500 animate-spin " />;
+    } else if (message.status === "SENT") {
+      return (
         <svg
           width="12"
           height="7"
@@ -127,10 +129,9 @@ const MessageFooter: React.FC<{
             </clipPath>
           </defs>
         </svg>
-      </span>
-    )}
-    {message.status === "READ" && (
-      <span className="ml-2 pb-1  ">
+      );
+    } else if (message.status === "READ") {
+      return (
         <svg
           width="12"
           height="7"
@@ -143,10 +144,18 @@ const MessageFooter: React.FC<{
             fill="#04CC83"
           ></path>
         </svg>
-      </span>
-    )}
-  </div>
-);
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="text-[#6a7485] text-xs leading-4 mt-1 flex items-center  ">
+      {formatPersianDate(new Date(message.createdAt))}
+      <span className="ml-2 pb-1">{renderStatusIcon()}</span>
+    </div>
+  );
+};
 
 const MessRight: React.FC<{
   message: MessageData;

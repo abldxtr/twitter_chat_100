@@ -47,10 +47,12 @@ export default function ChatHeader({
 
                 <div className="flex flex-col  text-left ">
                   <h2 className=" text-[20px] font-bold leading-[24px] text-[#0f1419]">
-                    {chatIdActive?.name || other?.name}
+                    {/* {chatIdActive?.name || other?.name} */}
+                    {other?.name}
                   </h2>
                   <h2 className=" text-[14px] text-[#0f1419]">
-                    {chatIdActive?.name || other?.name}
+                    {/* {chatIdActive?.name || other?.name} */}
+                    {other?.name}
                   </h2>
                 </div>
               </div>

@@ -39,9 +39,17 @@ export default function Message_list({
   const queryClient = useQueryClient();
   const queryKey = `chat:${param}`;
   const matches = useMediaQuery("(min-width: 768px)");
+  const {
+    mobileMenue,
+    setMobileMenue,
+    setUnreadCountMenue,
+    final,
+    setFinal,
+    setChatIdActive,
+  } = useGlobalContext();
 
   useLayoutEffect(() => {
-    console.log("param?.conversationId", param?.conversationId);
+    // console.log("param?.conversationId", param?.conversationId);
     if (matches) {
       setMobileMenue(true);
     } else if (!matches && mobileMenue && param?.conversationId !== undefined) {
@@ -52,9 +60,14 @@ export default function Message_list({
   //   queryKey,
   // });
 
+  useEffect(() => {
+    if (param?.conversationId) {
+      setChatIdActive(param?.conversationId);
+    }
+  }, [param?.conversationId]);
+
   const { fetchMessages } = useMessage();
-  const { mobileMenue, setMobileMenue, setUnreadCountMenue, final, setFinal } =
-    useGlobalContext();
+
   const [change, setChange] = useState(false);
   // console.log("final", final);
 

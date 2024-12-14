@@ -1,3 +1,4 @@
+import { supabase } from "@/utils/supabase/server";
 import { Server as NetServer } from "http";
 import { NextApiRequest } from "next";
 import { Server as ServerIO } from "socket.io";
@@ -16,6 +17,25 @@ const ioHandler = (req: NextApiRequest, res: any) => {
       path: path,
       addTrailingSlash: false,
     });
+
+    supabase
+      .channel("online1")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "Message",
+        },
+        (event: any) => {
+          console.log("sssssssssssssss",{...event});
+          io.emit("aaaa", { data: event });
+
+          // revalidatePath("/");
+        }
+      )
+      .subscribe();
+
     io.on("connection", (socket) => {
       console.log("A user connected");
 
