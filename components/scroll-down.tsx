@@ -22,6 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
 import { useChatSeen } from "@/hooks/user-chat-seen";
+import { Loader2 } from "lucide-react";
 
 interface ChatMessageProps {
   message: MessageData;
@@ -45,6 +46,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <ImageContent
             images={message.images}
             setImageLoaded={setImageLoaded}
+            uploading={message.statusOU === "SENDING" ? true : false}
           />
         )}
       {message.content && <span className="break-all">{message.content}</span>}
@@ -56,7 +58,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 const ImageContent: React.FC<{
   images: any[];
   setImageLoaded: (loaded: boolean) => void;
-}> = ({ images, setImageLoaded }) => {
+  uploading: boolean;
+}> = ({ images, setImageLoaded, uploading }) => {
   return (
     <div
       className={cn(
@@ -65,7 +68,12 @@ const ImageContent: React.FC<{
       )}
     >
       {images.map((image, index) => (
-        <ImageItem key={index} image={image} setImageLoaded={setImageLoaded} />
+        <ImageItem
+          key={index}
+          image={image}
+          setImageLoaded={setImageLoaded}
+          uploading={uploading}
+        />
       ))}
     </div>
   );
@@ -74,25 +82,32 @@ const ImageContent: React.FC<{
 const ImageItem: React.FC<{
   image: any;
   setImageLoaded: (loaded: boolean) => void;
-}> = ({ image, setImageLoaded }) => {
+  uploading: boolean;
+}> = ({ image, setImageLoaded, uploading }) => {
   const [loading, setLoading] = useState(true);
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center justify-center">
       <Image
         src={image.url || URL.createObjectURL(image.file)}
         alt={`uploaded-img-${image.id || image.key}`}
         width={600}
         height={600}
         className={cn(
-          "h-auto max-h-[calc(55dvh)] bg-[#0f141981] shrink-0 object-cover"
-          // loading ? "blur-sm" : "blur-0"
+          "h-auto max-h-[calc(55dvh)] bg-[#0f141981] shrink-0 object-cover",
+          uploading ? "blur-md" : "blur-0"
         )}
         // onLoadingComplete={() => {
         //   setLoading(false);
         //   setImageLoaded(true);
         // }}
       />
+      {uploading && (
+        <div className="absolute inset-0 flex items-center justify-center w-full h-full ">
+          <Loader2 className="size-8 text-black animate-spin  " />
+        </div>
+      )}
+
       {typeof image.progress === "number" && image.progress < 100 && (
         <CircleProgress progress={image.progress} />
       )}
@@ -103,11 +118,12 @@ const ImageItem: React.FC<{
 const MessageFooter: React.FC<{
   message: MessageData;
   imageLoaded: boolean;
-}> = ({ message, imageLoaded }) => (
-  <div className="text-[#6a7485] text-xs leading-4 mt-1 flex items-center">
-    {formatPersianDate(new Date(message.createdAt))}
-    {message.status === "SENT" && (
-      <span className="ml-2 pb-1 ">
+}> = ({ message, imageLoaded }) => {
+  const renderStatusIcon = () => {
+    if (message.statusOU === "SENDING") {
+      return <Loader2 className="size-4 text-green-500 animate-spin " />;
+    } else if (message.status === "SENT") {
+      return (
         <svg
           width="12"
           height="7"
@@ -127,10 +143,9 @@ const MessageFooter: React.FC<{
             </clipPath>
           </defs>
         </svg>
-      </span>
-    )}
-    {message.status === "READ" && (
-      <span className="ml-2 pb-1  ">
+      );
+    } else if (message.status === "READ") {
+      return (
         <svg
           width="12"
           height="7"
@@ -143,10 +158,18 @@ const MessageFooter: React.FC<{
             fill="#04CC83"
           ></path>
         </svg>
-      </span>
-    )}
-  </div>
-);
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="text-[#6a7485] text-xs leading-4 mt-1 flex items-center  ">
+      {formatPersianDate(new Date(message.createdAt))}
+      <span className="ml-2 pb-1">{renderStatusIcon()}</span>
+    </div>
+  );
+};
 
 const MessRight: React.FC<{
   message: MessageData;
