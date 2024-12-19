@@ -12,6 +12,7 @@ import { formatPersianDate, cn } from "@/lib/utils";
 import { MessageData } from "@/lib/definitions";
 import { CircleProgress } from "./circle-progress";
 import { useGlobalContext } from "@/context/globalContext";
+
 import { useInView, IntersectionOptions } from "react-intersection-observer";
 import {
   useInfiniteQuery,
@@ -21,8 +22,9 @@ import {
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
-import { useChatSeen } from "@/hooks/user-chat-seen";
+// import { useChatSeen } from "@/hooks/user-chat-seen";
 import { Loader2 } from "lucide-react";
+import { useChatSeen } from "@/context/chatSeenContext";
 
 interface ChatMessageProps {
   message: MessageData;
@@ -200,10 +202,15 @@ const MessLeft: React.FC<{
   const seenMessagesRef = useRef(new Set<string>());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const queryKey = `chat:${message.chatId}`;
-  const { markMessageAsSeen } = useChatSeen({
-    queryKey,
-    other,
-  });
+  const { markMessageAsSeen, pendingUpdates, qkey, setQKey, oth, setOth } =
+    useChatSeen();
+
+  // setQKey(queryKey);
+  // setOth(other);
+  // const { markMessageAsSeen } = useChatSeen({
+  //   queryKey,
+  //   other,
+  // });
 
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -317,7 +324,8 @@ export function ScrollDown({
   chatId,
   queryKey,
 }: ScrollDownProps) {
-  const { setUnreadCount, unreadMessages, final } = useGlobalContext();
+  const { setUnreadCount, unreadMessages, final, setFinal } =
+    useGlobalContext();
   const queryClient = useQueryClient();
 
   const router = useRouter();
@@ -340,11 +348,25 @@ export function ScrollDown({
       }
       return response.json();
     },
+    onMutate: () => {
+      // final.find((chat) => Object.keys(chat)[0] === chatId)?
+      setFinal((prevFinal) =>
+        prevFinal
+          .map((chatObj) => {
+            if (Object.keys(chatObj)[0] === chatId) {
+              const messages = chatObj[chatId].filter((msg) => msg.id === "");
+              return { [chatId]: messages };
+            }
+            return chatObj;
+          })
+          .filter((chatObj) => Object.values(chatObj)[0].length > 0)
+      );
+    },
     onSuccess: () => {
-      // startTransition(async () => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
-      // router.refresh();
-      // });
+      startTransition(async () => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+        router.refresh();
+      });
 
       // queryClient.invalidateQueries({ queryKey: ["unreadCount", chatId] });
     },

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { GlobalProvider } from "@/context/globalContext";
+
 import { MessageProvider2 } from "@/context/MessageContext";
 import { EmojiProvider } from "@/context/EmojiContext";
 import { SessionProvider } from "next-auth/react";
@@ -14,6 +15,7 @@ import { redirect } from "next/navigation";
 import { MessageProvider } from "@/hooks/use-message";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import db from "@/lib/prisma";
+import { ChatSeenProvider } from "@/context/chatSeenContext";
 // export const dynamic = "force-dynamic";
 
 const geistSans = localFont({
@@ -107,40 +109,42 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <MessageProvider>
-        <GlobalProvider>
-          <MessageProvider2>
-            <EmojiProvider>
-              <body className={`${geistSans.variable} ${geistMono.variable}`}>
-                <SocketProvider>
-                  <SessionProvider session={current}>
-                    <EdgeStoreProvider>
-                      <QueryProvider>
-                        <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
-                          <div className=" overflow-auto  h-full scrl flex w-full  ">
-                            <main className="flex h-full items-start w-full ">
-                              <div className="flex shrink grow flex-1 items-start w-full isolate ">
-                                {/* <!-- messages list --> */}
-                                <Message_list
-                                  // chatlist={users}
-                                  first={userId}
-                                  current={current}
-                                />
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <SessionProvider session={current}>
+          <QueryProvider>
+            <SocketProvider>
+              <MessageProvider>
+                <GlobalProvider>
+                  <MessageProvider2>
+                    <ChatSeenProvider>
+                      <EmojiProvider>
+                        <EdgeStoreProvider>
+                          <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
+                            <div className=" overflow-auto  h-full scrl flex w-full  ">
+                              <main className="flex h-full items-start w-full ">
+                                <div className="flex shrink grow flex-1 items-start w-full isolate ">
+                                  {/* <!-- messages list --> */}
+                                  <Message_list
+                                    // chatlist={users}
+                                    first={userId}
+                                    current={current}
+                                  />
 
-                                {children}
-                              </div>
-                            </main>
+                                  {children}
+                                </div>
+                              </main>
+                            </div>
                           </div>
-                        </div>
-                      </QueryProvider>
-                    </EdgeStoreProvider>
-                  </SessionProvider>
-                </SocketProvider>
-              </body>
-            </EmojiProvider>
-          </MessageProvider2>
-        </GlobalProvider>
-      </MessageProvider>
+                        </EdgeStoreProvider>
+                      </EmojiProvider>
+                    </ChatSeenProvider>
+                  </MessageProvider2>
+                </GlobalProvider>
+              </MessageProvider>
+            </SocketProvider>
+          </QueryProvider>
+        </SessionProvider>
+      </body>
     </html>
   );
 }

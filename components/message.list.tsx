@@ -14,8 +14,6 @@ import { useMessage } from "@/hooks/use-message";
 import classNames from "classnames";
 import { MessageData } from "@/lib/definitions";
 import { CreateChat, CreateChatIcon } from "./create-chat";
-import { useChatSeen } from "@/hooks/user-chat-seen";
-// import { useChatSeen } from "@/hooks/use-chat-seen";
 
 export type users = {
   id: string;
@@ -39,9 +37,17 @@ export default function Message_list({
   const queryClient = useQueryClient();
   const queryKey = `chat:${param}`;
   const matches = useMediaQuery("(min-width: 768px)");
+  const {
+    mobileMenue,
+    setMobileMenue,
+    final,
+    setFinal,
+    conversationId,
+    setConversationId,
+  } = useGlobalContext();
 
   useLayoutEffect(() => {
-    console.log("param?.conversationId", param?.conversationId);
+    // console.log("param?.conversationId", param?.conversationId);
     if (matches) {
       setMobileMenue(true);
     } else if (!matches && mobileMenue && param?.conversationId !== undefined) {
@@ -51,10 +57,14 @@ export default function Message_list({
   // const aas = useChatSeen({
   //   queryKey,
   // });
+  useEffect(() => {
+    if (param?.conversationId) {
+      setConversationId(param?.conversationId);
+    }
+  }, [param?.conversationId]);
 
   const { fetchMessages } = useMessage();
-  const { mobileMenue, setMobileMenue, setUnreadCountMenue, final, setFinal } =
-    useGlobalContext();
+
   const [change, setChange] = useState(false);
   // console.log("final", final);
 
@@ -100,7 +110,7 @@ export default function Message_list({
       console.log("finalData", finalData);
       setFinal(finalData);
     }
-  }, [data, setUnreadCountMenue, change, userId]);
+  }, [data, change, userId]);
 
   // useLayoutEffect(() => {
   //   const value = param.
@@ -153,11 +163,7 @@ export default function Message_list({
                         item.id
                       ]?.length ?? 0;
 
-                    const active =
-                      !!param?.conversationId &&
-                      item.id === param.conversationId
-                        ? true
-                        : false;
+                    const active = item.id === conversationId ? true : false;
                     const href = `${item.id}`;
                     // const img =
                     //   "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";

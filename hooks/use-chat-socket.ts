@@ -97,7 +97,9 @@ export const useChatSocket = ({
 
     socket.on(`${userId}:update`, (data: any) => {
       console.log("userId:update", data);
-      queryClient.invalidateQueries({ queryKey: [data.queryKey] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: [data.queryKey] });
+      }, 2000);
     });
 
     socket.on("abcd", (data: any) => {
@@ -108,7 +110,7 @@ export const useChatSocket = ({
     socket.on(
       typeKey,
       ({ isTyping, userId }: { isTyping: boolean; userId: string }) => {
-        console.log(` is typing: ${isTyping}`);
+        // console.log(` is typing: ${isTyping}`);
         setTypingUser({ isTyping, userId });
       }
     );
@@ -116,7 +118,7 @@ export const useChatSocket = ({
     socket.on(
       stoptypekey,
       ({ isTyping, userId }: { isTyping: boolean; userId: string }) => {
-        console.log(`stop typing: ${isTyping}`);
+        // console.log(`stop typing: ${isTyping}`);
         setTypingUser({ isTyping, userId });
       }
     );

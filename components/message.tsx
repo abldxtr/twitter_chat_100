@@ -21,7 +21,8 @@ import { AnimatePresence } from "framer-motion";
 import { useGlobalContext } from "@/context/globalContext";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
-import { useChatSeen } from "@/hooks/user-chat-seen";
+import { useChatSeen } from "@/context/chatSeenContext";
+// import { useChatSeen } from "@/hooks/user-chat-seen";
 
 export default function Messages({
   first,
@@ -92,6 +93,9 @@ export default function Messages({
   const updateKey = useMemo(() => `chat:${chatId}:messages:update`, [chatId]);
   const channelKey = `chat:${currentUser}:messages`;
   // const { ref } = useChatSeen({ queryKey, other: Other });
+  const { setQKey, setOth } = useChatSeen();
+  setQKey(queryKey);
+  setOth(Other);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
