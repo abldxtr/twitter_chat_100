@@ -63,9 +63,10 @@ export default function UserList({ user }: { user: userList }) {
       <div
         className={classNames(
           "flex  min-h-[74px]  items-center cursor-pointer p-[12px] relative justify-between group transition-all  ",
-          chatIdActive?.href === user.href
-            ? "bg-[rgba(0,184,147,0.15)] "
-            : "hover:bg-[#f4f5f7]"
+          // chatIdActive?.href === user.href
+          //   ? "bg-[rgba(0,184,147,0.15)] "
+          //   : "hover:bg-[#f4f5f7]"
+          user.active ? "bg-[rgba(0,184,147,0.15)]" : "hover:bg-[#f4f5f7]"
           // chatIdActive?.active ? "bg-[#f7f9f9] border-r-2 border-blue-300 " : ""
         )}
       >

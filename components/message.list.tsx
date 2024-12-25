@@ -36,8 +36,6 @@ export default function Message_list({
 }) {
   const userId = first;
   const param = useParams<{ conversationId: string }>();
-  const queryClient = useQueryClient();
-  const queryKey = `chat:${param}`;
   const matches = useMediaQuery("(min-width: 768px)");
   const {
     mobileMenue,
@@ -108,7 +106,7 @@ export default function Message_list({
               </Suspense>
             </div>
 
-            <div className=" flex-1 overflow-y-auto relative bg-[#fcfdfd] ">
+            <div className=" w-full h-full overflow-y-auto relative bg-[#fcfdfd] ">
               {!chatList
                 ? [...new Array(6)].map((i, index) => {
                     return <UserListLoading key={index} />;

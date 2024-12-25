@@ -17,6 +17,7 @@ import ChatMessage, { ScrollDown, TypingLeft } from "./scroll-down";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useSession } from "next-auth/react";
+import usePresence from "@/hooks/usePresence";
 
 export default function Messages({
   chatId,
@@ -29,6 +30,23 @@ export default function Messages({
   const chatRef = useRef<HTMLDivElement | null>(null);
   const unReadDiv = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
+  const usr = useSession();
+  const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
+
+  const paramValue = chatId ? chatId : "";
+
+  const [data, others, updatePresence] = usePresence(paramValue, currentUser, {
+    text: "",
+    // emoji: Emojis[userId % Emojis.length],
+    x: 0,
+    y: 0,
+    typing: false as boolean,
+  });
+  const presentOthers = (others ?? []).filter((p) => p.present)[0];
+  console.log({ presentOthers });
+  console.log({ data });
+  console.log({ others });
+
   useLayoutEffect(() => {
     const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
 
@@ -59,11 +77,6 @@ export default function Messages({
       }
     };
   }, [chatId]);
-
-  const usr = useSession();
-  const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
-
-  const paramValue = chatId ? chatId : "";
 
   const queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
 
@@ -115,6 +128,14 @@ export default function Messages({
         )}
         ref={chatRef}
       >
+        {/* {typingUser.userId &&
+          typingUser.userId !== currentUser &&
+          Other === typingUser.userId &&
+          typingUser.isTyping && <TypingLeft message="typing..." />} */}
+
+        {presentOthers && presentOthers.data.typing && (
+          <TypingLeft message="typing..." />
+        )}
         <div ref={bottomRef} />
 
         {Object.entries(groupedMessages).map(([date, msgs]) => (

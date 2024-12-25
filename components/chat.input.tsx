@@ -1,9 +1,6 @@
 "use client";
 
 import { useEmojiState } from "@/context/EmojiContext";
-import axios from "axios";
-import qs from "query-string";
-
 import { useEffect, useState, useRef, FormEvent, useMemo } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import ImgInput from "./img.input";
@@ -11,17 +8,15 @@ import { EmojiPicker } from "./EmojiPicker";
 import { InputWithRef } from "./InputWithRef";
 import GifInput from "./Gif-input";
 import TempImg from "./temp-img";
-import { user } from "@/lib/definitions";
-// import { useSocket } from "@/provider/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileState, useGlobalContext } from "@/context/globalContext";
 import DragContainer from "./drag-container";
-import { useChatQuery } from "@/hooks/use-chat-query";
-import { useEdgeStore } from "@/lib/edgestore";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useSession } from "next-auth/react";
+import usePresence from "@/hooks/usePresence";
+import useTypingIndicator from "@/hooks/useTypingIndicator";
 
 export default function InputChat({
   param,
@@ -33,32 +28,31 @@ export default function InputChat({
   other: string;
 }) {
   const { setOpenEmoji } = useEmojiState();
-  const [cursorPosition, setCursorPosition] = useState<number>(0);
   const { imgTemp, setImgTemp, isShowImgTemp, setIsShowImgTemp } =
     useGlobalContext();
-
   const usr = useSession();
   const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
+  // const [userId] = useState(() => Math.floor(Math.random() * 10000));
+
+  const [data, others, updatePresence] = usePresence(param, currentUser, {
+    text: "",
+    // // emoji: Emojis[userId % Emojis.length],
+    // x: 0,
+    // y: 0,
+    typing: false as boolean,
+  });
+
+  useTypingIndicator(data.text, updatePresence);
+  const presentOthers = (others ?? []).filter((p) => p.present);
+
+  console.log({ presentOthers });
+  console.log({ data });
+  console.log({ others });
 
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);
   const EmojiRef = useRef(null);
-  // const { socket } = useSocket();
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const queryClient = useQueryClient();
-  const apiUrl = "/api/messages";
-  const paramKey = "chatId";
-  // const paramValue = "cm2ylbaaj000emhh56mhgvrg9";
-  const paramValue = chatId ? chatId : param;
 
-  const typeKey = "typing";
-  const stoptypekey = "stoptype";
-  // const queryKey = `chat:cm2ylbaaj000emhh56mhgvrg9`;
-  let queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
-
-  // const currentUser = first ? first.id : "";
-  // const { edgestore } = useEdgeStore();
-  // const createMessage = useMutation(api.message.createMessage);
   const createMessage = useMutation(
     api.message.createMessage
   ).withOptimisticUpdate((localStore, args) => {
@@ -66,7 +60,7 @@ export default function InputChat({
     const currentValue = localStore.getQuery(api.message.messages, {
       chatId,
     });
-    console.log({ currentValue });
+    // console.log({ currentValue });
 
     if (currentValue !== undefined) {
       const now = Date.now() as number;
@@ -193,7 +187,10 @@ export default function InputChat({
           </div>
           <InputWithRef
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              updatePresence({ text: e.target.value });
+            }}
             onSubmit={handleSubmit}
             ref={textRef}
           />
