@@ -9,7 +9,10 @@ import { useGlobalContext } from "@/context/globalContext";
 import { CirclePlus } from "lucide-react";
 import { useOnClickOutside } from "usehooks-ts";
 import { BeatLoader } from "react-spinners";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useSession } from "next-auth/react";
 
 export function CreateChat() {
   const { openChatCreate, setOpenChatCreate } = useGlobalContext();
@@ -18,6 +21,7 @@ export function CreateChat() {
   const router = useRouter();
   const ref = useRef<HTMLDivElement | null>(null);
   const queryClient = useQueryClient();
+  const createChat = useMutation(api.chat.createChat);
 
   const handleClickOutside = () => {
     // Your custom logic here
@@ -27,18 +31,26 @@ export function CreateChat() {
   useOnClickOutside(ref, handleClickOutside);
 
   const [pending, startTransition] = useTransition();
+  const usr = useSession();
+
   async function handleSubmit() {
+    const id = usr.data?.user.id ? usr.data?.user.id : "";
     startTransition(async () => {
-      const { success, message } = await createChatFromId({ userId });
+      // const { success, message } = await createChatFromId({ userId });
 
-      if (success) {
-        queryClient.invalidateQueries({ queryKey: ["userList"] });
-        setOpenChatCreate(false);
-
-        router.push(message);
-      } else {
-        console.log("there is a problem");
+      if (id) {
+        await createChat({
+          first: id,
+          second: userId,
+        });
       }
+      // if (success) {
+      //   queryClient.invalidateQueries({ queryKey: ["userList"] });
+      //   setOpenChatCreate(false);
+      //   router.push(message);
+      // } else {
+      //   console.log("there is a problem");
+      // }
     });
   }
   if (!openChatCreate) {

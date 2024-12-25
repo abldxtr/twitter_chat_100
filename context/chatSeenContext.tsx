@@ -9,9 +9,12 @@ import React, {
   ReactNode,
   useState,
 } from "react";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+// import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useGlobalContext } from "@/context/globalContext";
 import { useSocket } from "@/provider/socket-provider";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 type ChatSeenContextType = {
   markMessageAsSeen: (messageId: string, chatId: string) => void;
@@ -35,7 +38,7 @@ type ChatSeenProviderProps = {
 export const ChatSeenProvider: React.FC<ChatSeenProviderProps> = ({
   children,
 }) => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const { setFinal } = useGlobalContext();
   const { socket } = useSocket();
   const [qkey, setQKey] = useState("");
@@ -45,88 +48,29 @@ export const ChatSeenProvider: React.FC<ChatSeenProviderProps> = ({
   const seenMessagesRef = useRef(new Set<string>());
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const updateMessageStatusMutation = useMutation({
-    mutationFn: async (messageIds: string[]) => {
-      const response = await fetch("/api/messages/update-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ messageIds }),
-      });
+  // const updateMessageStatus = useCallback(() => {
+  //   // const messageIds = Array.from(seenMessagesRef.current);
+  //   // const messageIds = seenMessagesRef.current as Id<"messages">;
 
-      if (!response.ok) {
-        throw new Error("Failed to update message status");
-      }
+  //   // if (messageIds.length > 0) {
+  //   //   console.log("Sending batch update for messages:", messageIds);
+  //   //   // updateMessageStatusMutation.mutate(messageIds);
 
-      return response.json();
-    },
-    onSuccess: () => {
-      // console.log("Batch update successful");
-      console.log("Batch update successful", { qkey, oth });
+  //   // }
+  //   // seenMess({ id: messageIds });
 
-      queryClient.invalidateQueries({ queryKey: [qkey] });
-      socket.emit("update", { qkey, oth });
-      setPendingUpdates(0);
-    },
-    onError: (error) => {
-      console.error("Error updating message status:", error);
-      // Retry logic could be implemented here
-    },
-  });
+  //   seenMessagesRef.current.clear();
+  // }, [seenMess]);
 
-  const updateMessageStatus = useCallback(() => {
-    const messageIds = Array.from(seenMessagesRef.current);
-    if (messageIds.length > 0) {
-      console.log("Sending batch update for messages:", messageIds);
-      updateMessageStatusMutation.mutate(messageIds);
-      seenMessagesRef.current.clear();
+  const markMessageAsSeen = (messageId: string) => {
+    if (!seenMessagesRef.current.has(messageId)) {
+      seenMessagesRef.current.add(messageId);
+      setPendingUpdates((prev) => prev + 1);
+      console.log("Marking message as seen (not sent yet):", messageId);
+
+      const Id = messageId as Id<"messages">;
     }
-  }, [updateMessageStatusMutation]);
-
-  const scheduleUpdate = useCallback(() => {
-    if (updateTimeoutRef.current) {
-      clearTimeout(updateTimeoutRef.current);
-    }
-    updateTimeoutRef.current = setTimeout(() => {
-      updateMessageStatus();
-    }, 2000);
-  }, [updateMessageStatus]);
-
-  const markMessageAsSeen = useCallback(
-    (messageId: string, chatId: string) => {
-      if (!seenMessagesRef.current.has(messageId)) {
-        seenMessagesRef.current.add(messageId);
-        setPendingUpdates((prev) => prev + 1);
-        console.log("Marking message as seen (not sent yet):", messageId);
-
-        setFinal((prevFinal) =>
-          prevFinal
-            .map((chatObj) => {
-              if (Object.keys(chatObj)[0] === chatId) {
-                const messages = chatObj[chatId].filter(
-                  (msg) => msg.id !== messageId
-                );
-                return { [chatId]: messages };
-              }
-              return chatObj;
-            })
-            .filter((chatObj) => Object.values(chatObj)[0].length > 0)
-        );
-        scheduleUpdate();
-      }
-    },
-    [setFinal, scheduleUpdate]
-  );
-
-  useEffect(() => {
-    return () => {
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current);
-      }
-      updateMessageStatus();
-    };
-  }, [updateMessageStatus]);
+  };
 
   return (
     <ChatSeenContext.Provider

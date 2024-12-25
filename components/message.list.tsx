@@ -9,11 +9,13 @@ import { Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Session } from "next-auth";
 import { usr } from "@/lib/data";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMessage } from "@/hooks/use-message";
 import classNames from "classnames";
 import { MessageData } from "@/lib/definitions";
 import { CreateChat, CreateChatIcon } from "./create-chat";
+import { useQueries, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export type users = {
   id: string;
@@ -46,6 +48,8 @@ export default function Message_list({
     setConversationId,
   } = useGlobalContext();
 
+  const chatList = useQuery(api.chat.chatList, { id: userId });
+
   useLayoutEffect(() => {
     // console.log("param?.conversationId", param?.conversationId);
     if (matches) {
@@ -63,58 +67,23 @@ export default function Message_list({
     }
   }, [param?.conversationId]);
 
-  const { fetchMessages } = useMessage();
+  // const { fetchMessages } = useMessage();
 
-  const [change, setChange] = useState(false);
+  // const [change, setChange] = useState(false);
   // console.log("final", final);
 
-  // console.log("parammmmmmmmmmm", typeof param.key);
-  const { data, isLoading } = useQuery({
-    queryKey: ["userList"],
-    queryFn: () => {
-      const res = fetchMessages(userId);
-      setChange(() => !change);
+  // const { data, isLoading } = useQuery({
+  //   queryKey: ["userList"],
+  //   queryFn: () => {
+  //     const res = fetchMessages(userId);
+  //     setChange(() => !change);
 
-      return res;
-    },
+  //     return res;
+  //   },
 
-    staleTime: 1000 * 60 * 5,
-    retry: 2,
-  });
-
-  useEffect(() => {
-    if (data) {
-      const finalData = data.reduce((acc, chat: usr) => {
-        const unreadMessages = chat.messages.filter(
-          (message) =>
-            message.receiverId === userId && message.status === "SENT"
-        );
-        const existingChat = final.find(
-          (item) => Object.keys(item)[0] === chat.id
-        );
-        const existingUnreadMessages = existingChat
-          ? existingChat[chat.id]
-          : [];
-        const updatedUnreadMessages = [
-          ...existingUnreadMessages,
-          ...unreadMessages.filter(
-            (newMsg) =>
-              !existingUnreadMessages.some(
-                (existingMsg) => existingMsg.id === newMsg.id
-              )
-          ),
-        ];
-        acc.push({ [chat.id]: updatedUnreadMessages });
-        return acc;
-      }, [] as { [key: string]: MessageData[] }[]);
-      console.log("finalData", finalData);
-      setFinal(finalData);
-    }
-  }, [data, change, userId]);
-
-  // useLayoutEffect(() => {
-  //   const value = param.
-  // }, []);
+  //   staleTime: 1000 * 60 * 5,
+  //   retry: 2,
+  // });
 
   return (
     <>
@@ -140,48 +109,53 @@ export default function Message_list({
             </div>
 
             <div className=" flex-1 overflow-y-auto relative bg-[#fcfdfd] ">
-              {isLoading
+              {!chatList
                 ? [...new Array(6)].map((i, index) => {
                     return <UserListLoading key={index} />;
                   })
-                : data?.map((item: usr) => {
+                : chatList?.map((item) => {
                     const otherUser =
-                      item.initiator.id === userId
-                        ? item.participant
-                        : item.initiator;
+                      item.initiatorId === userId
+                        ? item.participantId
+                        : item.initiatorId;
 
-                    const lastMessage =
-                      item.messages[item.messages.length - 1]?.content ??
-                      "هنوز گفت و گویی رو شروع نکردید";
+                    // const lastMessage =
+                    //   item.messages[item.messages.length - 1]?.content ??
+                    //   "هنوز گفت و گویی رو شروع نکردید";
+                    const lastMessage = "هنوز گفت و گویی رو شروع نکردید";
 
-                    const date1 = item.initiator.lastSeen;
-                    const date2 = item.participant.lastSeen;
-                    const date = new Date(date1 > date2 ? date2 : date1);
+                    // const date1 = item.initiator.lastSeen;
+                    // const date2 = item.participant.lastSeen;
+                    // const date = new Date(date1 > date2 ? date2 : date1);
+                    const date = Date.now();
 
+                    // const unReadMess =
+                    //   final.find((obj) => Object.keys(obj)[0] === item.id)?.[
+                    //     item.id
+                    //   ]?.length ?? 0;
                     const unReadMess =
-                      final.find((obj) => Object.keys(obj)[0] === item.id)?.[
-                        item.id
-                      ]?.length ?? 0;
+                      item.initiatorId === userId
+                        ? item.unreadMessagesCountParticipant
+                        : item.unreadMessagesCountInitiator;
 
-                    const active = item.id === conversationId ? true : false;
-                    const href = `${item.id}`;
-                    // const img =
-                    //   "https://pbs.twimg.com/profile_images/1564361710554734593/jgWXrher_normal.jpg";
-                    const img = otherUser.image!;
+                    const active = item._id === conversationId ? true : false;
+                    const href = `${item._id}`;
+
+                    // const img = otherUser.image!;
 
                     const userItem: userList = {
-                      id: item.id,
+                      id: item._id,
                       active,
-                      date,
+                      // date,
                       href,
-                      lastMessage,
-                      name: otherUser.name,
-                      username: otherUser.username,
-                      img,
+                      // lastMessage,
+                      name: otherUser,
+                      // username: otherUser.username,
+                      // img,
                       unReadMess,
                     };
 
-                    return <UserList key={item.id} user={userItem} />;
+                    return <UserList key={item._id} user={userItem} />;
                   })}
             </div>
           </div>
@@ -190,18 +164,3 @@ export default function Message_list({
     </>
   );
 }
-
-// const updatedUnreadCounts = data.map((item) => ({
-//   id: item.id,
-//   count: item.unreadCount,
-// }));
-// console.log("dataaaaaa", data);
-
-// const finalData = data.map((chat: usr) => {
-//   const unreadMessages = chat.messages.filter(
-//     (message) =>
-//       message.receiverId === userId && message.status === "SENT"
-//   );
-//   const indx = final.findIndex((item) => item.id === chat.id);
-//   return { [chat.id]: [...final[chat.id], unreadMessages] };
-// });

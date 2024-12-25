@@ -17,23 +17,42 @@ import { useInView, IntersectionOptions } from "react-intersection-observer";
 import {
   useInfiniteQuery,
   useQueryClient,
-  useMutation,
+  // useMutation,
   useQuery,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
 // import { useChatSeen } from "@/hooks/user-chat-seen";
 import { Loader2 } from "lucide-react";
-import { useChatSeen } from "@/context/chatSeenContext";
+// import { useChatSeen } from "@/context/chatSeenContext";
+import { Id } from "@/convex/_generated/dataModel";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 interface ChatMessageProps {
   message: MessageData;
   isCurrentUser: boolean;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({
+interface messageItem {
+  _id: Id<"messages">;
+  _creationTime: number;
+  image: string[];
+  chatId: string;
+  content: string;
+  status: "SENT" | "DELIVERED" | "READ";
+  type: "IMAGE" | "TEXT" | "VIDEO" | "AUDIO" | "FILE";
+  senderId: string;
+  receiverId: string;
+  opupId: string;
+}
+
+export const ChatMessage = ({
   message,
   isCurrentUser,
+}: {
+  message: messageItem;
+  isCurrentUser: boolean;
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   // const {ref, inView}= useInView(inViewOptions);
@@ -42,7 +61,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <MessageWrapper message={message}>
-      {message.type === "IMAGE" &&
+      {/* {message.type === "IMAGE" &&
         message.images &&
         message.images.length > 0 && (
           <ImageContent
@@ -50,7 +69,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             setImageLoaded={setImageLoaded}
             uploading={message.statusOU === "SENDING" ? true : false}
           />
-        )}
+        )} */}
       {message.content && <span className="break-all">{message.content}</span>}
       <MessageFooter message={message} imageLoaded={imageLoaded} />
     </MessageWrapper>
@@ -118,12 +137,13 @@ const ImageItem: React.FC<{
 };
 
 const MessageFooter: React.FC<{
-  message: MessageData;
+  message: messageItem;
   imageLoaded: boolean;
 }> = ({ message, imageLoaded }) => {
   const renderStatusIcon = () => {
-    if (message.statusOU === "SENDING") {
-      return <Loader2 className="size-4 text-green-500 animate-spin " />;
+    if (message.status === "DELIVERED") {
+      // if (false) {
+      return <Loader2 className="size-[14px] text-green-500 animate-spin " />;
     } else if (message.status === "SENT") {
       return (
         <svg
@@ -167,14 +187,14 @@ const MessageFooter: React.FC<{
 
   return (
     <div className="text-[#6a7485] text-xs leading-4 mt-1 flex items-center  ">
-      {formatPersianDate(new Date(message.createdAt))}
+      {formatPersianDate(new Date(message._creationTime))}
       <span className="ml-2 pb-1">{renderStatusIcon()}</span>
     </div>
   );
 };
 
 const MessRight: React.FC<{
-  message: MessageData;
+  message: messageItem;
   children: React.ReactNode;
 }> = ({ message, children }) => (
   <motion.div
@@ -191,19 +211,20 @@ const MessRight: React.FC<{
 );
 
 const MessLeft: React.FC<{
-  message: MessageData;
+  message: messageItem;
   children: React.ReactNode;
 }> = ({ message, children }) => {
   const queryClient = useQueryClient();
   const { setUnreadMessages, setFinal } = useGlobalContext();
   const { socket } = useSocket();
   const other = message.senderId;
+  const seenMess = useMutation(api.message.seenMessage);
 
   const seenMessagesRef = useRef(new Set<string>());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const queryKey = `chat:${message.chatId}`;
-  const { markMessageAsSeen, pendingUpdates, qkey, setQKey, oth, setOth } =
-    useChatSeen();
+  // const { markMessageAsSeen, pendingUpdates, qkey, setQKey, oth, setOth } =
+  //   useChatSeen();
 
   // setQKey(queryKey);
   // setOth(other);
@@ -226,7 +247,13 @@ const MessLeft: React.FC<{
     if (message.status === "SENT" && inView) {
       console.log("wwwwwwwwwwwwwwwwwwwwwww");
 
-      markMessageAsSeen(message.id, message.chatId);
+      // markMessageAsSeen(message._id);
+
+      seenMess({
+        id: message._id,
+        chatId: message.chatId as Id<"chats">,
+        userId: message.receiverId,
+      });
     }
 
     return () => {
@@ -234,7 +261,7 @@ const MessLeft: React.FC<{
         clearTimeout(timerRef.current);
       }
     };
-  }, [message.status, inView, message.id, message.chatId]);
+  }, [message.status, inView, message._id, message.chatId]);
 
   // useEffect(() => {
   //   return () => {
@@ -334,51 +361,51 @@ export function ScrollDown({
     final.find((chat) => Object.keys(chat)[0] === chatId)?.[chatId]?.length ??
     0;
 
-  const updateAllMutation = useMutation({
-    mutationFn: async (chatId: string) => {
-      const response = await fetch("/api/messages/update-all-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ chatId }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update message status");
-      }
-      return response.json();
-    },
-    onMutate: () => {
-      // final.find((chat) => Object.keys(chat)[0] === chatId)?
-      setFinal((prevFinal) =>
-        prevFinal
-          .map((chatObj) => {
-            if (Object.keys(chatObj)[0] === chatId) {
-              const messages = chatObj[chatId].filter((msg) => msg.id === "");
-              return { [chatId]: messages };
-            }
-            return chatObj;
-          })
-          .filter((chatObj) => Object.values(chatObj)[0].length > 0)
-      );
-    },
-    onSuccess: () => {
-      startTransition(async () => {
-        queryClient.invalidateQueries({ queryKey: [queryKey] });
-        router.refresh();
-      });
+  // const updateAllMutation = useMutation({
+  //   mutationFn: async (chatId: string) => {
+  //     const response = await fetch("/api/messages/update-all-status", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ chatId }),
+  //     });
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update message status");
+  //     }
+  //     return response.json();
+  //   },
+  //   onMutate: () => {
+  //     // final.find((chat) => Object.keys(chat)[0] === chatId)?
+  //     setFinal((prevFinal) =>
+  //       prevFinal
+  //         .map((chatObj) => {
+  //           if (Object.keys(chatObj)[0] === chatId) {
+  //             const messages = chatObj[chatId].filter((msg) => msg.id === "");
+  //             return { [chatId]: messages };
+  //           }
+  //           return chatObj;
+  //         })
+  //         .filter((chatObj) => Object.values(chatObj)[0].length > 0)
+  //     );
+  //   },
+  //   onSuccess: () => {
+  //     startTransition(async () => {
+  //       queryClient.invalidateQueries({ queryKey: [queryKey] });
+  //       router.refresh();
+  //     });
 
-      // queryClient.invalidateQueries({ queryKey: ["unreadCount", chatId] });
-    },
-    onError: (error) => {
-      console.error("Error updating all message status:", error);
-    },
-  });
+  //     // queryClient.invalidateQueries({ queryKey: ["unreadCount", chatId] });
+  //   },
+  //   onError: (error) => {
+  //     console.error("Error updating all message status:", error);
+  //   },
+  // });
 
-  const handleClick = () => {
-    updateAllMutation.mutate(chatId);
-    func();
-  };
+  // const handleClick = () => {
+  //   updateAllMutation.mutate(chatId);
+  //   func();
+  // };
   return (
     <>
       <div
@@ -387,7 +414,7 @@ export function ScrollDown({
           "cursor-pointer transiton-all duration-300  ",
           goDown ? "opacity-100" : "opacity-0 pointer-events-none "
         )}
-        onClick={handleClick}
+        // onClick={handleClick}
       >
         <div
           className={cn(

@@ -22,18 +22,18 @@ const ConversationId = async (props: {
 
   const userId = current.user!.id!;
 
-  const chat = await db.chat.findFirst({
-    where: {
-      id: param,
-    },
-  });
+  // const chat = await db.chat.findFirst({
+  //   where: {
+  //     id: param,
+  //   },
+  // });
 
-  if (chat) {
-    const ispart = chat.initiatorId === userId || chat.participantId === userId;
-    if (!ispart) {
-      return redirect("/");
-    }
-  }
+  // if (chat) {
+  //   const ispart = chat.initiatorId === userId || chat.participantId === userId;
+  //   if (!ispart) {
+  //     return redirect("/");
+  //   }
+  // }
 
   return (
     <div className="w-full h-full">

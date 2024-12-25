@@ -16,6 +16,7 @@ import { MessageProvider } from "@/hooks/use-message";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import db from "@/lib/prisma";
 import { ChatSeenProvider } from "@/context/chatSeenContext";
+import { ConvexClientProvider } from "./ConvexClientProvider";
 // export const dynamic = "force-dynamic";
 
 const geistSans = localFont({
@@ -111,38 +112,40 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <SessionProvider session={current}>
-          <QueryProvider>
-            <SocketProvider>
+          <ConvexClientProvider>
+            <QueryProvider>
+              {/* <SocketProvider> */}
               <MessageProvider>
                 <GlobalProvider>
                   <MessageProvider2>
-                    <ChatSeenProvider>
-                      <EmojiProvider>
-                        <EdgeStoreProvider>
-                          <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
-                            <div className=" overflow-auto  h-full scrl flex w-full  ">
-                              <main className="flex h-full items-start w-full ">
-                                <div className="flex shrink grow flex-1 items-start w-full isolate ">
-                                  {/* <!-- messages list --> */}
-                                  <Message_list
-                                    // chatlist={users}
-                                    first={userId}
-                                    current={current}
-                                  />
+                    {/* <ChatSeenProvider> */}
+                    <EmojiProvider>
+                      <EdgeStoreProvider>
+                        <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
+                          <div className=" overflow-auto  h-full scrl flex w-full  ">
+                            <main className="flex h-full items-start w-full ">
+                              <div className="flex shrink grow flex-1 items-start w-full isolate ">
+                                {/* <!-- messages list --> */}
+                                <Message_list
+                                  // chatlist={users}
+                                  first={userId}
+                                  current={current}
+                                />
 
-                                  {children}
-                                </div>
-                              </main>
-                            </div>
+                                {children}
+                              </div>
+                            </main>
                           </div>
-                        </EdgeStoreProvider>
-                      </EmojiProvider>
-                    </ChatSeenProvider>
+                        </div>
+                      </EdgeStoreProvider>
+                    </EmojiProvider>
+                    {/* </ChatSeenProvider> */}
                   </MessageProvider2>
                 </GlobalProvider>
               </MessageProvider>
-            </SocketProvider>
-          </QueryProvider>
+              {/* </SocketProvider> */}
+            </QueryProvider>
+          </ConvexClientProvider>
         </SessionProvider>
       </body>
     </html>

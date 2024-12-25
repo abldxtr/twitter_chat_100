@@ -77,12 +77,6 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [final, setFinal] = useState<final>([]);
 
-  useEffect(() => {
-    // if (unreadMessages) {
-    setUnreadCount(unreadMessages.length);
-    // }
-  }, [unreadMessages]);
-
   return (
     <GlobalContext.Provider
       value={{

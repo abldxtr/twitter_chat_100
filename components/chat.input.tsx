@@ -12,35 +12,38 @@ import { InputWithRef } from "./InputWithRef";
 import GifInput from "./Gif-input";
 import TempImg from "./temp-img";
 import { user } from "@/lib/definitions";
-import { useSocket } from "@/provider/socket-provider";
+// import { useSocket } from "@/provider/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileState, useGlobalContext } from "@/context/globalContext";
 import DragContainer from "./drag-container";
 import { useChatQuery } from "@/hooks/use-chat-query";
 import { useEdgeStore } from "@/lib/edgestore";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useSession } from "next-auth/react";
 
 export default function InputChat({
   param,
-  first,
-  second,
-  other,
   chatId,
+  other,
 }: {
   param: string;
-  first: user | undefined;
-  second: user | undefined;
-  other: user | undefined;
   chatId: string | undefined;
+  other: string;
 }) {
   const { setOpenEmoji } = useEmojiState();
   const [cursorPosition, setCursorPosition] = useState<number>(0);
   const { imgTemp, setImgTemp, isShowImgTemp, setIsShowImgTemp } =
     useGlobalContext();
 
+  const usr = useSession();
+  const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
+
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);
   const EmojiRef = useRef(null);
-  const { socket } = useSocket();
+  // const { socket } = useSocket();
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
   const apiUrl = "/api/messages";
@@ -53,15 +56,45 @@ export default function InputChat({
   // const queryKey = `chat:cm2ylbaaj000emhh56mhgvrg9`;
   let queryKey = useMemo(() => `chat:${paramValue}`, [paramValue]);
 
-  const currentUser = first ? first.id : "";
+  // const currentUser = first ? first.id : "";
   // const { edgestore } = useEdgeStore();
+  // const createMessage = useMutation(api.message.createMessage);
+  const createMessage = useMutation(
+    api.message.createMessage
+  ).withOptimisticUpdate((localStore, args) => {
+    const { content, chatId, images, opupId, recieverId, senderId } = args;
+    const currentValue = localStore.getQuery(api.message.messages, {
+      chatId,
+    });
+    console.log({ currentValue });
 
-  const { sendMessage } = useChatQuery({
-    queryKey,
-    apiUrl,
-    paramKey,
-    paramValue,
-    currentUser,
+    if (currentValue !== undefined) {
+      const now = Date.now() as number;
+      const id = crypto.randomUUID() as Id<"messages">;
+      // افزودن پیام جدید به لیست فعلی
+      localStore.setQuery(
+        api.message.messages,
+        {
+          chatId,
+        },
+        [
+          ...currentValue,
+          {
+            content,
+            chatId,
+            image: [],
+            opupId: "123",
+            receiverId: recieverId,
+            senderId,
+            status: "DELIVERED",
+            type: "TEXT",
+            _creationTime: now,
+            _id: id,
+          },
+          // پیام موقت
+        ]
+      );
+    }
   });
 
   const handleClickOutside = () => {
@@ -70,46 +103,15 @@ export default function InputChat({
 
   useOnClickOutside([EmojiRef, textRef], handleClickOutside);
 
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleTyping = () => {
-      socket.emit("isTyping", { chatId, userId: first?.id });
-    };
-
-    const handleStopTyping = () => {
-      socket.emit("stopTyping", { chatId, userId: first?.id });
-    };
-
-    if (inputValue.trim()) {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      handleTyping();
-      typingTimeoutRef.current = setTimeout(handleStopTyping, 3000);
-    } else {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      handleStopTyping();
-    }
-
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, [inputValue, socket, chatId, first?.id]);
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     // console.log("handleSubmit");
     if (imgTemp.length > 0) {
-      if (first && other && chatId) {
+      if (currentUser && other && chatId) {
         const newMessage = {
           content: inputValue.trim(),
-          senderId: first.id,
-          receiverId: other.id,
+          senderId: currentUser,
+          receiverId: other,
           id: chatId,
           createdAt: new Date().toISOString() as unknown as Date,
           updatedAt: new Date().toISOString() as unknown as Date,
@@ -120,18 +122,15 @@ export default function InputChat({
           images: imgTemp,
         };
 
-        console.log("newMessage", newMessage);
-        sendMessage(newMessage);
-
         // }
       }
     } else {
       if (inputValue.trim()) {
-        if (first && other && chatId) {
+        if (currentUser && other && chatId) {
           const newMessage = {
             content: inputValue.trim(),
-            senderId: first.id,
-            receiverId: other.id,
+            senderId: currentUser,
+            receiverId: other,
             id: chatId,
             createdAt: new Date().toISOString() as unknown as Date,
             updatedAt: new Date().toISOString() as unknown as Date,
@@ -141,7 +140,20 @@ export default function InputChat({
             status: "SENT" as const,
             opupId: crypto.randomUUID(),
           };
-          sendMessage(newMessage);
+
+          const newMessage1 = {
+            content: inputValue.trim(),
+            senderId: currentUser,
+            recieverId: other,
+            chatId: chatId as Id<"chats">,
+            opupId: crypto.randomUUID(),
+            images: [""],
+          };
+
+          console.log("newMessage", newMessage1);
+          // sendMessage(newMessage);
+          createMessage(newMessage1);
+          // sendMessage(newMessage);
         }
       }
     }
