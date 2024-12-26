@@ -45,9 +45,9 @@ export default function InputChat({
   useTypingIndicator(data.text, updatePresence);
   const presentOthers = (others ?? []).filter((p) => p.present);
 
-  console.log({ presentOthers });
-  console.log({ data });
-  console.log({ others });
+  // console.log({ presentOthers });
+  // console.log({ data });
+  // console.log({ others });
 
   const [inputValue, setInputValue] = useState("");
   const textRef = useRef<HTMLInputElement | null>(null);

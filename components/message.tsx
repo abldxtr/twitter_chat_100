@@ -43,9 +43,9 @@ export default function Messages({
     typing: false as boolean,
   });
   const presentOthers = (others ?? []).filter((p) => p.present)[0];
-  console.log({ presentOthers });
-  console.log({ data });
-  console.log({ others });
+  // console.log({ presentOthers });
+  // console.log({ data });
+  // console.log({ others });
 
   useLayoutEffect(() => {
     const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);

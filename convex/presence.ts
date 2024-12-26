@@ -31,14 +31,22 @@ export const update = mutation({
       .query("presence")
       .withIndex("room_user", (q) => q.eq("room", room).eq("user", user))
       .unique();
+    // console.log({ existing });
     if (existing) {
+      console.log("iffffffffffff");
+
       const patch: Partial<Doc<"presence">> = { data };
-      if (existing.present === false) {
-        patch.present = true;
-        patch.latestJoin = Date.now();
-      }
-      await ctx.db.patch(existing._id, { data });
+      // if (existing.present === false) {
+      // patch.present = true;
+      // patch.latestJoin = Date.now();
+      // }
+      await ctx.db.patch(existing._id, {
+        data,
+        present: true,
+        latestJoin: Date.now(),
+      });
     } else {
+      // console.log("elseeeeeee");
       await ctx.db.insert("presence", {
         user,
         data,
