@@ -56,8 +56,8 @@ export const messages = query({
   handler: async (ctx, args) => {
     let query = ctx.db
       .query("messages")
-      .withIndex("by_chatId", (q) => q.eq("chatId", args.chatId))
-      .order("asc"); // مرتب‌سازی بر اساس جدیدترین پیام
+      .withIndex("by_chatId", (q) => q.eq("chatId", args.chatId));
+    // .order("asc"); // مرتب‌سازی بر اساس جدیدترین پیام
 
     // استفاده از Cursor برای Pagination
     // if (args.cursor) {

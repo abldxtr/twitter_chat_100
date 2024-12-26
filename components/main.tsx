@@ -59,7 +59,7 @@ export default async function Main({ param }: { param: string }) {
 
         <Chat_text
           param={param}
-          preloadedMessages={preloadedMessages}
+          // preloadedMessages={preloadedMessages}
           preloadedChat={preloadedChat}
         />
       </div>

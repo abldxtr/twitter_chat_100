@@ -38,8 +38,7 @@ export default function Messages({
   const [data, others, updatePresence] = usePresence(paramValue, currentUser, {
     text: "",
     // emoji: Emojis[userId % Emojis.length],
-    x: 0,
-    y: 0,
+
     typing: false as boolean,
   });
   const presentOthers = (others ?? []).filter((p) => p.present)[0];
@@ -124,7 +123,7 @@ export default function Messages({
       />
       <div
         className={classNames(
-          "w-full  p-2  overflow-y-auto flex  flex-col-reverse h-full  "
+          "w-full  p-2  overflow-y-auto flex  flex-col h-full  "
         )}
         ref={chatRef}
       >
@@ -133,9 +132,6 @@ export default function Messages({
           Other === typingUser.userId &&
           typingUser.isTyping && <TypingLeft message="typing..." />} */}
 
-        {presentOthers && presentOthers.data.typing && (
-          <TypingLeft message="typing..." />
-        )}
         <div ref={bottomRef} />
 
         {Object.entries(groupedMessages).map(([date, msgs]) => (
@@ -152,6 +148,10 @@ export default function Messages({
             ))}
           </div>
         ))}
+
+        {presentOthers && presentOthers.data.typing && (
+          <TypingLeft message="typing..." />
+        )}
       </div>
     </div>
   );

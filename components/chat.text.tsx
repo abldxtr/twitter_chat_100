@@ -15,18 +15,17 @@ import {
 import { useSession } from "next-auth/react";
 
 export default function Chat_text(props: {
-  preloadedMessages: Preloaded<typeof api.message.messages>;
+  // preloadedMessages: Preloaded<typeof api.message.messages>;
   preloadedChat: Preloaded<typeof api.chat.getChat>;
 
   param: string;
 }) {
+  const usr = useSession();
+  const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
+  // const messages = usePreloadedQuery(props.preloadedMessages);
+  const chat = usePreloadedQuery(props.preloadedChat);
   if (props.param) {
-    const usr = useSession();
-    const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
     console.log("props.param", props.param);
-
-    const messages = usePreloadedQuery(props.preloadedMessages);
-    const chat = usePreloadedQuery(props.preloadedChat);
 
     const other =
       chat?.initiatorId === currentUser
