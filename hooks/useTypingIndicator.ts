@@ -10,7 +10,7 @@ export default (
       return;
     }
     updateMyPresence({ typing: true });
-    const timer = setTimeout(() => updateMyPresence({ typing: false }), 3000);
+    const timer = setTimeout(() => updateMyPresence({ typing: false }), 1000);
     return () => clearTimeout(timer);
   }, [updateMyPresence, text]);
 };
