@@ -90,14 +90,13 @@ export default function Message_list({
                         ? item.participantId
                         : item.initiatorId;
 
-                    const lastMessage = "هنوز گفت و گویی رو شروع نکردید";
+                    const lastMessage =
+                      item.lastMessage?.content ??
+                      "هنوز گفت و گویی رو آغاز نکرده اید.";
 
                     const date = Date.now();
 
-                    const unReadMess =
-                      item.initiatorId === userId
-                        ? item.unreadMessagesCountParticipant
-                        : item.unreadMessagesCountInitiator;
+                    const unReadMess = item.unreadMessagesCount;
 
                     const active = item._id === conversationId ? true : false;
                     const href = `${item._id}`;
@@ -107,7 +106,7 @@ export default function Message_list({
                       active,
                       // date,
                       href,
-                      // lastMessage,
+                      lastMessage,
                       name: otherUser,
                       // username: otherUser.username,
                       // img,

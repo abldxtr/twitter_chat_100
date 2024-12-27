@@ -17,6 +17,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useSession } from "next-auth/react";
 import usePresence from "@/hooks/usePresence";
 import useTypingIndicator from "@/hooks/useTypingIndicator";
+import useSingleFlight from "@/hooks/useSingleFlight";
 
 export default function InputChat({
   param,
@@ -33,6 +34,9 @@ export default function InputChat({
   const usr = useSession();
   const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
   // const [userId] = useState(() => Math.floor(Math.random() * 10000));
+  const updatePresenceForStop = useSingleFlight(
+    useMutation(api.presence.update)
+  );
 
   const [data, others, updatePresence] = usePresence(param, currentUser, {
     text: "",
@@ -43,6 +47,7 @@ export default function InputChat({
   });
 
   useTypingIndicator(data.text, updatePresence);
+
   const presentOthers = (others ?? []).filter((p) => p.present);
 
   // console.log({ presentOthers });
@@ -146,6 +151,13 @@ export default function InputChat({
 
           console.log("newMessage", newMessage1);
           // sendMessage(newMessage);
+          const a = {
+             typing: false ,
+            present: false,
+            latestJoin: Date.now(),
+          };
+          updatePresenceForStop({ user: currentUser, room: chatId, data: a });
+
           createMessage(newMessage1);
           // sendMessage(newMessage);
         }

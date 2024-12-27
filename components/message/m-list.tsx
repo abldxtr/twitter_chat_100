@@ -23,7 +23,7 @@ export type userList = {
   active: boolean | null;
   // username: string | null;
   // date: Date;
-  // lastMessage: string;
+  lastMessage: string;
   unReadMess: number;
 };
 
@@ -72,7 +72,7 @@ export default function UserList({ user }: { user: userList }) {
       >
         <div
           className={classNames(
-            " absolute bottom-2 flex items-center justify-center right-4 size-6 rounded-full bg-blue-500 text-white font-semibold  ",
+            " absolute bottom-2 flex items-center justify-center right-4 size-6 rounded-full bg-green-400 text-white font-semibold  ",
             user.unReadMess === 0 && "hidden "
           )}
         >
@@ -107,7 +107,7 @@ export default function UserList({ user }: { user: userList }) {
             </div>
           </div>
           <div className="text-[14px] font-normal leading-[20px] text-[#7a869a]">
-            {/* <span>{user.lastMessage.substring(0, 30)}</span> */}
+            <span>{user.lastMessage.substring(0, 30)}</span>
           </div>
         </div>
       </div>

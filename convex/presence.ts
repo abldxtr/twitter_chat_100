@@ -27,6 +27,8 @@ const MARK_AS_GONE_MS = 8_000;
 export const update = mutation({
   args: { room: v.string(), user: v.string(), data: v.any() },
   handler: async (ctx, { room, user, data }) => {
+
+    console.log({data})
     const existing = await ctx.db
       .query("presence")
       .withIndex("room_user", (q) => q.eq("room", room).eq("user", user))

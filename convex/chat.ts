@@ -6,36 +6,54 @@ export const chatList = query({
     id: v.string(),
   },
   handler: async (ctx, args) => {
+    // دریافت چت‌ها به‌عنوان آغازکننده یا شرکت‌کننده
     let query_1 = await ctx.db
       .query("chats")
       .withIndex("by_user_initiator", (q) => q.eq("initiatorId", args.id))
       .order("desc")
-      .collect(); // مرتب‌سازی بر اساس جدیدترین پیام
+      .collect();
 
     let query_2 = await ctx.db
       .query("chats")
       .withIndex("by_user_participant", (q) => q.eq("participantId", args.id))
       .order("desc")
-      .collect(); // مرتب‌سازی بر اساس جدیدترین پیام
+      .collect();
+
     const chats = [...query_1, ...query_2];
 
-    // const result = await Promise.all(
-    //   chats.map(async (chat) => {
-    //     const unreadMessagesCount = await ctx.db
-    //       .query("messages")
-    //       .withIndex("by_chatId", (q) =>
-    //         q.eq("chatId", chat._id).neq("status", "READ")
-    //       )
-    //       .count();
+    // پردازش برای هر چت
+    const result = await Promise.all(
+      chats.map(async (chat) => {
+        // تعداد پیام‌های خوانده‌نشده
+        const unreadMessages = await ctx.db
+          .query("messages")
+          .withIndex("by_chatId", (q) => q.eq("chatId", chat._id))
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("receiverId"), args.id),
+              q.eq(q.field("status"), "SENT")
+            )
+          )
+          .collect();
 
-    //     return {
-    //       ...chat,
-    //       unreadMessagesCount,
-    //     };
-    //   })
-    // );
+        const unreadMessagesCount = unreadMessages.length;
 
-    return [...query_1, ...query_2];
+        // آخرین پیام هر چت
+        const lastMessage = await ctx.db
+          .query("messages")
+          .withIndex("by_chatId", (q) => q.eq("chatId", chat._id))
+          .order("desc")
+          .first();
+
+        return {
+          ...chat,
+          unreadMessagesCount,
+          lastMessage,
+        };
+      })
+    );
+
+    return result;
   },
 });
 
