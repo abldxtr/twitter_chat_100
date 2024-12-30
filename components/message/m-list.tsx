@@ -13,6 +13,8 @@ import { Copy, Check } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
 import { User } from "../message.list";
 import { AnimatePresence, motion } from "framer-motion";
+import usePresence from "@/hooks/usePresence";
+import { TypingLeft } from "../scroll-down";
 // import { user } from "../message.list";
 
 export type userList = {
@@ -38,11 +40,22 @@ export type userList = {
   date: number | undefined;
   unReadMess: number;
   channelName: string;
+  currentUser: Id<"users"> | undefined;
 };
 
 export default function UserList({ user }: { user: userList }) {
   const { setMobileMenue, chatIdActive, setChatIdActive } = useGlobalContext();
   const matches = useMediaQuery("(min-width: 768px)");
+  const [data, others, updatePresence] = usePresence(
+    user.href,
+    user.currentUser!,
+    {
+      text: "",
+
+      typing: false as boolean,
+    }
+  );
+  const presentOthers = (others ?? []).filter((p) => p.present)[0];
 
   const renderStatusIcon = () => {
     if (user.lastMessage?.status === "SENT") {
@@ -153,13 +166,21 @@ export default function UserList({ user }: { user: userList }) {
           </div>
           <div className="text-sm font-normal leading-[20px] text-[#7a869a] flex items-center justify-between">
             <p>
-              {user.lastMessage
-                ? user.lastMessage?.content.length > 20
-                  ? user.lastMessage.content.substring(0, 20) + "..."
-                  : user.lastMessage?.content
-                : "هنوز گفت و گویی شروع نکرده اید."}
+              {presentOthers && presentOthers.data.typing ? (
+                <span className=" animate-pulse ">typing...</span>
+              ) : user.lastMessage ? (
+                user.lastMessage?.content.length > 20 ? (
+                  user.lastMessage.content.substring(0, 20) + "..."
+                ) : (
+                  user.lastMessage?.content
+                )
+              ) : (
+                "هنوز گفت و گویی شروع نکرده اید."
+              )}
             </p>
-            <div>{renderStatusIcon()}</div>
+            <div className={cn("", user.unReadMess > 0 ? "hidden" : "flex")}>
+              {renderStatusIcon()}
+            </div>
           </div>
         </div>
       </div>

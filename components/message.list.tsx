@@ -164,6 +164,7 @@ export default function Message_list({
                       href,
                       lastMessage,
                       name: otherUser!,
+                      currentUser: user?._id,
                       // username: otherUser.username,
                       channelName,
                       img,
