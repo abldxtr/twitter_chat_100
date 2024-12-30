@@ -2,23 +2,12 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { GlobalProvider } from "@/context/globalContext";
-
 import { MessageProvider2 } from "@/context/MessageContext";
 import { EmojiProvider } from "@/context/EmojiContext";
-// import { SessionProvider } from "next-auth/react";
-// import { auth } from "@/auth";
-import { QueryProvider } from "@/provider/query-provider";
-import Message_list from "@/components/message.list";
 import { MessageProvider } from "@/hooks/use-message";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { ConvexClientProvider } from "./ConvexClientProvider";
-import {
-  ConvexAuthNextjsServerProvider,
-  convexAuthNextjsToken,
-} from "@convex-dev/auth/nextjs/server";
-import { fetchQuery } from "convex/nextjs";
-import { api } from "@/convex/_generated/api";
-// export const dynamic = "force-dynamic";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,69 +28,27 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const current = await auth();
-  // if (!current?.user || !current.user.id) {
-  //   // return redirect("/login");
-  //   return (
-  //     <html lang="en" suppressHydrationWarning>
-  //       <body>{children}</body>
-  //     </html>
-  //   );
-  // }
-
-  // const token = await convexAuthNextjsToken();
-  // const user = await fetchQuery(api.user.getUser, {}, { token });
-  // if (!user) {
-  // }
-  // const chatList = await fetchQuery(
-  //   api.chat.chatList,
-  //   { id: user?._id ? user?._id : undefined },
-  //   { token }
-  // );
-
-  const userId = "current.user.id";
-
   return (
     <ConvexAuthNextjsServerProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          {/* <SessionProvider session={current}> */}
           <ConvexClientProvider>
-            <QueryProvider>
-              {/* <SocketProvider> */}
-              <MessageProvider>
-                <GlobalProvider>
-                  <MessageProvider2>
-                    {/* <ChatSeenProvider> */}
-                    <EmojiProvider>
-                      <EdgeStoreProvider>
-                        <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
-                          <div className=" overflow-auto  h-full scrl flex w-full  ">
-                            {/* <main className="flex h-full items-start w-full "> */}
-                            {/* <div className="flex shrink grow flex-1 items-start w-full isolate "> */}
-                            {/* <!-- messages list --> */}
-                            {/* <Message_list
-                                // chatlist={users}
-                                // first={userId}
-                                // current={current}
-                                /> */}
-                            {/* <Message_list user={user} chatlist={chatList} /> */}
-
-                            {children}
-                          </div>
-                          {/* </main> */}
-                          {/* </div> */}
+            <MessageProvider>
+              <GlobalProvider>
+                <MessageProvider2>
+                  <EmojiProvider>
+                    <EdgeStoreProvider>
+                      <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
+                        <div className=" overflow-auto  h-full scrl flex w-full  ">
+                          {children}
                         </div>
-                      </EdgeStoreProvider>
-                    </EmojiProvider>
-                    {/* </ChatSeenProvider> */}
-                  </MessageProvider2>
-                </GlobalProvider>
-              </MessageProvider>
-              {/* </SocketProvider> */}
-            </QueryProvider>
+                      </div>
+                    </EdgeStoreProvider>
+                  </EmojiProvider>
+                </MessageProvider2>
+              </GlobalProvider>
+            </MessageProvider>
           </ConvexClientProvider>
-          {/* </SessionProvider> */}
         </body>
       </html>
     </ConvexAuthNextjsServerProvider>

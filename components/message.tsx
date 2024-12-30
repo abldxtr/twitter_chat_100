@@ -9,17 +9,16 @@ import {
   useRef,
   useState,
 } from "react";
-
 import { Loader2 } from "lucide-react";
 import { cn, formatMessageDate } from "@/lib/utils";
 import ChatMessage, { ScrollDown, TypingLeft } from "./scroll-down";
-
 import { api } from "@/convex/_generated/api";
 import usePresence from "@/hooks/usePresence";
 import { User } from "./message.list";
-// import { useQuery } from "@tanstack/react-query";
-// import { convexQuery } from "@convex-dev/react-query";
-import { useQuery } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
+import { useChatScroll } from "@/hooks/use-chat-scroll";
+// import { useQuery } from "convex/react";
 
 export default function Messages({
   chatId,
@@ -34,21 +33,22 @@ export default function Messages({
   const chatRef = useRef<HTMLDivElement | null>(null);
   const unReadDiv = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
-  // const usr = useSession();
   const currentUser = user?._id ? user._id : "";
 
   const paramValue = chatId ? chatId : "";
 
   const [data, others, updatePresence] = usePresence(paramValue, currentUser, {
     text: "",
-    // emoji: Emojis[userId % Emojis.length],
 
     typing: false as boolean,
   });
   const presentOthers = (others ?? []).filter((p) => p.present)[0];
-  // console.log({ presentOthers });
-  // console.log({ data });
-  // console.log({ others });
+
+  const scrol = useChatScroll({
+    bottomRef,
+    chatRef,
+    setGoDown,
+  });
 
   useLayoutEffect(() => {
     const storedScrollPosition = sessionStorage.getItem(`scrollPos-${chatId}`);
@@ -86,7 +86,9 @@ export default function Messages({
   const chatIdd = chatId ? chatId : "";
   const cc = chatIdd;
 
-  const messages = useQuery(api.message.messages, { chatId: cc });
+  const { data: messages, isPending } = useQuery(
+    convexQuery(api.message.messages, { chatId: cc })
+  );
 
   const groupedMessages = useMemo(() => {
     if (!messages) return {};
@@ -108,7 +110,8 @@ export default function Messages({
   }, []);
 
   // if (status === "pending") {
-  if (!messages) {
+  // if (!messages) {
+  if (isPending) {
     return (
       <div className=" w-full h-full flex justify-center my-2 ">
         <Loader2 className="size-8 text-zinc-500 animate-spin " />
@@ -117,35 +120,19 @@ export default function Messages({
   }
 
   return (
-    <div
-      className=" flex-1 overflow-hidden relative isolate 
-    
-    [&::-webkit-scrollbar]:w-2
-  [&::-webkit-scrollbar-track]:bg-gray-100
-  [&::-webkit-scrollbar-thumb]:bg-gray-300
-    "
-    >
+    <div className=" flex-1 overflow-hidden relative isolate ">
       <ScrollDown
         goDown={goDown}
         func={HandleScrollDown}
-        // unreadCount={unreadCount}
-        // unreadCount={optimisticMessages.length}
         chatId={paramValue}
         queryKey={queryKey}
       />
       <div
         className={classNames(
-          "w-full  p-2  overflow-y-auto flex  flex-col h-full  "
+          "w-full  p-2  overflow-y-auto flex  flex-col h-full  [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md"
         )}
         ref={chatRef}
       >
-        {/* {typingUser.userId &&
-          typingUser.userId !== currentUser &&
-          Other === typingUser.userId &&
-          typingUser.isTyping && <TypingLeft message="typing..." />} */}
-
-        <div ref={bottomRef} />
-
         {Object.entries(groupedMessages).map(([date, msgs]) => (
           <div key={date} className="mb-4 isolate">
             <div className="text-center text-sm text-gray-500 my-2 sticky top-0 rtlDir z-[200] w-full flex items-center justify-center">
@@ -160,6 +147,7 @@ export default function Messages({
             ))}
           </div>
         ))}
+        <div ref={bottomRef} />
 
         {presentOthers && presentOthers.data.typing && (
           <TypingLeft message="typing..." />

@@ -358,10 +358,6 @@ export function ScrollDown({
   const { setUnreadCount, unreadMessages, final, setFinal } =
     useGlobalContext();
 
-  const unreadCount =
-    final.find((chat) => Object.keys(chat)[0] === chatId)?.[chatId]?.length ??
-    0;
-
   return (
     <>
       <div
@@ -370,14 +366,15 @@ export function ScrollDown({
           "cursor-pointer transiton-all duration-300  ",
           goDown ? "opacity-100" : "opacity-0 pointer-events-none "
         )}
-        // onClick={handleClick}
+        onClick={func}
       >
         <div
           className={cn(
-            " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 "
+            " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 ",
+            "hidden"
           )}
         >
-          {unreadCount}
+          {/* {unreadCount} */}
         </div>
 
         <svg

@@ -108,7 +108,6 @@ export default function Message_list({
       <div
         className={classNames(
           " overflow-y-auto overflow-x-hidden z-[10] bg-[#fcfdfd]  scrl fixed top-0 left-0 h-dvh md:w-[400px] w-full  ",
-          "[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300",
           mobileMenue
             ? "  -translate-x-full pointer-events-none   "
             : " translate-x-0 transition-all duration-300 "
@@ -116,9 +115,7 @@ export default function Message_list({
       >
         <section
           className=" lg:flex  relative  border-x-[1px] border-[#eff3f4] h-full w-full  
-        [&::-webkit-scrollbar]:w-2
-        [&::-webkit-scrollbar-track]:bg-gray-100
-        [&::-webkit-scrollbar-thumb]:bg-gray-300
+      
         "
         >
           <CreateChatIcon />

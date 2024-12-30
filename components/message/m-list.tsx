@@ -119,8 +119,6 @@ export default function UserList({ user }: { user: userList }) {
             user.unReadMess === 0 && "hidden "
           )}
         >
-          {/* {count} */}
-          {/* {unReadMess} */}
           {user.unReadMess > 0 && user.unReadMess}
         </div>
         <div className="mr-[16px] flex relative size-[50px] cursor-pointer items-center justify-center rounded-full border border-[#e5eaec] bg-[#ffffff] transition-all duration-300  ">
@@ -155,9 +153,11 @@ export default function UserList({ user }: { user: userList }) {
           </div>
           <div className="text-sm font-normal leading-[20px] text-[#7a869a] flex items-center justify-between">
             <p>
-              {user.lastMessage && user.lastMessage?.content.length > 20
-                ? user.lastMessage.content.substring(0, 20) + "..."
-                : user.lastMessage?.content}
+              {user.lastMessage
+                ? user.lastMessage?.content.length > 20
+                  ? user.lastMessage.content.substring(0, 20) + "..."
+                  : user.lastMessage?.content
+                : "هنوز گفت و گویی شروع نکرده اید."}
             </p>
             <div>{renderStatusIcon()}</div>
           </div>
