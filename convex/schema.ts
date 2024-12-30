@@ -1,9 +1,9 @@
 import { defineSchema, defineTable } from "convex/server";
-// import { authTables } from "@convex-dev/auth/server";
+import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 const schema = defineSchema({
-  // ...authTables,
+  ...authTables,
 
   presence: defineTable({
     user: v.string(),
@@ -33,8 +33,8 @@ const schema = defineSchema({
   messages: defineTable({
     content: v.string(),
 
-    senderId: v.string(),
-    receiverId: v.string(),
+    senderId: v.id("users"),
+    receiverId: v.id("users"),
     // chatId: v.id("chats"),
     chatId: v.string(),
 

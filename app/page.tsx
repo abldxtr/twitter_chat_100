@@ -3,35 +3,51 @@ import Main from "@/components/main";
 import Image from "next/image";
 import { faker } from "@faker-js/faker";
 import db from "@/lib/prisma";
+import {
+  convexAuthNextjsToken,
+  isAuthenticatedNextjs,
+} from "@convex-dev/auth/nextjs/server";
+import { redirect } from "next/navigation";
+import Message_list from "@/components/message.list";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
 
 export default async function Home() {
-  // update user picture by call db.user.update
-  // const users = await db.user.findMany();
-
-  // const updatedUsers = await Promise.all(
-  //   users.map(async (user) => {
-  //     const newAvatar = faker.image.avatar();
-  //     return db.user.update({
-  //       where: { id: user.id },
-  //       data: { image: newAvatar },
-  //     });
-  //   })
+  const isAuth = await isAuthenticatedNextjs();
+  if (!isAuth) {
+    redirect("/register");
+  }
+  const token = await convexAuthNextjsToken();
+  const user = await fetchQuery(api.user.getUser, {}, { token });
+  // const chatList = await fetchQuery(
+  //   api.chat.chatList,
+  //   { id: user?._id! },
+  //   { token }
   // );
 
-  // const avatar = faker.image.avatar(); cm3z541yl000010g5hdk746pu
+  const preloadedChatList = await preloadQuery(
+    api.chat.chatList,
+    // { id: user?._id!, chatId: param as Id<"chats"> }
+    { id: user?._id }
+
+    // { token }
+    // پاس دادن headers به preloadQuery
+  );
+
+  // const user = await fetchQuery(api.user.getUser, {}, { token });
+
+  // console.log({ chatList });
+
   return (
-    <div className="w-full isolate mx-auto flex h-dvh  overflow-hidden">
-      <Main param="" />
-    </div>
+    <>
+      <Message_list
+        user={user}
+        // chatlist={chatList}
+        preloadedChatList={preloadedChatList}
+      />
+      <div className="w-full isolate mx-auto flex h-dvh  overflow-hidden">
+        <Main param="" />
+      </div>
+    </>
   );
 }
-
-// const queryClient = useQueryClient();
-
-// useEffect(() => {
-//   queryClient.prefetchQuery({
-//     queryKey: ['messages', user.id],
-//     queryFn: () => fetchMessages(user.id),
-//     staleTime: 1000 * 60 * 5, // 5 minutes
-//   });
-// }, [user.id, queryClient]);

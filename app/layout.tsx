@@ -5,18 +5,19 @@ import { GlobalProvider } from "@/context/globalContext";
 
 import { MessageProvider2 } from "@/context/MessageContext";
 import { EmojiProvider } from "@/context/EmojiContext";
-import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
+// import { SessionProvider } from "next-auth/react";
+// import { auth } from "@/auth";
 import { QueryProvider } from "@/provider/query-provider";
-import { SocketProvider } from "@/provider/socket-provider";
-import { fetchChat, fetchChatsWithUnreadCount } from "@/lib/data";
 import Message_list from "@/components/message.list";
-import { redirect } from "next/navigation";
 import { MessageProvider } from "@/hooks/use-message";
 import { EdgeStoreProvider } from "@/lib/edgestore";
-import db from "@/lib/prisma";
-import { ChatSeenProvider } from "@/context/chatSeenContext";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import {
+  ConvexAuthNextjsServerProvider,
+  convexAuthNextjsToken,
+} from "@convex-dev/auth/nextjs/server";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
 // export const dynamic = "force-dynamic";
 
 const geistSans = localFont({
@@ -38,80 +39,33 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const current = await auth();
-  if (!current?.user || !current.user.id) {
-    // return redirect("/login");
-    return (
-      <html lang="en" suppressHydrationWarning>
-        <body>{children}</body>
-      </html>
-    );
-  }
+  // const current = await auth();
+  // if (!current?.user || !current.user.id) {
+  //   // return redirect("/login");
+  //   return (
+  //     <html lang="en" suppressHydrationWarning>
+  //       <body>{children}</body>
+  //     </html>
+  //   );
+  // }
 
-  const userId = current.user.id;
-
-  // const users = await db.user.findMany({
-  //   where: {
-  //     id: {
-  //       not: userId,
-  //     },
-  //   },
-  // });
-
-  // const createChat = users.map((otherUser) => {
-  //   db.chat.create({
-  //     data: {
-  //       initiatorId: userId,
-  //       participantId: otherUser.id,
-  //     },
-  //   });
-  // });
-
-  // const users = await db.user.findMany({
-  //   where: {
-  //     id: {
-  //       not: userId, // همه کاربران به جز کاربر فعلی
-  //       // می‌توانید شرایط بیشتری اضافه کنید
-  //     },
-  //   },
-  // });
-
-  // // ایجاد چت‌ها فقط اگر از قبل چتی وجود نداشته باشد
-  // const createChats = users.map(async (otherUser) => {
-  //   const existingChat = await db.chat.findFirst({
-  //     where: {
-  //       OR: [
-  //         { initiatorId: userId, participantId: otherUser.id },
-  //         { initiatorId: otherUser.id, participantId: userId },
-  //       ],
-  //     },
-  //   });
-
-  //   if (!existingChat) {
-  //     return db.chat.create({
-  //       data: {
-  //         initiatorId: userId,
-  //         participantId: otherUser.id,
-  //       },
-  //     });
-  //   }
-  //   return null; // چتی اضافه نشد
-  // });
-
-  // // منتظر تکمیل تمام عملیات
-  // const results = await Promise.all(createChats);
-
-  // const users = await fetchChat(userId);
-  // const users = await fetchChatsWithUnreadCount(userId);
-
-  // const msg = users.map((item, index) =>
-  //   item.messages.map((mess, index) => mess.status)
+  // const token = await convexAuthNextjsToken();
+  // const user = await fetchQuery(api.user.getUser, {}, { token });
+  // if (!user) {
+  // }
+  // const chatList = await fetchQuery(
+  //   api.chat.chatList,
+  //   { id: user?._id ? user?._id : undefined },
+  //   { token }
   // );
 
+  const userId = "current.user.id";
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <SessionProvider session={current}>
+    <ConvexAuthNextjsServerProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${geistSans.variable} ${geistMono.variable}`}>
+          {/* <SessionProvider session={current}> */}
           <ConvexClientProvider>
             <QueryProvider>
               {/* <SocketProvider> */}
@@ -123,19 +77,20 @@ export default async function RootLayout({
                       <EdgeStoreProvider>
                         <div className="w-full max-w-[2400px] isolate mx-auto flex h-dvh  overflow-hidden">
                           <div className=" overflow-auto  h-full scrl flex w-full  ">
-                            <main className="flex h-full items-start w-full ">
-                              <div className="flex shrink grow flex-1 items-start w-full isolate ">
-                                {/* <!-- messages list --> */}
-                                <Message_list
-                                  // chatlist={users}
-                                  first={userId}
-                                  current={current}
-                                />
+                            {/* <main className="flex h-full items-start w-full "> */}
+                            {/* <div className="flex shrink grow flex-1 items-start w-full isolate "> */}
+                            {/* <!-- messages list --> */}
+                            {/* <Message_list
+                                // chatlist={users}
+                                // first={userId}
+                                // current={current}
+                                /> */}
+                            {/* <Message_list user={user} chatlist={chatList} /> */}
 
-                                {children}
-                              </div>
-                            </main>
+                            {children}
                           </div>
+                          {/* </main> */}
+                          {/* </div> */}
                         </div>
                       </EdgeStoreProvider>
                     </EmojiProvider>
@@ -146,8 +101,9 @@ export default async function RootLayout({
               {/* </SocketProvider> */}
             </QueryProvider>
           </ConvexClientProvider>
-        </SessionProvider>
-      </body>
-    </html>
+          {/* </SessionProvider> */}
+        </body>
+      </html>
+    </ConvexAuthNextjsServerProvider>
   );
 }

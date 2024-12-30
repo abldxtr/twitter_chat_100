@@ -14,24 +14,28 @@ import { Loader2 } from "lucide-react";
 import { cn, formatMessageDate } from "@/lib/utils";
 import ChatMessage, { ScrollDown, TypingLeft } from "./scroll-down";
 
-import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSession } from "next-auth/react";
 import usePresence from "@/hooks/usePresence";
+import { User } from "./message.list";
+// import { useQuery } from "@tanstack/react-query";
+// import { convexQuery } from "@convex-dev/react-query";
+import { useQuery } from "convex/react";
 
 export default function Messages({
   chatId,
   other,
+  user,
 }: {
   chatId: string | undefined;
   other?: string | undefined;
+  user?: User;
 }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const chatRef = useRef<HTMLDivElement | null>(null);
   const unReadDiv = useRef<HTMLDivElement | null>(null);
   const [goDown, setGoDown] = useState(false);
-  const usr = useSession();
-  const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
+  // const usr = useSession();
+  const currentUser = user?._id ? user._id : "";
 
   const paramValue = chatId ? chatId : "";
 
@@ -103,7 +107,8 @@ export default function Messages({
     });
   }, []);
 
-  if (status === "pending") {
+  // if (status === "pending") {
+  if (!messages) {
     return (
       <div className=" w-full h-full flex justify-center my-2 ">
         <Loader2 className="size-8 text-zinc-500 animate-spin " />
@@ -112,7 +117,14 @@ export default function Messages({
   }
 
   return (
-    <div className=" flex-1 overflow-hidden relative isolate ">
+    <div
+      className=" flex-1 overflow-hidden relative isolate 
+    
+    [&::-webkit-scrollbar]:w-2
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+    "
+    >
       <ScrollDown
         goDown={goDown}
         func={HandleScrollDown}

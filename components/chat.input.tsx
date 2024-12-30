@@ -14,31 +14,34 @@ import DragContainer from "./drag-container";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 import usePresence from "@/hooks/usePresence";
 import useTypingIndicator from "@/hooks/useTypingIndicator";
 import useSingleFlight from "@/hooks/useSingleFlight";
+import { User } from "./message.list";
 
 export default function InputChat({
   param,
   chatId,
   other,
+  user,
 }: {
   param: string;
   chatId: string | undefined;
-  other: string;
+  other?: Id<"users">;
+  user?: User;
 }) {
   const { setOpenEmoji } = useEmojiState();
   const { imgTemp, setImgTemp, isShowImgTemp, setIsShowImgTemp } =
     useGlobalContext();
-  const usr = useSession();
-  const currentUser = usr.data?.user.id ? usr.data?.user.id : "";
+  // const usr = useSession();
+  const currentUser = user?._id ?? user?._id;
   // const [userId] = useState(() => Math.floor(Math.random() * 10000));
   const updatePresenceForStop = useSingleFlight(
     useMutation(api.presence.update)
   );
 
-  const [data, others, updatePresence] = usePresence(param, currentUser, {
+  const [data, others, updatePresence] = usePresence(param, currentUser!, {
     text: "",
     // // emoji: Emojis[userId % Emojis.length],
     // x: 0,
@@ -83,8 +86,8 @@ export default function InputChat({
             chatId,
             image: [],
             opupId: "123",
-            receiverId: recieverId,
-            senderId,
+            receiverId: recieverId as Id<"users">,
+            senderId: senderId as Id<"users">,
             status: "DELIVERED",
             type: "TEXT",
             _creationTime: now,
@@ -152,7 +155,7 @@ export default function InputChat({
           console.log("newMessage", newMessage1);
           // sendMessage(newMessage);
           const a = {
-             typing: false ,
+            typing: false,
             present: false,
             latestJoin: Date.now(),
           };

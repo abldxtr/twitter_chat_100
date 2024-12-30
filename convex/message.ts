@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 
 // نمونه استفاده در یک تابع mutation
 export const createMessage = mutation({
@@ -20,8 +21,8 @@ export const createMessage = mutation({
       image: args.images,
       type: args.images.length > 0 ? "IMAGE" : "TEXT",
       chatId: args.chatId,
-      senderId: args.senderId,
-      receiverId: args.recieverId,
+      senderId: args.senderId as Id<"users">,
+      receiverId: args.recieverId as Id<"users">,
       status: "SENT",
       opupId: args.opupId,
     });

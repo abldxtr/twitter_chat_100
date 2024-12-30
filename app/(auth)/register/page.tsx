@@ -20,14 +20,16 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RegisterSchema } from "@/index";
 import { startTransition, useTransition } from "react";
-import { register } from "@/lib/actions";
+// import { register } from "@/lib/actions";
 import Link from "next/link";
+import { useAuthActions } from "@convex-dev/auth/react";
 // import { useToast } from "@/hooks/use-toast";
 // import { Icons } from "../Icons";
 
 export default function SignUpForm() {
   const router = useRouter();
   // const { toast } = useToast();
+  const { signIn } = useAuthActions();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -36,22 +38,31 @@ export default function SignUpForm() {
       email: "",
       password: "",
       name: "",
+      confirmPassword: "",
     },
   });
 
   function onSubmit(data: z.infer<typeof RegisterSchema>) {
+    const { email, name, password, confirmPassword } = data;
     startTransition(async () => {
-      const res = await register(data);
-      if (res.success) {
-        // setError(error);
-        router.push("/login");
-      } else {
-        // toast({
-        //   description: res.message,
-        //   variant: "destructive",
-        // });
-        alert("error");
-      }
+      void signIn("password", { name, email, password, flow: "signUp" }).catch(
+        () => {
+          // setError("Something went wrong!");
+          alert("error");
+        }
+      );
+      router.push("/login");
+      // const res = await register(data);
+      // if (res.success) {
+      //   // setError(error);
+      //   router.push("/login");
+      // } else {
+      //   // toast({
+      //   //   description: res.message,
+      //   //   variant: "destructive",
+      //   // });
+      //   alert("error");
+      // }
     });
   }
 
@@ -119,6 +130,27 @@ export default function SignUpForm() {
                       <Input
                         type="password"
                         placeholder="Password"
+                        {...field}
+                        className="bg-transparent text-[rgb(245,245,245)] rounded-[3px] border border-[rgb(54,54,54)]
+                     focus-within:border-[rgb(69,69,69)] outline-none pt-[9px] pb-[7px] 
+                  pl-[8px]  w-full placeholder:text-[rgb(115,115,115)] placeholder:text-[12px] h-[36px] "
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    {/* <FormLabel>Password</FormLabel> */}
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Confirm Password"
                         {...field}
                         className="bg-transparent text-[rgb(245,245,245)] rounded-[3px] border border-[rgb(54,54,54)]
                      focus-within:border-[rgb(69,69,69)] outline-none pt-[9px] pb-[7px] 

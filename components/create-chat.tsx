@@ -12,9 +12,11 @@ import { BeatLoader } from "react-spinners";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSession } from "next-auth/react";
+import { Id } from "@/convex/_generated/dataModel";
+import { user } from "./message.list";
+// import { useSession } from "next-auth/react";
 
-export function CreateChat() {
+export function CreateChat({ id }: { id: user }) {
   const { openChatCreate, setOpenChatCreate } = useGlobalContext();
 
   const [userId, setUserId] = useState("");
@@ -31,19 +33,18 @@ export function CreateChat() {
   useOnClickOutside(ref, handleClickOutside);
 
   const [pending, startTransition] = useTransition();
-  const usr = useSession();
+  // const usr = useSession();
 
   async function handleSubmit() {
-    const id = usr.data?.user.id ? usr.data?.user.id : "";
+    // const id = usr.data?.user.id ? usr.data?.user.id : "";
     startTransition(async () => {
       // const { success, message } = await createChatFromId({ userId });
-
-      if (id) {
-        await createChat({
-          first: id,
-          second: userId,
-        });
-      }
+      // if (id) {
+      await createChat({
+        first: id?._id!,
+        second: userId as Id<"users">,
+      }).catch(() => console.log("error to create Chat!!!"));
+      // }
       // if (success) {
       //   queryClient.invalidateQueries({ queryKey: ["userList"] });
       //   setOpenChatCreate(false);

@@ -6,12 +6,29 @@ import { useGlobalContext } from "@/context/globalContext";
 import classNames from "classnames";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { User } from "./message.list";
+import { Id } from "@/convex/_generated/dataModel";
+
+export type otherUser =
+  | {
+      _id: Id<"users">;
+      _creationTime: number;
+      name?: string | undefined;
+      email?: string | undefined;
+      phone?: string | undefined;
+      image?: string | undefined;
+      emailVerificationTime?: number | undefined;
+      phoneVerificationTime?: number | undefined;
+      isAnonymous?: boolean | undefined;
+    }
+  | null
+  | undefined;
 
 export default function ChatHeader({
   other,
   className,
 }: {
-  other?: user | undefined;
+  other?: otherUser;
   className?: string;
 }) {
   const { mobileMenue, setMobileMenue, chatIdActive } = useGlobalContext();
@@ -31,12 +48,14 @@ export default function ChatHeader({
             {param?.conversationId && (
               <div className="w-full flex-1 flex items-center  ">
                 <div className="mr-[14px] flex relative size-[40px] cursor-pointer items-center justify-center rounded-full border-y border-[#e5eaec]  transition-all duration-300  ">
-                  <Image
-                    alt="other"
-                    src={other?.image!}
-                    className="size-full rounded-full shrink-0 "
-                    fill
-                  />
+                  {other?.image && (
+                    <Image
+                      alt="other"
+                      src={other.image}
+                      className="size-full rounded-full shrink-0 animate-in "
+                      fill
+                    />
+                  )}
                   {/* <div
             className={classNames(
               " size-3 rounded-full absolute top-[30px] right-0   ",
@@ -47,11 +66,9 @@ export default function ChatHeader({
 
                 <div className="flex flex-col  text-left ">
                   <h2 className=" text-[20px] font-bold leading-[24px] text-[#0f1419]">
-                    {chatIdActive?.name || other?.name}
+                    {other?.name}
                   </h2>
-                  <h2 className=" text-[14px] text-[#0f1419]">
-                    {chatIdActive?.name || other?.name}
-                  </h2>
+                  <h2 className=" text-[14px] text-[#0f1419]">{other?.name}</h2>
                 </div>
               </div>
             )}

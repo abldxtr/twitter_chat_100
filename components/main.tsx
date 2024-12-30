@@ -1,48 +1,23 @@
-import { auth } from "@/auth";
 import Chat_text from "./chat.text";
-import db from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { api } from "@/convex/_generated/api";
-import { preloadQuery } from "convex/nextjs";
-import { Id } from "@/convex/_generated/dataModel";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
 import ChatHeader from "./chat-header";
+import {
+  convexAuthNextjsToken,
+  isAuthenticatedNextjs,
+} from "@convex-dev/auth/nextjs/server";
 
 export default async function Main({ param }: { param: string }) {
-  const current = await auth();
-  if (!current || !current.user || !current.user.id) {
-    redirect("/login");
-  }
-
-  const userId = current?.user.id;
-
-  // const chatDb = await db.chat.findFirst({
-  //   where: {
-  //     id: param,
-  //   },
-  //   select: {
-  //     initiator: true,
-  //     participant: true,
-  //   },
-  // });
-
-  // const other =
-  //   userId === chatDb?.initiator.id ? chatDb.participant : chatDb?.initiator;
-  // const currentUser =
-  //   userId === chatDb?.initiator.id ? chatDb.initiator : chatDb?.participant;
+  const token = await convexAuthNextjsToken();
+  const user = await fetchQuery(api.user.getUser, {}, { token });
+  const chatList = await fetchQuery(
+    api.chat.chatList,
+    { id: user?._id! },
+    { token }
+  );
+  // }
 
   if (param) {
-    const preloadedMessages = await preloadQuery(
-      api.message.messages,
-      { chatId: param }
-      // پاس دادن headers به preloadQuery
-    );
-
-    const preloadedChat = await preloadQuery(
-      api.chat.getChat,
-      { id: param as Id<"chats"> }
-      // پاس دادن headers به preloadQuery
-    );
-
     return (
       <div
         className=" overflow-auto flex flex-1 h-full 
@@ -50,17 +25,12 @@ export default async function Main({ param }: { param: string }) {
       
       "
       >
-        {/* <Chat_text
-          param={param}
-          first={currentUser}
-          second={other}
-          other={other}
-        /> */}
-
         <Chat_text
           param={param}
+          chatlist={chatList}
+          user={user}
           // preloadedMessages={preloadedMessages}
-          preloadedChat={preloadedChat}
+          // preloadedChat={preloadedChat}
         />
       </div>
     );
@@ -72,12 +42,6 @@ export default async function Main({ param }: { param: string }) {
       
       "
       >
-        {/* <Chat_text
-          param={param}
-          first={currentUser}
-          second={other}
-          other={other}
-        /> */}
         <section
           className="w-full flex min-w-0 isolate h-dvh realtive
         overflow-hidden max-w-[920px]  border-r-[1px] border-[#eff3f4] border-l-[1px] lg:border-l-0 

@@ -1,22 +1,39 @@
-import NextAuth from "next-auth";
-import { NextRequest } from "next/server";
+import {
+  convexAuthNextjsMiddleware,
+  createRouteMatcher,
+  nextjsMiddlewareRedirect,
+} from "@convex-dev/auth/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { auth } from "@/auth";
-import type { NextAuthConfig } from "next-auth";
-export { auth as middleware } from "@/auth";
+const isPublicPage = createRouteMatcher(["/login", "/register"]);
 
-export default auth((req) => {
-  const { nextUrl } = req;
+export default convexAuthNextjsMiddleware(
+  async (request, { convexAuth }) => {
+    const isAuth = await convexAuth.isAuthenticated();
+    console.log({ isAuth });
+    const isPublic = isPublicPage(request);
 
-  const isAuthenticated = !!req.auth;
-  // const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
+    console.log({ isPublic });
+    if (isPublic && !isAuth) {
+      return NextResponse.next();
+    }
 
-  // if (isPublicRoute && isAuthenticated)
-  //  return Response.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
+    if (!isPublic && !isAuth) {
+      // return NextResponse.next();
+      return nextjsMiddlewareRedirect(request, "/login");
+    }
 
-  if (!isAuthenticated) return Response.redirect(new URL("/login", nextUrl));
-});
+    if (isPublic && isAuth) {
+      return nextjsMiddlewareRedirect(request, "/");
+    }
+  },
+  {
+    verbose: true,
+  }
+);
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  // The following matcher runs middleware on all routes
+  // except static assets.
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

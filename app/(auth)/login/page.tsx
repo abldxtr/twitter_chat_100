@@ -20,12 +20,15 @@ import { LoginSchema } from "@/index";
 // import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTransition } from "react";
-import { login } from "@/lib/actions";
+// import { login } from "@/lib/actions";
 import Link from "next/link";
+import { useAuthActions } from "@convex-dev/auth/react";
+
 // import { Icons } from "@/components/Icons";
 
 export default function SignIn() {
   const router = useRouter();
+  const { signIn } = useAuthActions();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -38,16 +41,26 @@ export default function SignIn() {
 
   function onSubmit(data: z.infer<typeof LoginSchema>) {
     startTransition(async () => {
-      const res = await login(data);
-      if (res.success) {
-        // setError(error);
-        router.push("/");
-      } else {
-        // toast({
-        //   description: res.message,
-        //   variant: "destructive",
-        // });
-      }
+      // const res = await login(data);
+      void signIn("password", {
+        email: data.email,
+        password: data.password,
+        flow: "signIn",
+      }).catch(() => {
+        // setError("Invalid email or password");
+        alert("error");
+      });
+      router.push("/");
+
+      // if (res.success) {
+      //   // setError(error);
+      //   router.push("/");
+      // } else {
+      //   // toast({
+      //   //   description: res.message,
+      //   //   variant: "destructive",
+      //   // });
+      // }
     });
   }
 

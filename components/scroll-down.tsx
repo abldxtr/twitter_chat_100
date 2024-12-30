@@ -312,7 +312,11 @@ export function TypingLeft({ message }: { message: string }) {
   return (
     // <AnimatePresence>
     <motion.div
-      className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 "
+      // className="  pb-[5px]  p-2 flex   items-center w-full group gap-2 "
+      className={cn(
+        " absolute md:bottom-2 md:left-10 bottom-2 left-8 flex items-center z-[10] shrink-0       ",
+        "cursor-pointer transiton-all duration-300  "
+      )}
       // initial={{ y: 5, opacity: 0, height: 0 }}
       // animate={{ y: 0, opacity: 1, height: "auto" }}
       // exit={{ opacity: 0, height: 0, transition: { duration: 0.5 } }}
@@ -325,7 +329,7 @@ export function TypingLeft({ message }: { message: string }) {
           <div className=" flex cursor-pointer flex-col text-[#0f1419] bg-gray-300 rounded-bl-sm rounded-2xl py-[12px] px-[16px] text-right leading-[20px] text-[15px] transition-all duration-300    ">
             <span
               className={cn(
-                " break-all  "
+                "  shrink-0  "
                 // direction === "rtl" ? "rtlDir text-right " : "text-left"
               )}
             >
@@ -353,59 +357,11 @@ export function ScrollDown({
 }: ScrollDownProps) {
   const { setUnreadCount, unreadMessages, final, setFinal } =
     useGlobalContext();
-  const queryClient = useQueryClient();
-
-  const router = useRouter();
 
   const unreadCount =
     final.find((chat) => Object.keys(chat)[0] === chatId)?.[chatId]?.length ??
     0;
 
-  // const updateAllMutation = useMutation({
-  //   mutationFn: async (chatId: string) => {
-  //     const response = await fetch("/api/messages/update-all-status", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ chatId }),
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error("Failed to update message status");
-  //     }
-  //     return response.json();
-  //   },
-  //   onMutate: () => {
-  //     // final.find((chat) => Object.keys(chat)[0] === chatId)?
-  //     setFinal((prevFinal) =>
-  //       prevFinal
-  //         .map((chatObj) => {
-  //           if (Object.keys(chatObj)[0] === chatId) {
-  //             const messages = chatObj[chatId].filter((msg) => msg.id === "");
-  //             return { [chatId]: messages };
-  //           }
-  //           return chatObj;
-  //         })
-  //         .filter((chatObj) => Object.values(chatObj)[0].length > 0)
-  //     );
-  //   },
-  //   onSuccess: () => {
-  //     startTransition(async () => {
-  //       queryClient.invalidateQueries({ queryKey: [queryKey] });
-  //       router.refresh();
-  //     });
-
-  //     // queryClient.invalidateQueries({ queryKey: ["unreadCount", chatId] });
-  //   },
-  //   onError: (error) => {
-  //     console.error("Error updating all message status:", error);
-  //   },
-  // });
-
-  // const handleClick = () => {
-  //   updateAllMutation.mutate(chatId);
-  //   func();
-  // };
   return (
     <>
       <div
@@ -419,12 +375,9 @@ export function ScrollDown({
         <div
           className={cn(
             " absolute -top-5 right-3 flex items-center justify-center bg-blue-400 text-white font-semibold rounded-full size-8 "
-            // optimisticUnreadCount === 0 && "hidden pointer-events-none "
           )}
         >
           {unreadCount}
-          {/* {unreadMessages.length} */}
-          {/* {optimisticUnreadCount} */}
         </div>
 
         <svg
